@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  
+  <!-- Blog Main Page -->
+  <url>
+    <loc>https://mytuta.org/blog</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Featured Article -->
+  <url>
+    <loc>https://mytuta.org/blog/5-proven-study-techniques</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://mytuta.org/images/blog/study-techniques.jpg</image:loc>
+      <image:title>5 Proven Study Techniques That Actually Work</image:title>
+      <image:caption>Discover evidence-based study methods for better learning</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Study Tips Category -->
+  <url>
+    <loc>https://mytuta.org/blog/mastering-flashcards</loc>
+    <lastmod>2025-01-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://mytuta.org/images/blog/flashcards.jpg</image:loc>
+      <image:title>Mastering Flashcards: A Complete Guide</image:title>
+      <image:caption>Everything you need to know about effective flashcard use</image:caption>
+    </image:image>
+  </url>
+
+  <!-- For Teachers Category -->
+  <url>
+    <loc>https://mytuta.org/blog/engaging-lesson-plans</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://mytuta.org/images/blog/lesson-planning.jpg</image:loc>
+      <image:title>How to Create Engaging Lesson Plans in 10 Minutes</image:title>
+      <image:caption>AI-powered lesson planning for teachers</image:caption>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://mytuta.org/blog/differentiation-made-easy</loc>
+    <lastmod>2025-01-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://mytuta.org/images/blog/differentiation.jpg</image:loc>
+      <image:title>Differentiation Made Easy with AI</image:title>
+      <image:caption>AI-powered differentiated instruction for teachers</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Student Success Category -->
+  <url>
+    <loc>https://mytuta.org/blog/ama-success-story</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://mytuta.org/images/blog/success-story.jpg</image:loc>
+      <image:title>From 45% to 87%: How Ama Transformed Her Study Habits</image:title>
+      <image:caption>Real student success story with mytuta AI</image:caption>
+    </image:image>
+  </url>
+
+  <!-- AI & Education Category -->
+  <url>
+    <loc>https://mytuta.org/blog/ai-education-ghana</loc>
+    <lastmod>2025-01-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://mytuta.org/images/blog/ai-education.jpg</image:loc>
+      <image:title>The Future of Learning: AI in Ghanaian Classrooms</image:title>
+      <image:caption>Exploring AI's impact on education in Ghana</image:caption>
+    </image:image>
+  </url>
+
+</urlset>

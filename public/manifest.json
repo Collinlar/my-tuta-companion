@@ -1,0 +1,80 @@
+{
+  "name": "mytuta - AI Study Companion",
+  "short_name": "mytuta",
+  "description": "AI-powered study companion for Ghanaian students and teachers. Create revision plans, flashcards, and quizzes in seconds.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#14b8a6",
+  "orientation": "portrait-primary",
+  "categories": ["education", "productivity", "lifestyle"],
+  "lang": "en-GH",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot1.png",
+      "type": "image/png",
+      "sizes": "1280x720",
+      "label": "mytuta AI Dashboard - Create revision plans and study tools"
+    },
+    {
+      "src": "/screenshot2.png",
+      "type": "image/png",
+      "sizes": "1280x720",
+      "label": "Interactive flashcards and quizzes for effective studying"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Create Revision Plan",
+      "short_name": "Revision",
+      "description": "Create a new revision plan",
+      "url": "/dashboard?view=notes",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Take Quiz",
+      "short_name": "Quiz",
+      "description": "Start a practice quiz",
+      "url": "/dashboard?view=flashcards",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
+

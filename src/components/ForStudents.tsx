@@ -1,0 +1,156 @@
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { 
+  BookOpen, 
+  Brain, 
+  Trophy, 
+  MessageCircle, 
+  Target,
+  Calendar,
+  Users,
+  Zap
+} from "lucide-react";
+
+export const ForStudents = () => {
+  const features = [
+    {
+      icon: Target,
+      title: "Personalized revision plan",
+      description: "AI creates custom study schedules based on your learning style and exam dates"
+    },
+    {
+      icon: BookOpen,
+      title: "Flashcards + quizzes",
+      description: "Interactive flashcards and adaptive quizzes that adjust to your performance"
+    },
+    {
+      icon: Users,
+      title: "Contests with friends",
+      description: "Challenge classmates and make learning fun with competitive study games"
+    },
+    {
+      icon: MessageCircle,
+      title: "AI Buddy support",
+      description: "Get instant help with tough questions from your personal AI study companion"
+    }
+  ];
+
+  return (
+    <section className="py-20 bg-gradient-to-br from-teal-50 to-blue-50 relative overflow-hidden">
+      {/* Subtle background elements */}
+      <div className="absolute top-0 left-0 w-72 h-72 bg-teal-100/20 rounded-full blur-3xl animate-pulse-slow" />
+      <div className="absolute bottom-0 right-0 w-72 h-72 bg-blue-100/30 rounded-full blur-3xl animate-pulse-slow-delayed" />
+      <div className="container mx-auto px-4">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Left Column - Content */}
+          <div>
+            <div className="mb-8">
+              <span className="inline-flex items-center gap-2 bg-teal-100 text-teal-700 px-4 py-2 rounded-full text-sm font-medium border border-teal-200">
+                <Trophy className="w-4 h-4" />
+                For Students
+              </span>
+            </div>
+            
+            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
+              Ace your exams with
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">AI-guided learning</span>
+            </h2>
+            
+            <p className="text-xl text-slate-600 mb-8">
+              Transform your study routine with personalized AI tools designed 
+              specifically for Ghanaian students preparing for BECE and WASSCE exams.
+            </p>
+            
+            <div className="grid gap-6 mb-8">
+              {features.map((feature, index) => (
+                <div key={index} className="flex items-start gap-4 group hover:-translate-x-2 transition-all duration-300">
+                  <div className="w-12 h-12 bg-gradient-to-br from-teal-600 to-blue-700 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300">
+                    <feature.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                      {feature.title}
+                    </h3>
+                    <p className="text-slate-600">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              onClick={() => window.location.href = '/onboarding?type=student'}
+            >
+              <Zap className="w-5 h-5 mr-2" />
+              Start Free
+            </Button>
+          </div>
+          
+          {/* Right Column - Visual */}
+          <div className="relative group">
+            <div className="absolute -inset-2 bg-gradient-to-r from-teal-400/10 to-blue-600/10 rounded-2xl blur-lg group-hover:blur-xl transition-all duration-500" />
+            <Card className="relative p-8 bg-white border border-slate-200 shadow-lg group-hover:shadow-xl transition-all duration-300">
+              <div className="space-y-6">
+                {/* Mock dashboard elements */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-slate-900">Your Progress</h3>
+                  <span className="text-sm text-slate-600">85% Complete</span>
+                </div>
+                
+                <div className="w-full bg-slate-200 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-teal-600 to-blue-700 h-2 rounded-full w-[85%]"></div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="p-4 bg-teal-50 border border-teal-200 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                    <Calendar className="w-8 h-8 text-teal-600 mb-2" />
+                    <p className="text-sm text-slate-600">Next Study Session</p>
+                    <p className="font-semibold text-slate-900">Math - 2:30 PM</p>
+                  </Card>
+                  
+                  <Card className="p-4 bg-slate-50 border border-slate-200 hover:shadow-md transition-all duration-300 hover:-translate-y-1 delay-100">
+                    <Trophy className="w-8 h-8 text-slate-600 mb-2" />
+                    <p className="text-sm text-slate-600">Current Streak</p>
+                    <p className="font-semibold text-slate-900">12 Days</p>
+                  </Card>
+                </div>
+                
+                <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 hover:shadow-md transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-3">
+                    <MessageCircle className="w-5 h-5 text-teal-600" />
+                    <span className="text-sm font-medium text-teal-700">AI Buddy</span>
+                  </div>
+                  <p className="text-sm text-slate-600">
+                    "Great job on today's chemistry quiz! Ready to tackle some physics problems?"
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+      
+      {/* Custom animations */}
+      <style>{`
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 0.4; }
+        }
+        @keyframes pulse-slow-delayed {
+          0%, 100% { opacity: 0.1; }
+          50% { opacity: 0.3; }
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 4s ease-in-out infinite;
+        }
+        .animate-pulse-slow-delayed {
+          animation: pulse-slow-delayed 4s ease-in-out infinite 2s;
+        }
+      `}</style>
+    </section>
+  );
+};
