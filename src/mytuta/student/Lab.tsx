@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, filter, seg } from "../theme";
 import { Loading, EmptyState } from "../ui";
+import { useLayout, pageBox } from "../layout";
 import type { LabActivityVM } from "../data/queries";
 import { useLabActivities } from "../data/queries";
 import { useRecordLabObservation } from "../data/mutations";
@@ -17,6 +18,7 @@ const facets: { label: string; get: (a: LabActivityVM) => string }[] = [
 ];
 
 export default function Lab() {
+  const L = useLayout();
   const nav = useNavigate();
   const { data: activities, isLoading } = useLabActivities();
   const [view, setView] = useState<View>("list");
@@ -49,9 +51,9 @@ export default function Lab() {
 
   if (view === "list") {
     return (
-      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+      <div style={pageBox(L.pad, 1080)}>
         <p style={{ fontSize: 14.5, color: c.muted, marginBottom: 18 }}>Apply what you learn through practical activities from the STEM catalog. Filter by what fits your class.</p>
-        <div style={{ display: "inline-flex", background: "#efe9dc", borderRadius: 10, padding: 3, marginBottom: 14 }}>
+        <div style={{ display: "inline-flex", background: "#efe9dc", borderRadius: 10, padding: 3, marginBottom: 14, flexWrap: "wrap" }}>
           {facets.map((f, i) => (
             <button key={f.label} type="button" onClick={() => { setFacetIdx(i); setValue("All"); setSel(0); }} style={seg(facetIdx === i)}>{f.label}</button>
           ))}
@@ -64,7 +66,7 @@ export default function Lab() {
         {list.length === 0 ? (
           <EmptyState title="Nothing in this filter" body={`No catalog activities match “${value}” yet. Try All or another facet.`} />
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 14 }}>
             {list.map((a, i) => (
               <button key={a.id} type="button" onClick={() => { setSel(i); setStep(0); setView("detail"); }} style={{ textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}>
                 <div style={{ height: 6, background: a.color }} />
@@ -90,7 +92,7 @@ export default function Lab() {
 
   if (view === "detail") {
     return (
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+      <div style={pageBox(L.pad, 720)}>
         <button onClick={() => setView("list")} style={backBtn}>← All activities</button>
         <span style={{ display: "inline-block", fontSize: 11, fontWeight: 600, color: current.catFg, background: current.catBg, padding: "4px 11px", borderRadius: 20, marginBottom: 12 }}>{current.cat}</span>
         <h1 style={{ fontSize: 27, lineHeight: 1.15, marginBottom: 8 }}>{current.title}</h1>
@@ -134,7 +136,7 @@ export default function Lab() {
     const stepCur = current.steps[Math.min(step, current.steps.length - 1)];
     const last = step + 1 >= current.steps.length;
     return (
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+      <div style={pageBox(L.pad, 680)}>
         <button onClick={() => setView("detail")} style={backBtn}>← {current.title}</button>
         <div style={{ display: "flex", gap: 7, marginBottom: 24 }}>
           {current.steps.map((st, i) => (
@@ -179,7 +181,7 @@ export default function Lab() {
 
   // done
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.padTall, 640)}>
       <div style={{ fontSize: 12.5, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Activity complete</div>
       <h1 style={{ fontSize: 27, lineHeight: 1.15, marginBottom: 8 }}>{current.title}</h1>
       <p style={{ fontSize: 15, color: c.muted, marginBottom: 24 }}>Nicely done. You've turned a concept into something you did with your own hands.</p>

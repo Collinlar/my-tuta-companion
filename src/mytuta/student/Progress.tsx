@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { c, font, level } from "../theme";
 import { Bar, Loading } from "../ui";
+import { useLayout, pageBox } from "../layout";
 import { useLearnerStats, useMasteryMap, useMasteryPaths, useDueRecallCount } from "../data/queries";
 import LearningProfile from "../intelligence/LearningProfile";
 
 export default function Progress() {
+  const L = useLayout();
   const nav = useNavigate();
   const { data: stats, isLoading } = useLearnerStats();
   const { data: map } = useMasteryMap();
@@ -27,11 +29,11 @@ export default function Progress() {
     : (paths || []).map((p) => ({ concept: p.concept, subject: p.subject, level: p.level }));
 
   return (
-    <div style={{ maxWidth: 1020, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.pad, 1020)}>
       <LearningProfile />
 
       <div style={sec}>Your numbers</div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 28 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.gStats, gap: 12, marginBottom: 28 }}>
         {progressStats.map((s) => (
           <div key={s.label} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: 17 }}>
             <div style={{ fontFamily: font.display, fontSize: 28, lineHeight: 1, color: c.green }}>{s.value}</div>
@@ -39,7 +41,7 @@ export default function Progress() {
           </div>
         ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1.15fr .85fr", gap: 22 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.gSide, gap: 22 }}>
         <div>
           <div style={sec}>Mastery map</div>
           <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 20, marginBottom: 22 }}>

@@ -318,3 +318,36 @@ All colors MUST be HSL.
     scroll-behavior: auto !important;
   }
 }
+
+/* Mobile baseline: stop horizontal page scroll and keep inputs from zooming on iOS. */
+html, body, #root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+@media (max-width: 767px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  input, select, textarea, button {
+    font-size: 16px;
+  }
+
+  .mytuta-main {
+    overscroll-behavior-y: contain;
+  }
+
+  /* Soften oversized desktop padding when pages still use 40px side padding. */
+  .mytuta-main > div[style*="padding: 34px 40px"],
+  .mytuta-main > div[style*="padding: 44px 40px"],
+  .mytuta-main > div[style*="padding: 38px 40px"],
+  .mytuta-main > div[style*="padding: 46px 40px"],
+  .mytuta-main > div[style*="padding: 40px 40px"] {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-bottom: 96px !important;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+  }
+}

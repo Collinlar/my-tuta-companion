@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { c, font, level, chip, seg } from "../theme";
 import { Bar, Loading, EmptyState } from "../ui";
+import { useLayout, pageBox } from "../layout";
 import { MathText } from "../MathText";
 import { useToast } from "@/hooks/use-toast";
 import { beginOptions, recallRatings, supportLevels } from "../data/constants";
@@ -352,11 +353,12 @@ function Begin({
   onOption: (key: string) => void;
   onOpenPath: (p: PathVM) => void;
 }) {
+  const L = useLayout();
   return (
-    <div style={{ maxWidth: 820, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
-      <h1 style={{ fontSize: 28, marginBottom: 6 }}>Start a mastery path</h1>
+    <div style={pageBox(L.padTall, 820)}>
+      <h1 style={{ fontSize: L.mobile ? 24 : 28, marginBottom: 6 }}>Start a mastery path</h1>
       <p style={{ fontSize: 15, color: c.muted, marginBottom: 30 }}>Type a topic, browse the catalog, or jump in from a question. mytuta builds a path from a quick check to proven mastery.</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 28 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 12, marginBottom: 28 }}>
         {beginOptions.map((b) => (
           <button
             key={b.key}
@@ -412,6 +414,7 @@ function EnterConcept({
   const [attachment, setAttachment] = useState<UploadedIntakeFile | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const uploadFile = useUploadIntakeFile();
+  const L = useLayout();
   const titles: Record<EnterMode, { h: string; p: string; ph: string }> = {
     enter: { h: "What do you want to master?", p: "Type a concept. We match it to the STEM catalog.", ph: "e.g. Density, Fractions, Chemical bonding" },
     upload: { h: "What do your notes cover?", p: "Attach the file if you like, then name the topic so we can match it and build your path.", ph: "e.g. Linear equations" },
@@ -440,9 +443,9 @@ function EnterConcept({
   };
 
   return (
-    <div style={{ maxWidth: 620, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.padTall, 620)}>
       <button type="button" onClick={onBack} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 18 }}>← Back</button>
-      <h1 style={{ fontSize: 28, marginBottom: 8 }}>{copy.h}</h1>
+      <h1 style={{ fontSize: L.mobile ? 24 : 28, marginBottom: 8 }}>{copy.h}</h1>
       <p style={{ fontSize: 15, color: c.muted, marginBottom: 22 }}>{copy.p}</p>
       {mode !== "enter" && (
         <div style={{ marginBottom: 18 }}>
@@ -520,10 +523,11 @@ function PickConcept({
   onBack: () => void;
   onPick: (slug: string) => void;
 }) {
+  const L = useLayout();
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.padTall, 720)}>
       <button type="button" onClick={onBack} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 18 }}>← Back</button>
-      <h1 style={{ fontSize: 28, marginBottom: 8 }}>Choose a concept</h1>
+      <h1 style={{ fontSize: L.mobile ? 24 : 28, marginBottom: 8 }}>Choose a concept</h1>
       <p style={{ fontSize: 15, color: c.muted, marginBottom: 24 }}>These come from the live STEM catalog in your database.</p>
       {catalog.length === 0 ? (
         <div style={{ fontSize: 14, color: c.muted }}>No concepts seeded yet. Apply the content migration first.</div>
@@ -548,8 +552,9 @@ function Confirm({
   name: string; subject: string; description: string; related: string[];
   loading: boolean; back: () => void; next: () => void;
 }) {
+  const L = useLayout();
   return (
-    <div style={{ maxWidth: 660, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.padTall, 660)}>
       <div style={{ fontSize: 12.5, color: c.faint, marginBottom: 22 }}>Learn <span style={{ color: "#cbc3b2" }}>/</span> New path</div>
       <div style={{ fontSize: 12.5, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Concept identified</div>
       <h1 style={{ fontSize: 30, marginBottom: 8 }}>{name}</h1>
@@ -579,6 +584,7 @@ function Diagnostic({
   subject: string;
   onDone: (result: DiagnosticResult) => void;
 }) {
+  const L = useLayout();
   const [questions, setQuestions] = useState<DiagnosticQuestion[]>([]);
   const [answers, setAnswers] = useState<number[]>([]);
   const [idx, setIdx] = useState(0);
@@ -628,7 +634,7 @@ function Diagnostic({
   if (loading) return <Loading label={`Writing a quick check for ${conceptName}…`} />;
   if (error && questions.length === 0) {
     return (
-      <div style={{ maxWidth: 620, margin: "0 auto", padding: "44px 40px" }}>
+      <div style={{ maxWidth: 620, margin: "0 auto", padding: L.pad }}>
         <EmptyState title="Check did not load" body={error} />
         <button
           type="button"
@@ -653,7 +659,7 @@ function Diagnostic({
   const pct = ((idx + (picked !== null ? 0.4 : 0)) / total) * 100;
 
   return (
-    <div style={{ maxWidth: 620, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.padTall, 620)}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
         <span style={{ fontSize: 12.5, fontWeight: 600, color: c.faint, letterSpacing: ".05em", textTransform: "uppercase" }}>Quick check</span>
         <span style={{ flex: 1, height: 6, background: "#eae3d4", borderRadius: 4, overflow: "hidden" }}>
@@ -733,16 +739,17 @@ function Result({
   error: string | null;
   onNext: () => void | Promise<void>;
 }) {
+  const L = useLayout();
   const known = result?.known?.length ? result.known : ["You completed the check"];
   const gaps = result?.gaps?.length ? result.gaps : [`Core ideas in ${conceptName}`];
   const summary = result?.summary || "We will start your path at the right place and skip what you already know.";
 
   return (
-    <div style={{ maxWidth: 660, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.padTall, 660)}>
       <div style={{ fontSize: 12.5, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Check complete</div>
-      <h1 style={{ fontSize: 28, marginBottom: 8 }}>Here is where you stand on {conceptName}</h1>
+      <h1 style={{ fontSize: L.mobile ? 24 : 28, marginBottom: 8 }}>Here is where you stand on {conceptName}</h1>
       <p style={{ fontSize: 15, color: c.muted, marginBottom: 26 }}>{summary}</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 26 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.g2, gap: 14, marginBottom: 26 }}>
         <div style={{ background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, borderRadius: 15, padding: 20 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: c.greenDark, marginBottom: 12 }}>You already understand</div>
           {known.map((k) => (
@@ -779,10 +786,11 @@ function Preview({
   onRetry: () => void;
   onStart: () => void;
 }) {
+  const L = useLayout();
   if (loading) return <Loading label={`Building your ${conceptName} mastery path…`} />;
   if (stages.length === 0) {
     return (
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "44px 40px" }}>
+      <div style={{ maxWidth: 680, margin: "0 auto", padding: L.pad }}>
         <EmptyState title="Path not ready yet" body={error || "We could not build stages for this concept. Try again."} />
         <button type="button" onClick={onRetry} style={{ marginTop: 16, width: "100%", background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 15, padding: 14, borderRadius: 12, cursor: "pointer" }}>
           Build path again
@@ -791,8 +799,8 @@ function Preview({
     );
   }
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
-      <h1 style={{ fontSize: 28, marginBottom: 8 }}>Your path to mastering {conceptName}</h1>
+    <div style={pageBox(L.padTall, 680)}>
+      <h1 style={{ fontSize: L.mobile ? 24 : 28, marginBottom: 8 }}>Your path to mastering {conceptName}</h1>
       <p style={{ fontSize: 15, color: c.muted, marginBottom: 28 }}>{stages.length} stages, shaped by your check. Move at your own pace.</p>
       <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 12, marginBottom: 24 }}>
         {stages.map((s, i) => (
@@ -822,32 +830,63 @@ function Workspace({
   onSaveMastery: (r: { knowledge: number; application: number; analysis: number; overall: number; level: string; note: string }) => Promise<void>;
   onBack: () => void;
 }) {
+  const L = useLayout();
   if (loading) return <Loading label="Opening your workspace…" />;
   if (stages.length === 0) return <EmptyState title="Content is loading" body="This concept's stages will appear here once available." actionLabel="Back to paths" onAction={onBack} />;
   const cur = stages[Math.min(stage, stages.length - 1)];
   const content = cur.content as Record<string, any>;
 
   return (
-    <div style={{ display: "flex", height: "100%", animation: "fadein .3s ease" }}>
-      <div style={{ width: 230, flex: "none", borderRight: `1px solid ${c.border2}`, background: c.surface, padding: "22px 16px", overflowY: "auto" }}>
-        <button type="button" onClick={onBack} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 16 }}>← All paths</button>
-        <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 2 }}>{conceptName}</div>
-        <div style={{ fontSize: 12, color: c.faint, marginBottom: 18 }}>{subject}</div>
-        {stages.map((s, i) => {
-          const done = i < stage, isCur = i === stage;
-          return (
-            <button key={s.ord} type="button" onClick={() => setStage(i)} style={{ width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 11, background: isCur ? c.greenTint : "transparent", border: `1px solid ${isCur ? c.greenTintBorder : "transparent"}`, borderRadius: 11, padding: "9px 10px", marginBottom: 3, cursor: "pointer" }}>
-              <span style={{ width: 24, height: 24, flex: "none", borderRadius: "50%", background: done ? c.green : isCur ? c.greenTint : "#f0ece1", color: done ? "#fff" : isCur ? c.green : c.placeholder, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>{done ? "✓" : i + 1}</span>
-              <span style={{ fontSize: 13, fontWeight: isCur ? 700 : 500 }}>{s.name}</span>
-            </button>
-          );
-        })}
-      </div>
+    <div style={{ display: "flex", flexDirection: L.mobile ? "column" : "row", height: "100%", animation: "fadein .3s ease" }}>
+      {!L.mobile && (
+        <div style={{ width: 230, flex: "none", borderRight: `1px solid ${c.border2}`, background: c.surface, padding: "22px 16px", overflowY: "auto" }}>
+          <button type="button" onClick={onBack} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 16 }}>← All paths</button>
+          <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 2 }}>{conceptName}</div>
+          <div style={{ fontSize: 12, color: c.faint, marginBottom: 18 }}>{subject}</div>
+          {stages.map((s, i) => {
+            const done = i < stage, isCur = i === stage;
+            return (
+              <button key={s.ord} type="button" onClick={() => setStage(i)} style={{ width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 11, background: isCur ? c.greenTint : "transparent", border: `1px solid ${isCur ? c.greenTintBorder : "transparent"}`, borderRadius: 11, padding: "9px 10px", marginBottom: 3, cursor: "pointer" }}>
+                <span style={{ width: 24, height: 24, flex: "none", borderRadius: "50%", background: done ? c.green : isCur ? c.greenTint : "#f0ece1", color: done ? "#fff" : isCur ? c.green : c.placeholder, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>{done ? "✓" : i + 1}</span>
+                <span style={{ fontSize: 13, fontWeight: isCur ? 700 : 500 }}>{s.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div style={{ flex: 1, overflowY: "auto", minWidth: 0 }}>
-        <div style={{ maxWidth: 680, margin: "0 auto", padding: "38px 40px 72px" }}>
+        {L.mobile && (
+          <div style={{ background: c.surface, borderBottom: `1px solid ${c.border2}`, padding: "12px 16px 10px" }}>
+            <button type="button" onClick={onBack} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 8 }}>← All paths</button>
+            <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 2 }}>{conceptName}</div>
+            <div style={{ fontSize: 12, color: c.faint, marginBottom: 10 }}>{subject}</div>
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 4 }}>
+              {stages.map((s, i) => {
+                const done = i < stage, isCur = i === stage;
+                return (
+                  <button
+                    key={s.ord}
+                    type="button"
+                    onClick={() => setStage(i)}
+                    style={{
+                      flex: "none", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 8,
+                      background: isCur ? c.greenTint : c.paper,
+                      border: `1px solid ${isCur ? c.greenTintBorder : c.border2}`,
+                      borderRadius: 20, padding: "8px 12px", cursor: "pointer",
+                    }}
+                  >
+                    <span style={{ width: 20, height: 20, flex: "none", borderRadius: "50%", background: done ? c.green : isCur ? c.greenTint : "#f0ece1", color: done ? "#fff" : isCur ? c.green : c.placeholder, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700 }}>{done ? "✓" : i + 1}</span>
+                    <span style={{ fontSize: 12.5, fontWeight: isCur ? 700 : 500, color: isCur ? c.greenDark : c.soft }}>{s.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        <div style={{ maxWidth: 680, margin: "0 auto", padding: L.mobile ? "24px 16px 96px" : "38px 40px 72px" }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>Stage {stage + 1} of {stages.length} · {cur.loopPhase}</div>
-          <h1 style={{ fontSize: 26, marginBottom: 18 }}>{cur.name}</h1>
+          <h1 style={{ fontSize: L.mobile ? 22 : 26, marginBottom: 18 }}>{cur.name}</h1>
 
           {cur.name === "Foundations" && <Foundations content={content} onNext={nextStage} />}
           {cur.name === "Understand" && <Understand content={content} conceptName={conceptName} subject={subject} explainMode={explainMode} setExplainMode={setExplainMode} onNext={nextStage} />}
@@ -1069,6 +1108,7 @@ function Recall({
   onRate: (label: string) => void;
   onNext: () => void;
 }) {
+  const L = useLayout();
   const cards = useMemo(() => {
     const list = (content.cards as { front: string; back: string }[]) || [];
     if (list.length) return list;
@@ -1132,7 +1172,7 @@ function Recall({
           {flipped ? "How well did you remember? Rate below." : "Tap to reveal the answer"}
         </div>
       </button>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 9, marginBottom: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.g4, gap: 9, marginBottom: 12 }}>
         {recallRatings.map((r) => (
           <button
             key={r.label}
@@ -1515,6 +1555,7 @@ function Mastery({
   pathId?: string;
   onSave: (r: { knowledge: number; application: number; analysis: number; overall: number; level: string; note: string }) => Promise<void>;
 }) {
+  const L = useLayout();
   const nav = useNavigate();
   const seeded = (content.questions as MasteryQuestion[]) || [];
   const [questions, setQuestions] = useState<MasteryQuestion[]>(seeded);
@@ -1639,10 +1680,10 @@ function Mastery({
         <p style={{ fontSize: 14.5, color: c.muted, marginBottom: 22 }}>
           Your result is a profile from this check plus your path work, not a mystery score.
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 12, marginBottom: 20 }}>
           {dims.map((d) => (
             <div key={d.name} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: "17px 19px" }}>
-              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 9 }}>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 9, flexWrap: "wrap", gap: 4 }}>
                 <span style={{ fontSize: 13.5, fontWeight: 600 }}>{d.name}</span>
                 <span style={{ fontSize: 12, fontWeight: 600, color: d.color }}>{d.score}/5 · {d.level}</span>
               </div>

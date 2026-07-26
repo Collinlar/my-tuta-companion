@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { c, font, chip } from "./theme";
 import { Loading } from "./ui";
+import { useLayout, pageBox } from "./layout";
 import { useToast } from "@/hooks/use-toast";
 import { useProfile } from "./data/queries";
 import { useUpdateProfile, useUploadAvatar } from "./data/mutations";
@@ -14,6 +15,7 @@ const teacherStageOptions = ["Lower secondary", "Upper secondary"];
 const teacherSubjectOptions = teacherSteps[0].options.filter((o) => !teacherStageOptions.includes(o));
 
 export default function Profile() {
+  const L = useLayout();
   const { toast } = useToast();
   const { data: profile, isLoading } = useProfile();
   const update = useUpdateProfile();
@@ -93,7 +95,7 @@ export default function Profile() {
   };
 
   return (
-    <div style={{ maxWidth: 700, margin: "0 auto", padding: "40px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.pad, 700)}>
       <div style={{ fontFamily: font.display, fontSize: 26, marginBottom: 4 }}>Your profile</div>
       <div style={{ color: c.muted, fontSize: 14.5, marginBottom: 22 }}>{profile.email} · {isTeacher ? "Teacher" : "Student"}</div>
 
@@ -111,7 +113,7 @@ export default function Profile() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.g2, gap: 14, marginBottom: 14 }}>
         <Field label="First name" value={firstName} onChange={setFirstName} placeholder="Ama" />
         <Field label="Last name" value={lastName} onChange={setLastName} placeholder="Owusu" />
       </div>
@@ -127,7 +129,7 @@ export default function Profile() {
         />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 22 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.g2, gap: 14, marginBottom: 22 }}>
         <Field label="School" value={school} onChange={setSchool} placeholder="Your school name" />
         {isTeacher ? (
           <Field label="Teaching experience" value={teachingExperience} onChange={setTeachingExperience} placeholder="e.g. 5 years" />

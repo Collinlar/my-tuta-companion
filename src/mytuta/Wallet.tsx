@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { c, font } from "./theme";
 import { Loading } from "./ui";
+import { useLayout, pageBox } from "./layout";
 import { useWalletSummary, useCreditTransactions } from "./data/queries";
 
 function daysUntil(iso: string | null): number | null {
@@ -13,6 +14,7 @@ function txnColor(amount: number): string {
 }
 
 export default function Wallet() {
+  const L = useLayout();
   const nav = useNavigate();
   const { data: wallet, isLoading } = useWalletSummary();
   const { data: txns } = useCreditTransactions();
@@ -28,7 +30,7 @@ export default function Wallet() {
   if (wallet.promo > 0) buckets.unshift({ label: "Promotional", value: wallet.promo });
 
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto", padding: "40px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.pad, 720)}>
       <div style={{ fontFamily: font.display, fontSize: 26, marginBottom: 4 }}>Your wallet</div>
       <div style={{ color: c.muted, fontSize: 14.5, marginBottom: 26 }}>Tuta Credits power AI creation, guided solving and premium experiences. Learning access stays free.</div>
 
@@ -39,7 +41,7 @@ export default function Wallet() {
         <button type="button" onClick={() => nav("/pricing")} style={{ marginTop: 18, background: "#fff", color: c.greenDark, border: "none", fontWeight: 700, fontSize: 14, padding: "11px 20px", borderRadius: 11, cursor: "pointer" }}>Buy credits</button>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${buckets.length},1fr)`, gap: 12, marginBottom: 30 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.mobile ? "1fr 1fr" : `repeat(${buckets.length},1fr)`, gap: 12, marginBottom: 30 }}>
         {buckets.map((b) => (
           <div key={b.label} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: "15px 16px" }}>
             <div style={{ fontFamily: font.display, fontSize: 22, color: c.green }}>{b.value}</div>

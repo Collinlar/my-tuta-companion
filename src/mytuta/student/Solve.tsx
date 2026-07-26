@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, font, chip } from "../theme";
+import { useLayout, pageBox } from "../layout";
 import { MathText } from "../MathText";
 import { helpModes, solveInputs, type HelpModeKind } from "../data/constants";
 import { generateSimilarQuestion } from "../data/ai";
@@ -48,6 +49,7 @@ const placeholders: Record<string, string> = {
 };
 
 export default function Solve() {
+  const L = useLayout();
   const nav = useNavigate();
   const { toast } = useToast();
   const uploadFile = useUploadIntakeFile();
@@ -441,9 +443,9 @@ Write 3 NEW questions that practise the same skill as the given one, with differ
 
   if (view === "input") {
     return (
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 16, marginBottom: 6 }}>
-          <h1 style={{ fontSize: 28, flex: 1 }}>Solve a problem</h1>
+      <div style={pageBox(L.padTall, 720)}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 16, marginBottom: 6, flexWrap: "wrap" }}>
+          <h1 style={{ fontSize: L.mobile ? 24 : 28, flex: 1, minWidth: 180 }}>Solve a problem</h1>
           <button type="button" onClick={() => setView("history")} style={{ flex: "none", marginTop: 6, background: c.surface, border: `1px solid ${c.border2}`, color: c.soft, fontWeight: 600, fontSize: 13, padding: "8px 14px", borderRadius: 10, cursor: "pointer" }}>Your Solve history</button>
         </div>
         <p style={{ fontSize: 15, color: c.muted, marginBottom: 22 }}>Bring your own question. mytuta coaches your reasoning instead of handing over the answer.</p>
@@ -501,7 +503,7 @@ Write 3 NEW questions that practise the same skill as the given one, with differ
           />
         </div>
         <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 11 }}>How should mytuta help?</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 22 }}>
+        <div style={{ display: "grid", gridTemplateColumns: L.g2, gap: 10, marginBottom: 22 }}>
           {helpModes.map((h, i) => (
             <button key={h.title} type="button" onClick={() => setHelpMode(i)} style={{ textAlign: "left", display: "flex", flexDirection: "column", gap: 2, background: helpMode === i ? c.greenTint : c.surface, border: `1px solid ${helpMode === i ? c.greenTintBorder : c.border2}`, borderRadius: 13, padding: "15px 16px", cursor: "pointer" }}>
               <span style={{ fontWeight: 600, fontSize: 14 }}>{h.title}</span>
@@ -533,7 +535,7 @@ Write 3 NEW questions that practise the same skill as the given one, with differ
     const done = steps.slice(0, step);
     const last = step + 1 >= steps.length;
     return (
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "36px 40px 72px", animation: "fadeup .3s ease" }}>
+      <div style={pageBox(L.pad, 720)}>
         <button type="button" onClick={() => { setView("input"); setStep(0); }} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 16 }}>← Change question</button>
         <div style={{ background: c.divider, borderRadius: 11, padding: "14px 16px", fontSize: 13.5, lineHeight: 1.55, color: c.body }}><MathText text={question} /></div>
         <div style={{ display: "flex", gap: 6, margin: "18px 0 24px" }}>
@@ -565,7 +567,7 @@ Write 3 NEW questions that practise the same skill as the given one, with differ
   if (view === "response" && response) {
     const heading = response.kind === "hint" ? "A hint" : response.kind === "concept" ? "The concept" : "Practice questions";
     return (
-      <div style={{ maxWidth: 660, margin: "0 auto", padding: "40px 40px 72px", animation: "fadeup .3s ease" }}>
+      <div style={pageBox(L.pad, 660)}>
         <button type="button" onClick={() => setView("input")} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 16 }}>← Change question</button>
         <div style={{ background: c.divider, borderRadius: 11, padding: "14px 16px", fontSize: 13.5, lineHeight: 1.55, color: c.body, marginBottom: 20 }}><MathText text={question} /></div>
         <div style={{ fontSize: 11, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 12 }}>{heading}</div>
@@ -610,9 +612,9 @@ Write 3 NEW questions that practise the same skill as the given one, with differ
   // solved
   const classes = myClasses || [];
   return (
-    <div style={{ maxWidth: 660, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.padTall, 660)}>
       <div style={{ fontSize: 12.5, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Solved together</div>
-      <h1 style={{ fontSize: 28, marginBottom: 8 }}><MathText text={finalAnswer} /></h1>
+      <h1 style={{ fontSize: L.mobile ? 24 : 28, marginBottom: 8 }}><MathText text={finalAnswer} /></h1>
       <p style={{ fontSize: 15, color: c.muted, marginBottom: 26 }}>You reached the answer one step at a time. That reasoning is what carries over to the next question.</p>
 
       <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 22, marginBottom: 22 }}>
@@ -705,6 +707,7 @@ function SolveHistoryView({
   onBack: () => void;
   onOpen: (session: SolveHistorySession) => void;
 }) {
+  const L = useLayout();
   const { data, isLoading } = useSolveHistory();
   const topics = data?.topics || [];
   const sessions = data?.sessions || [];
@@ -720,9 +723,9 @@ function SolveHistoryView({
     sessions.filter((s) => (s.topic || "General practice") === topic);
 
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 6 }}>
-        <h1 style={{ fontSize: 26, flex: 1 }}>Your Solve history</h1>
+    <div style={pageBox(L.padTall, 720)}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 6, flexWrap: "wrap" }}>
+        <h1 style={{ fontSize: L.mobile ? 22 : 26, flex: 1, minWidth: 160 }}>Your Solve history</h1>
         <button type="button" onClick={onBack} style={{ background: c.surface, border: `1px solid ${c.border2}`, color: c.soft, fontWeight: 600, fontSize: 13, padding: "8px 14px", borderRadius: 10, cursor: "pointer" }}>← Solve</button>
       </div>
       <p style={{ fontSize: 14.5, color: c.muted, marginBottom: 22 }}>

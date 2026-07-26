@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, filter } from "../theme";
 import { Loading, EmptyState } from "../ui";
+import { useLayout, pageBox } from "../layout";
 import { expFilters } from "../data/constants";
 import { useExperiences } from "../data/queries";
 
 export default function Experiences() {
+  const L = useLayout();
   const nav = useNavigate();
   const { data: experiences, isLoading } = useExperiences();
   const [filterIdx, setFilterIdx] = useState(0);
@@ -14,8 +16,8 @@ export default function Experiences() {
   const list = experiences || [];
 
   return (
-    <div style={{ maxWidth: 1120, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
+    <div style={pageBox(L.pad, 1120)}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
         <p style={{ fontSize: 14, color: c.muted }}>Complete STEM learning experiences you have created or drafted.</p>
         <button onClick={() => nav("/teacher/experiences/new")} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 10, cursor: "pointer" }}>＋ New experience</button>
       </div>
@@ -28,7 +30,7 @@ export default function Experiences() {
               <button key={f} onClick={() => setFilterIdx(i)} style={filter(filterIdx === i)}>{f}</button>
             ))}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 14 }}>
             {list.map((e) => (
               <button key={e.id} onClick={() => nav(`/teacher/experiences/${e.id}/edit`)} style={{ textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}>
                 <div style={{ height: 72, background: e.cover, display: "flex", alignItems: "flex-end", padding: "11px 14px" }}>

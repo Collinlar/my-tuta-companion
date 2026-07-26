@@ -145,7 +145,7 @@ const OnboardingSteps = () => {
       "Complete your first Mastery Check",
     ];
     return (
-      <div style={{ minHeight: "100vh", background: c.paper, display: "flex", alignItems: "center", justifyContent: "center", padding: 40, fontFamily: font.body, color: c.ink }}>
+      <div style={{ minHeight: "100dvh", background: c.paper, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 16px", fontFamily: font.body, color: c.ink }}>
         <div style={{ width: "100%", maxWidth: 560 }}>
           <div style={{ fontFamily: font.display, fontWeight: 700, fontSize: 20, marginBottom: 22 }}>mytuta<span style={{ color: c.green }}>.</span></div>
           <div style={{ background: c.surface, border: `1px solid ${c.border}`, borderRadius: 20, padding: "32px 30px" }}>
@@ -169,7 +169,7 @@ const OnboardingSteps = () => {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: c.paper, display: "flex", alignItems: "center", justifyContent: "center", padding: 40, fontFamily: font.body, color: c.ink }}>
+    <div style={{ minHeight: "100dvh", background: c.paper, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 16px", fontFamily: font.body, color: c.ink }}>
       <div style={{ width: "100%", maxWidth: 640 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 26 }}>
           <div style={{ fontFamily: font.display, fontWeight: 700, fontSize: 20 }}>mytuta<span style={{ color: c.green }}>.</span></div>
@@ -179,9 +179,9 @@ const OnboardingSteps = () => {
           <div style={{ fontSize: 12.5, color: "#9a927f", fontWeight: 600 }}>{step + 1} of {total}</div>
         </div>
 
-        <div style={{ background: c.surface, border: `1px solid ${c.border}`, borderRadius: 20, padding: "36px 34px" }}>
+        <div style={{ background: c.surface, border: `1px solid ${c.border}`, borderRadius: 20, padding: "28px 20px" }}>
           <div style={{ fontSize: 12.5, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>{s.kicker}</div>
-          <h2 style={{ fontSize: 26, lineHeight: 1.15, marginBottom: 8 }}>{s.title}</h2>
+          <h2 style={{ fontSize: 24, lineHeight: 1.15, marginBottom: 8 }}>{s.title}</h2>
           <p style={{ fontSize: 14.5, color: c.muted, marginBottom: 24 }}>{s.sub}</p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
             {s.options.map((opt, i) => (

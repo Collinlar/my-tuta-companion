@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { c, font } from "./theme";
 import { Loading, EmptyState } from "./ui";
+import { useLayout, pageBox } from "./layout";
 import { useNotifications } from "./data/queries";
 import { useMarkNotificationsRead } from "./data/mutations";
 
@@ -31,6 +32,7 @@ function timeAgo(iso: string): string {
 }
 
 export default function Notifications() {
+  const L = useLayout();
   const { data: notifications, isLoading } = useNotifications();
   const markRead = useMarkNotificationsRead();
 
@@ -52,7 +54,7 @@ export default function Notifications() {
   }
 
   return (
-    <div style={{ maxWidth: 700, margin: "0 auto", padding: "40px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.pad, 700)}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
         <div style={{ fontFamily: font.display, fontSize: 26 }}>Notifications</div>
         {unreadIds.length > 0 && (

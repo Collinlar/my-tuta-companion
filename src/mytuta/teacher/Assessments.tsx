@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, font, chip } from "../theme";
 import { Loading } from "../ui";
+import { useLayout, pageBox } from "../layout";
 import { useToast } from "@/hooks/use-toast";
 import { assessTypesData } from "../data/constants";
 import { useAssessments, useClasses, useAssessmentQuestions } from "../data/queries";
@@ -13,6 +14,7 @@ interface EditableQuestion { id: string; prompt: string; options: string[]; corr
 type View = "list" | "build" | "created" | "result";
 
 export default function Assessments() {
+  const L = useLayout();
   const nav = useNavigate();
   const { toast } = useToast();
   const { data: assessments, isLoading } = useAssessments();
@@ -92,12 +94,12 @@ export default function Assessments() {
 
   if (view === "list") {
     return (
-      <div style={{ maxWidth: 1020, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
+      <div style={pageBox(L.pad, 1020)}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
           <p style={{ fontSize: 14, color: c.muted }}>Build mastery checks, topic tests and examination-style papers. Exams live here as one way to prove mastery.</p>
           <button type="button" onClick={() => { setView("build"); setTypeIdx(0); setClassIdx(0); setTopic(""); setErr(""); }} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 10, cursor: "pointer" }}>＋ New assessment</button>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 26 }}>
+        <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 12, marginBottom: 26 }}>
           {assessTypesData.map((a, i) => (
             <button type="button" key={a.title} onClick={() => { setTypeIdx(i); setClassIdx(0); setTopic(""); setErr(""); setView("build"); }} style={{ textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: 18, cursor: "pointer" }}>
               <div style={{ width: 34, height: 34, borderRadius: 9, background: a.bg, color: a.fg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, marginBottom: 11 }}>{a.icon}</div>
@@ -107,19 +109,21 @@ export default function Assessments() {
           ))}
         </div>
         <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 12 }}>Recent assessments</div>
-        <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, overflow: "hidden" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", padding: "12px 18px", fontSize: 11, fontWeight: 600, color: c.faint, textTransform: "uppercase", letterSpacing: ".04em", borderBottom: `1px solid ${c.divider}` }}>
-            <span>Assessment</span><span>Type</span><span>Class</span><span style={{ textAlign: "right" }}>Avg mastery</span>
+        <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, overflowX: "auto" }}>
+          <div style={{ minWidth: L.mobile ? 520 : undefined }}>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", padding: "12px 18px", fontSize: 11, fontWeight: 600, color: c.faint, textTransform: "uppercase", letterSpacing: ".04em", borderBottom: `1px solid ${c.divider}` }}>
+              <span>Assessment</span><span>Type</span><span>Class</span><span style={{ textAlign: "right" }}>Avg mastery</span>
+            </div>
+            {rows.length === 0 && <div style={{ padding: "16px 18px", fontSize: 13, color: c.muted }}>No assessments yet. Create your first one above.</div>}
+            {rows.map((r) => (
+              <button type="button" key={r.id} onClick={() => { setRowId(r.id); setView("result"); }} style={{ width: "100%", textAlign: "left", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", alignItems: "center", padding: "14px 18px", border: "none", borderBottom: `1px solid ${c.paper}`, background: c.surface, fontSize: 13.5, cursor: "pointer" }}>
+                <span style={{ fontWeight: 500 }}>{r.title}</span>
+                <span style={{ color: "#6b6456" }}>{r.type}</span>
+                <span style={{ color: "#6b6456" }}>{r.klass}</span>
+                <span style={{ textAlign: "right", fontWeight: 600, color: r.color }}>{r.avg}</span>
+              </button>
+            ))}
           </div>
-          {rows.length === 0 && <div style={{ padding: "16px 18px", fontSize: 13, color: c.muted }}>No assessments yet. Create your first one above.</div>}
-          {rows.map((r) => (
-            <button type="button" key={r.id} onClick={() => { setRowId(r.id); setView("result"); }} style={{ width: "100%", textAlign: "left", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", alignItems: "center", padding: "14px 18px", border: "none", borderBottom: `1px solid ${c.paper}`, background: c.surface, fontSize: 13.5, cursor: "pointer" }}>
-              <span style={{ fontWeight: 500 }}>{r.title}</span>
-              <span style={{ color: "#6b6456" }}>{r.type}</span>
-              <span style={{ color: "#6b6456" }}>{r.klass}</span>
-              <span style={{ textAlign: "right", fontWeight: 600, color: r.color }}>{r.avg}</span>
-            </button>
-          ))}
         </div>
       </div>
     );
@@ -127,7 +131,7 @@ export default function Assessments() {
 
   if (view === "build") {
     return (
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+      <div style={pageBox(L.pad, 680)}>
         <button type="button" onClick={() => setView("list")} style={backBtn}>← Assessments</button>
         <h1 style={{ fontSize: 24, marginBottom: 6 }}>New assessment</h1>
         <p style={{ fontSize: 14, color: c.muted, marginBottom: 24 }}>Choose a type and a class. mytuta drafts the items; you review before assigning.</p>
@@ -194,7 +198,7 @@ export default function Assessments() {
 
   if (view === "created") {
     return (
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+      <div style={pageBox(L.pad, 680)}>
         <div style={{ fontSize: 12.5, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Draft ready</div>
         <h1 style={{ fontSize: 26, lineHeight: 1.15, marginBottom: 8 }}>{buildType.title}{buildClass ? ` · ${buildClass.name}` : ""}</h1>
         <p style={{ fontSize: 15, color: c.muted, marginBottom: 24 }}>mytuta has drafted {items.length} items in the mix you set. Edit the wording, the options, or which answer is correct, then assign it. Nothing is shared with {buildClass?.name || "a class"} until you do.</p>
@@ -275,7 +279,7 @@ export default function Assessments() {
   const row = rows.find((r) => r.id === rowId) || rows[0];
   if (!row) { setView("list"); return null; }
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.pad, 680)}>
       <button type="button" onClick={() => setView("list")} style={backBtn}>← Assessments</button>
       <h1 style={{ fontSize: 24, marginBottom: 4 }}>{row.title}</h1>
       <div style={{ fontSize: 13, color: c.faint, marginBottom: 22 }}>{row.type} · {row.klass} · {row.submitted} of {row.total} submitted</div>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, font, filter, sectionLabel } from "./theme";
+import { useLayout, pageBox } from "./layout";
 import { useRole } from "./useRole";
 
 interface Faq {
@@ -96,6 +97,7 @@ const teacherTags = [
 ];
 
 export default function Help() {
+  const L = useLayout();
   const nav = useNavigate();
   const [role] = useRole();
   const [tag, setTag] = useState("all");
@@ -111,7 +113,7 @@ export default function Help() {
   );
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.pad, 760)}>
       <div style={{ fontFamily: font.display, fontSize: 26, marginBottom: 4 }}>Help</div>
       <div style={{ color: c.muted, fontSize: 14.5, marginBottom: 26 }}>
         Answers for the {isTeacher ? "teacher" : "student"} side of mytuta. Switch topics below.
@@ -149,11 +151,11 @@ export default function Help() {
       )}
 
       <div style={sectionLabel}>Still stuck</div>
-      <div style={{ background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, borderRadius: 14, padding: "18px 20px", display: "flex", alignItems: "center", gap: 16 }}>
+      <div style={{ background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, borderRadius: 14, padding: "18px 20px", display: "flex", alignItems: "center", gap: 16, flexDirection: L.mobile ? "column" : "row" }}>
         <div style={{ flex: 1, fontSize: 13.5, color: c.ink, lineHeight: 1.6 }}>
           If something looks wrong or a feature isn't behaving the way this page describes, reach your school or programme contact, they can escalate it to the mytuta team.
         </div>
-        <button type="button" onClick={() => nav(isTeacher ? "/teacher/home" : "/student/home")} style={{ flex: "none", background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 13.5, padding: "11px 18px", borderRadius: 10, cursor: "pointer" }}>Back to home</button>
+        <button type="button" onClick={() => nav(isTeacher ? "/teacher/home" : "/student/home")} style={{ flex: "none", alignSelf: L.mobile ? "stretch" : undefined, background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 13.5, padding: "11px 18px", borderRadius: 10, cursor: "pointer" }}>Back to home</button>
       </div>
     </div>
   );

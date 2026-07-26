@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, font } from "./theme";
 import { Loading } from "./ui";
+import { useLayout, pageBox } from "./layout";
 import { useToast } from "@/hooks/use-toast";
 import { AuthService } from "@/services/authService";
 import { useProfile, useSubscription } from "./data/queries";
 import { useDeleteAccount } from "./data/mutations";
 
 export default function Settings() {
+  const L = useLayout();
   const nav = useNavigate();
   const { toast } = useToast();
   const { data: profile, isLoading } = useProfile();
@@ -36,7 +38,7 @@ export default function Settings() {
   if (isLoading || !profile) return <Loading label="Loading settings…" />;
 
   return (
-    <div style={{ maxWidth: 700, margin: "0 auto", padding: "40px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.pad, 700)}>
       <div style={{ fontFamily: font.display, fontSize: 26, marginBottom: 4 }}>Settings</div>
       <div style={{ color: c.muted, fontSize: 14.5, marginBottom: 28 }}>Account and privacy.</div>
 

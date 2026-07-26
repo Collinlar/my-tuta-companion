@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { c, font } from "../theme";
 import { Loading } from "../ui";
+import { useLayout, pageBox } from "../layout";
 import { useDisplayName, useTeacherDashboard, useClasses } from "../data/queries";
 import CreditBanner from "../credits/CreditBanner";
 
@@ -18,6 +19,7 @@ const tActions = [
 ];
 
 export default function TeacherHome() {
+  const L = useLayout();
   const nav = useNavigate();
   const { data: name } = useDisplayName();
   const { data: dash, isLoading } = useTeacherDashboard();
@@ -37,13 +39,13 @@ export default function TeacherHome() {
   });
 
   return (
-    <div style={{ maxWidth: 1080, margin: "0 auto", padding: "38px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.pad, 1080)}>
       <div style={{ fontFamily: font.display, fontSize: 26, marginBottom: 4 }}>{greetingWord()}, {name || "there"}</div>
       <div style={{ color: c.muted, fontSize: 14.5, marginBottom: 26 }}>Here is where your classes stand today.</div>
 
       <CreditBanner />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 30 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 12, marginBottom: 30 }}>
         {tActions.map((a) => (
           <button key={a.title} onClick={() => nav(a.to)} style={{ textAlign: "left", background: a.bg, border: `1px solid ${a.bd}`, borderRadius: 15, padding: 20, cursor: "pointer" }}>
             <div style={{ width: 38, height: 38, borderRadius: 11, background: a.iconBg, color: a.iconFg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, marginBottom: 13 }}>{a.icon}</div>
@@ -53,7 +55,7 @@ export default function TeacherHome() {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 22 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.g2, gap: 22 }}>
         <div>
           <div style={sec}>Recent insights</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

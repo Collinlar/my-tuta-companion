@@ -2,18 +2,18 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { c } from "../theme";
 import { Loading, EmptyState } from "../ui";
+import { useLayout } from "../layout";
 import { studioSectionNames, studioBodies, studioAiActions } from "../data/constants";
 import { generateStudioAssist } from "../data/ai";
 import { useExperience, useExperienceSections, useClasses } from "../data/queries";
 import { useSaveSection, useAssignExperience } from "../data/mutations";
 import { trackAiContentInserted } from "@/lib/analytics";
 import { useCreditGate } from "../credits/CreditGate";
-import { useToast } from "@/hooks/use-toast";
 
 export default function Studio() {
+  const L = useLayout();
   const nav = useNavigate();
   const { experienceId } = useParams();
-  const { toast } = useToast();
   const { data: exp, isLoading } = useExperience(experienceId);
   const { data: sections } = useExperienceSections(experienceId);
   const { data: classes } = useClasses();
@@ -85,27 +85,58 @@ export default function Studio() {
   const assign = (name: string, id: string) => { assignExp.mutate({ experienceId: exp.id, classId: id }); setAssignedTo(name); setAssignOpen(false); setSaved(true); };
 
   return (
-    <div style={{ display: "flex", height: "100%", animation: "fadein .3s ease" }}>
-      <div style={{ width: 210, flex: "none", borderRight: `1px solid ${c.border2}`, background: c.surface, padding: "22px 14px", overflowY: "auto" }}>
-        <button type="button" onClick={() => nav("/teacher/experiences")} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 16 }}>← Experiences</button>
-        <div style={{ fontWeight: 600, fontSize: 14.5, marginBottom: 2 }}>{exp.title}</div>
-        <div style={{ fontSize: 12, color: c.faint, marginBottom: 18 }}>{exp.form}</div>
-        {studioSectionNames.map((label, i) => {
-          const on = section === i;
-          return (
-            <button key={label} type="button" onClick={() => setSection(i)} style={{ width: "100%", textAlign: "left", background: on ? c.greenTint : "transparent", border: `1px solid ${on ? c.greenTintBorder : "transparent"}`, borderRadius: 10, padding: "9px 11px", marginBottom: 2, fontSize: 13, fontWeight: on ? 600 : 500, color: on ? c.greenDark : c.soft, cursor: "pointer" }}>{label}</button>
-          );
-        })}
-      </div>
+    <div style={{ display: "flex", flexDirection: L.mobile ? "column" : "row", height: "100%", animation: "fadein .3s ease" }}>
+      {!L.mobile && (
+        <div style={{ width: 210, flex: "none", borderRight: `1px solid ${c.border2}`, background: c.surface, padding: "22px 14px", overflowY: "auto" }}>
+          <button type="button" onClick={() => nav("/teacher/experiences")} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 16 }}>← Experiences</button>
+          <div style={{ fontWeight: 600, fontSize: 14.5, marginBottom: 2 }}>{exp.title}</div>
+          <div style={{ fontSize: 12, color: c.faint, marginBottom: 18 }}>{exp.form}</div>
+          {studioSectionNames.map((label, i) => {
+            const on = section === i;
+            return (
+              <button key={label} type="button" onClick={() => setSection(i)} style={{ width: "100%", textAlign: "left", background: on ? c.greenTint : "transparent", border: `1px solid ${on ? c.greenTintBorder : "transparent"}`, borderRadius: 10, padding: "9px 11px", marginBottom: 2, fontSize: 13, fontWeight: on ? 600 : 500, color: on ? c.greenDark : c.soft, cursor: "pointer" }}>{label}</button>
+            );
+          })}
+        </div>
+      )}
 
       <div style={{ flex: 1, overflowY: "auto", minWidth: 0 }}>
-        <div style={{ maxWidth: 720, margin: "0 auto", padding: "34px 40px 72px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18 }}>
-            <h1 style={{ fontSize: 24 }}>{sectionName}</h1>
+        {L.mobile && (
+          <div style={{ background: c.surface, borderBottom: `1px solid ${c.border2}`, padding: "12px 16px 10px" }}>
+            <button type="button" onClick={() => nav("/teacher/experiences")} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 8 }}>← Experiences</button>
+            <div style={{ fontWeight: 600, fontSize: 14.5, marginBottom: 2 }}>{exp.title}</div>
+            <div style={{ fontSize: 12, color: c.faint, marginBottom: 10 }}>{exp.form}</div>
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 4 }}>
+              {studioSectionNames.map((label, i) => {
+                const on = section === i;
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setSection(i)}
+                    style={{
+                      flex: "none", whiteSpace: "nowrap",
+                      background: on ? c.greenTint : c.paper,
+                      border: `1px solid ${on ? c.greenTintBorder : c.border2}`,
+                      borderRadius: 20, padding: "8px 14px",
+                      fontSize: 12.5, fontWeight: on ? 600 : 500,
+                      color: on ? c.greenDark : c.soft, cursor: "pointer",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        <div style={{ maxWidth: 720, margin: "0 auto", padding: L.pad }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18, flexWrap: "wrap" }}>
+            <h1 style={{ fontSize: L.mobile ? 22 : 24 }}>{sectionName}</h1>
             <span style={{ fontSize: 12, fontWeight: 600, padding: "6px 12px", borderRadius: 20, color: statusOn ? c.greenDark : c.faint, background: statusOn ? c.greenTint : c.paper, border: `1px solid ${statusOn ? c.greenTintBorder : c.border2}` }}>{status}</span>
           </div>
 
-          <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 24, marginBottom: 18 }}>
+          <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: L.mobile ? 18 : 24, marginBottom: 18 }}>
             <div style={{ fontSize: 14.5, lineHeight: 1.7, color: c.body }}>{body}</div>
             {sectionInserts.map((b, i) => (
               <div key={i} style={{ marginTop: 16, borderTop: `1px dashed ${c.border}`, paddingTop: 15, animation: "fadeup .2s ease" }}>
@@ -145,7 +176,7 @@ export default function Studio() {
                   />
                 )}
                 {!aiBusy && aiPreview && (
-                  <div style={{ display: "flex", gap: 9 }}>
+                  <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
                     <button type="button" onClick={insertAi} style={{ background: c.plum, color: "#fff", border: "none", fontWeight: 600, fontSize: 12.5, padding: "8px 15px", borderRadius: 9, cursor: "pointer" }}>Insert into section</button>
                     <button type="button" onClick={() => void pickAi(aiAction, true)} style={{ background: "none", border: `1px solid ${c.plumBorder}`, color: "#544390", fontWeight: 600, fontSize: 12.5, padding: "8px 15px", borderRadius: 9, cursor: "pointer" }}>Regenerate</button>
                     <button type="button" onClick={() => { setAiAction(""); setAiPreview(""); }} style={{ background: "none", border: `1px solid ${c.plumBorder}`, color: "#544390", fontWeight: 600, fontSize: 12.5, padding: "8px 15px", borderRadius: 9, cursor: "pointer" }}>Dismiss</button>
@@ -155,7 +186,7 @@ export default function Studio() {
             )}
           </div>
 
-          <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
+          <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap" }}>
             <button type="button" onClick={doSave} style={{ background: saved ? c.greenDark : c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 22px", borderRadius: 11, cursor: "pointer" }}>{saved ? "✓ Saved" : "Save experience"}</button>
             <button type="button" onClick={() => setAssignOpen(!assignOpen)} style={{ background: "none", border: `1px solid ${c.border}`, color: c.soft, fontWeight: 600, fontSize: 14, padding: "12px 20px", borderRadius: 11, cursor: "pointer" }}>Assign to a class</button>
           </div>

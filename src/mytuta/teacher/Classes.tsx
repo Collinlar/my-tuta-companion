@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, font, level } from "../theme";
 import { Loading, EmptyState } from "../ui";
+import { useLayout, pageBox } from "../layout";
 import { useToast } from "@/hooks/use-toast";
 import { classNewFields } from "../data/constants";
 import { useClasses, useClassStudents, useClassChallenges, useClassSettings, type ClassSettingsVM } from "../data/queries";
@@ -17,6 +18,7 @@ const settingToggles: { key: keyof Omit<ClassSettingsVM, "assessmentRules">; lab
 ];
 
 export default function Classes() {
+  const L = useLayout();
   const nav = useNavigate();
   const { toast } = useToast();
   const { data: classes, isLoading } = useClasses();
@@ -76,15 +78,15 @@ export default function Classes() {
 
   if (view === "list") {
     return (
-      <div style={{ maxWidth: 1020, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+      <div style={pageBox(L.pad, 1020)}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
           <p style={{ fontSize: 14, color: c.muted }}>Manage your classes and assign learning experiences.</p>
           <button onClick={() => { setForm({}); setView("new"); }} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 10, cursor: "pointer" }}>＋ New class</button>
         </div>
         {list.length === 0 ? (
           <EmptyState title="No classes yet" body="Create a class, then share the join code with your students." actionLabel="New class" onAction={() => setView("new")} />
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: L.g2, gap: 14 }}>
             {list.map((cl) => (
               <button key={cl.id} onClick={() => { setSel(cl.id); setView("detail"); }} style={{ textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 20, cursor: "pointer" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
@@ -112,14 +114,14 @@ export default function Classes() {
 
   if (view === "detail" && current) {
     return (
-      <div style={{ maxWidth: 1020, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+      <div style={pageBox(L.pad, 1020)}>
         <button onClick={() => setView("list")} style={backBtn}>← All classes</button>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 18 }}>
           <div>
             <div style={{ fontFamily: font.display, fontSize: 24 }}>{current.name}</div>
             <div style={{ fontSize: 13, color: c.faint, marginTop: 2 }}>{current.students} students · code {current.code}</div>
           </div>
-          <div style={{ display: "flex", gap: 10 }}>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button onClick={() => setView("settings")} style={{ background: c.surface, border: `1px solid ${c.border}`, color: c.soft, fontWeight: 600, fontSize: 13, padding: "10px 16px", borderRadius: 10, cursor: "pointer" }}>Settings</button>
             <button onClick={() => nav(`/teacher/classes/${current.id}/challenge/new`)} style={{ background: c.surface, border: `1px solid ${c.plumBorder}`, color: c.plum, fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 10, cursor: "pointer" }}>＋ Class challenge</button>
             <button onClick={() => nav("/teacher/experiences")} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 10, cursor: "pointer" }}>Assign experience</button>
@@ -144,21 +146,23 @@ export default function Classes() {
           </div>
         )}
         <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 12 }}>Where students stand</div>
-        <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, overflow: "hidden", marginBottom: 24 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1.3fr 1fr 1fr", padding: "12px 18px", fontSize: 11, fontWeight: 600, color: c.faint, textTransform: "uppercase", letterSpacing: ".04em", borderBottom: `1px solid ${c.divider}` }}>
-            <span>Student</span><span>Current concept</span><span>Stage</span><span style={{ textAlign: "right" }}>Mastery</span>
-          </div>
-          {(students || []).length === 0 && <div style={{ padding: "16px 18px", fontSize: 13, color: c.muted }}>No students on the roster yet. Share the join code {current.code}.</div>}
-          {(students || []).map((s) => (
-            <div key={s.name} style={{ display: "grid", gridTemplateColumns: "2fr 1.3fr 1fr 1fr", alignItems: "center", padding: "13px 18px", borderBottom: `1px solid ${c.paper}`, fontSize: 13.5 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ width: 28, height: 28, flex: "none", borderRadius: "50%", background: s.color, color: "#fff", fontWeight: 700, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center" }}>{s.mark}</span>{s.name}
-              </span>
-              <span style={{ color: "#6b6456" }}>{s.concept}</span>
-              <span style={{ color: "#6b6456" }}>{s.stage}</span>
-              <span style={{ textAlign: "right", fontWeight: 600, color: level(s.level)[0] }}>{s.level}</span>
+        <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, overflowX: "auto", marginBottom: 24 }}>
+          <div style={{ minWidth: L.mobile ? 520 : undefined }}>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1.3fr 1fr 1fr", padding: "12px 18px", fontSize: 11, fontWeight: 600, color: c.faint, textTransform: "uppercase", letterSpacing: ".04em", borderBottom: `1px solid ${c.divider}` }}>
+              <span>Student</span><span>Current concept</span><span>Stage</span><span style={{ textAlign: "right" }}>Mastery</span>
             </div>
-          ))}
+            {(students || []).length === 0 && <div style={{ padding: "16px 18px", fontSize: 13, color: c.muted }}>No students on the roster yet. Share the join code {current.code}.</div>}
+            {(students || []).map((s) => (
+              <div key={s.name} style={{ display: "grid", gridTemplateColumns: "2fr 1.3fr 1fr 1fr", alignItems: "center", padding: "13px 18px", borderBottom: `1px solid ${c.paper}`, fontSize: 13.5 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ width: 28, height: 28, flex: "none", borderRadius: "50%", background: s.color, color: "#fff", fontWeight: 700, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center" }}>{s.mark}</span>{s.name}
+                </span>
+                <span style={{ color: "#6b6456" }}>{s.concept}</span>
+                <span style={{ color: "#6b6456" }}>{s.stage}</span>
+                <span style={{ textAlign: "right", fontWeight: 600, color: level(s.level)[0] }}>{s.level}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 12 }}>Class challenges</div>
@@ -187,7 +191,7 @@ export default function Classes() {
 
   if (view === "settings" && current) {
     return (
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+      <div style={pageBox(L.pad, 680)}>
         <button onClick={() => setView("detail")} style={backBtn}>← {current.name}</button>
         <div style={{ fontFamily: font.display, fontSize: 24, marginBottom: 4 }}>Class settings</div>
         <div style={{ fontSize: 13.5, color: c.muted, marginBottom: 24 }}>Control how {current.name} works for your students.</div>
@@ -235,7 +239,7 @@ export default function Classes() {
 
   // new
   return (
-    <div style={{ maxWidth: 1020, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.pad, 1020)}>
       <button onClick={() => setView("list")} style={backBtn}>← All classes</button>
       <h1 style={{ fontSize: 24, marginBottom: 6 }}>New class</h1>
       <p style={{ fontSize: 14, color: c.muted, marginBottom: 24 }}>Set up a class, then share the join code with your students.</p>

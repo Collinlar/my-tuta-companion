@@ -4,6 +4,7 @@ import { AuthService } from "@/services/authService";
 import { useToast } from "@/hooks/use-toast";
 import { c, font } from "@/mytuta/theme";
 import { loopWords } from "@/mytuta/data/constants";
+import { useLayout } from "@/mytuta/layout";
 
 const SignUp = () => {
   const [searchParams] = useSearchParams();
@@ -19,6 +20,7 @@ const SignUp = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const L = useLayout();
 
   const handleGoogle = async () => {
     setError(null);
@@ -52,24 +54,27 @@ const SignUp = () => {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: c.paper, display: "flex", alignItems: "center", justifyContent: "center", padding: 40, fontFamily: font.body, color: c.ink }}>
-      <div style={{ width: "100%", maxWidth: 940, display: "grid", gridTemplateColumns: "1fr 1fr", border: `1px solid ${c.border}`, borderRadius: 24, overflow: "hidden", boxShadow: "0 30px 70px rgba(30,40,32,.12)", background: c.surface }}>
-        {/* Left panel */}
-        <div style={{ background: "linear-gradient(160deg,#2e9e6b,#1f7d53)", padding: "48px 44px", color: "#fff", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontFamily: font.display, fontWeight: 700, fontSize: 24 }}>mytuta<span style={{ color: "#bfe0cf" }}>.</span></div>
-          <div style={{ marginTop: "auto" }}>
-            <h1 style={{ fontSize: 34, lineHeight: 1.1, color: "#fff", marginBottom: 16 }}>STEM finally makes sense.</h1>
-            <p style={{ fontSize: 15.5, lineHeight: 1.6, opacity: 0.92 }}>Understand difficult concepts, solve problems with guidance and master STEM through practice and real application.</p>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 26 }}>
-              {loopWords.map((w) => (
-                <span key={w} style={{ background: "rgba(255,255,255,.14)", border: "1px solid rgba(255,255,255,.2)", borderRadius: 20, padding: "6px 13px", fontSize: 12.5, fontWeight: 600 }}>{w}</span>
-              ))}
+    <div style={{ minHeight: "100dvh", background: c.paper, display: "flex", alignItems: "center", justifyContent: "center", padding: L.mobile ? 16 : 40, fontFamily: font.body, color: c.ink }}>
+      <div style={{ width: "100%", maxWidth: 940, display: "grid", gridTemplateColumns: L.gAuth, border: `1px solid ${c.border}`, borderRadius: L.mobile ? 18 : 24, overflow: "hidden", boxShadow: "0 30px 70px rgba(30,40,32,.12)", background: c.surface }}>
+        {!L.mobile && (
+          <div style={{ background: "linear-gradient(160deg,#2e9e6b,#1f7d53)", padding: "48px 44px", color: "#fff", display: "flex", flexDirection: "column" }}>
+            <div style={{ fontFamily: font.display, fontWeight: 700, fontSize: 24 }}>mytuta<span style={{ color: "#bfe0cf" }}>.</span></div>
+            <div style={{ marginTop: "auto" }}>
+              <h1 style={{ fontSize: 34, lineHeight: 1.1, color: "#fff", marginBottom: 16 }}>STEM finally makes sense.</h1>
+              <p style={{ fontSize: 15.5, lineHeight: 1.6, opacity: 0.92 }}>Understand difficult concepts, solve problems with guidance and master STEM through practice and real application.</p>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 26 }}>
+                {loopWords.map((w) => (
+                  <span key={w} style={{ background: "rgba(255,255,255,.14)", border: "1px solid rgba(255,255,255,.2)", borderRadius: 20, padding: "6px 13px", fontSize: 12.5, fontWeight: 600 }}>{w}</span>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Right panel — form */}
-        <div style={{ padding: "44px 44px" }}>
+        <div style={{ padding: L.mobile ? "28px 20px" : "44px 44px" }}>
+          {L.mobile && (
+            <div style={{ fontFamily: font.display, fontWeight: 700, fontSize: 22, marginBottom: 14 }}>mytuta<span style={{ color: c.green }}>.</span></div>
+          )}
           <div style={{ fontSize: 12.5, fontWeight: 600, color: "#9a927f", letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 8 }}>Get started</div>
           <h2 style={{ fontSize: 24, marginBottom: 18 }}>Create your account</h2>
 
@@ -90,7 +95,7 @@ const SignUp = () => {
           )}
 
           <form onSubmit={handleSignUp}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: L.g2, gap: 12, marginBottom: 12 }}>
               <Field label="First name" value={firstName} onChange={setFirstName} placeholder="Ama" disabled={isLoading} />
               <Field label="Last name" value={lastName} onChange={setLastName} placeholder="Owusu" disabled={isLoading} />
             </div>

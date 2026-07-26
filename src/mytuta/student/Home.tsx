@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { c, font, level } from "../theme";
 import { Bar, Loading } from "../ui";
+import { useLayout, pageBox } from "../layout";
 import { askChips } from "../data/constants";
 import { useMasteryPaths, useStudentAssignments, useDisplayName, useDueRecallCount } from "../data/queries";
 import CreditBanner from "../credits/CreditBanner";
@@ -17,6 +18,7 @@ function greetingWord() {
 }
 
 export default function Home() {
+  const L = useLayout();
   const nav = useNavigate();
   const goLearn = () => nav("/student/learn");
   const { data: name } = useDisplayName();
@@ -40,7 +42,7 @@ export default function Home() {
   const openAssignments = (assignments || []).filter((a) => !a.status.startsWith("Completed"));
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", padding: "46px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.padTall, 760)}>
       <div style={{ fontFamily: font.display, fontSize: 27, lineHeight: 1.15, marginBottom: 4 }}>{greetingWord()}, {name || "there"}</div>
       <div style={{ color: c.muted, fontSize: 14.5, marginBottom: 26 }}>
         {pathCount === 0 ? "Let's find where mytuta can help you most." : "Here's what matters for your learning right now."}
@@ -91,7 +93,7 @@ export default function Home() {
             <div style={{ fontFamily: font.display, fontSize: 18 }}>Continue mastering</div>
             <span onClick={goLearn} style={{ fontSize: 13, fontWeight: 600, color: c.green, cursor: "pointer" }}>View all paths ›</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 36 }}>
+          <div style={{ display: "grid", gridTemplateColumns: L.g2, gap: 12, marginBottom: 36 }}>
             {continuePaths.map((p) => {
               const [lc, lb] = level(p.level);
               return (
@@ -136,7 +138,7 @@ export default function Home() {
 
       {/* 8. Momentum — quiet, not streak-driven */}
       <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 11 }}>Your momentum</div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 10 }}>
         {[
           { value: active, label: "Active concepts" },
           { value: nearMastery, label: "Close to mastery" },

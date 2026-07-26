@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, font } from "../theme";
 import { Bar, Loading } from "../ui";
+import { useLayout, pageBox } from "../layout";
 import { useTeacherDashboard } from "../data/queries";
 
 function progressColor(status: string): [string, string] {
@@ -14,6 +15,7 @@ function progressColor(status: string): [string, string] {
 }
 
 export default function Insights() {
+  const L = useLayout();
   const nav = useNavigate();
   const { data: dash, isLoading } = useTeacherDashboard();
   const [expandedQ, setExpandedQ] = useState<number | null>(null);
@@ -32,8 +34,8 @@ export default function Insights() {
   const questionAnalysis = dash?.questionAnalysis || [];
 
   return (
-    <div style={{ maxWidth: 1020, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 26 }}>
+    <div style={pageBox(L.pad, 1020)}>
+      <div style={{ display: "grid", gridTemplateColumns: L.gStats, gap: 12, marginBottom: 26 }}>
         {insightStats.map((s) => (
           <div key={s.label} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: 17 }}>
             <div style={{ fontFamily: font.display, fontSize: 26, lineHeight: 1, color: c.green }}>{s.value}</div>
@@ -42,7 +44,7 @@ export default function Insights() {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 22, marginBottom: 26 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.g2, gap: 22, marginBottom: 26 }}>
         <div>
           <div style={sec}>Where understanding breaks down</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -86,7 +88,7 @@ export default function Insights() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 22 }}>
+      <div style={{ display: "grid", gridTemplateColumns: L.g2, gap: 22 }}>
         <div>
           <div style={sec}>Class progress</div>
           <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, overflow: "hidden" }}>

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, filter } from "../theme";
 import { Loading, EmptyState } from "../ui";
+import { useLayout, pageBox } from "../layout";
 import { MathText } from "../MathText";
 import { challengeLevels } from "../data/constants";
 import { useChallenges, useMyChallengeSubmission, type ChallengeVM } from "../data/queries";
@@ -19,6 +20,7 @@ function matchesChallengeScope(scope: string, levelLabel: string): boolean {
 }
 
 export default function Challenges() {
+  const L = useLayout();
   const nav = useNavigate();
   const { data: challenges, isLoading } = useChallenges();
   const submit = useSubmitChallenge();
@@ -63,15 +65,15 @@ export default function Challenges() {
 
   if (view === "list") {
     return (
-      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
-        <div style={{ background: "linear-gradient(150deg,#6b5aa8,#463880)", borderRadius: 20, padding: "32px 34px", color: "#fff", marginBottom: 28, display: "flex", alignItems: "center", gap: 28 }}>
+      <div style={pageBox(L.pad, 1080)}>
+        <div style={{ background: "linear-gradient(150deg,#6b5aa8,#463880)", borderRadius: 20, padding: L.mobile ? "24px 20px" : "32px 34px", color: "#fff", marginBottom: 28, display: "flex", alignItems: "center", gap: 28, flexDirection: L.mobile ? "column" : "row" }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.85, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 9 }}>Featured continental challenge</div>
-            <h1 style={{ fontSize: 26, color: "#fff", lineHeight: 1.15, marginBottom: 10 }}>{featured.title}</h1>
+            <h1 style={{ fontSize: L.mobile ? 22 : 26, color: "#fff", lineHeight: 1.15, marginBottom: 10 }}>{featured.title}</h1>
             <p style={{ fontSize: 14, opacity: 0.9, lineHeight: 1.55, maxWidth: 520 }}>From the live challenge catalog. Work solo or as a team. Understand the problem, design a solution, build a model and present your reasoning.</p>
             <button type="button" onClick={() => open(featured)} style={{ marginTop: 18, background: "#fff", color: "#463880", border: "none", fontWeight: 700, fontSize: 14, padding: "12px 22px", borderRadius: 11, cursor: "pointer" }}>Join challenge</button>
           </div>
-          <div style={{ flex: "none", width: 150, height: 150, borderRadius: 16, background: "rgba(255,255,255,.12)", border: "1px solid rgba(255,255,255,.2)" }} />
+          {!L.mobile && <div style={{ flex: "none", width: 150, height: 150, borderRadius: 16, background: "rgba(255,255,255,.12)", border: "1px solid rgba(255,255,255,.2)" }} />}
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 22 }}>
           {challengeLevels.map((l, i) => (
@@ -81,7 +83,7 @@ export default function Challenges() {
         {filtered.length === 0 ? (
           <EmptyState title="Nothing in this scope" body={`No catalog challenges match “${challengeLevels[levelIdx]}” yet. Try All.`} />
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 14 }}>
             {(levelIdx === 0 ? rest : filtered).map((ch) => (
               <button key={ch.id} type="button" onClick={() => open(ch)} style={{ textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 20, cursor: "pointer" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
@@ -104,7 +106,7 @@ export default function Challenges() {
 
   if (view === "detail") {
     return (
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+      <div style={pageBox(L.pad, 720)}>
         <button onClick={() => setView("list")} style={backBtn}>← All challenges</button>
         <span style={{ display: "inline-block", fontSize: 11, fontWeight: 600, color: current.fg, background: current.bg, padding: "4px 11px", borderRadius: 20, marginBottom: 12 }}>{current.type}</span>
         <h1 style={{ fontSize: 27, lineHeight: 1.15, marginBottom: 16 }}>{current.title}</h1>
@@ -145,7 +147,7 @@ export default function Challenges() {
     const stageCur = current.stages[stage];
     const last = stage + 1 >= current.stages.length;
     return (
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "34px 40px 72px", animation: "fadeup .3s ease" }}>
+      <div style={pageBox(L.pad, 760)}>
         <button onClick={() => setView("detail")} style={backBtn}>← {current.title}</button>
         <div style={{ display: "flex", gap: 6, marginBottom: 26 }}>
           {current.stages.map((st, i) => (
@@ -188,7 +190,7 @@ export default function Challenges() {
 
   // done
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto", padding: "44px 40px 72px", animation: "fadeup .3s ease" }}>
+    <div style={pageBox(L.padTall, 640)}>
       <div style={{ fontSize: 12.5, fontWeight: 600, color: c.plum, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Submitted</div>
       <h1 style={{ fontSize: 27, lineHeight: 1.15, marginBottom: 8 }}>{current.title}</h1>
       <p style={{ fontSize: 15, color: c.muted, marginBottom: 24 }}>Your entry is in. You worked the whole loop, from understanding the problem right through to presenting your reasoning.</p>
