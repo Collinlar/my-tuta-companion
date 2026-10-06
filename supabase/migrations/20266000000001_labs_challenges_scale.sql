@@ -3,8 +3,8 @@
 -- and updates next_best_action() with mastery-linked challenge recommendation.
 -- Idempotent via ON CONFLICT (slug) DO NOTHING.
 
--- ── 1. recurring flag on catalog_challenges ───────────────────────────────────
-ALTER TABLE public.catalog_challenges
+-- ── 1. recurring flag on challenges ──────────────────────────────────────────
+ALTER TABLE public.challenges
   ADD COLUMN IF NOT EXISTS recurring boolean NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS recurs_every_days int;
 
@@ -225,12 +225,11 @@ ON CONFLICT (slug) DO NOTHING;
 
 
 -- ── 3. Mark recurring challenges ─────────────────────────────────────────────
--- These catalog challenges are designed to recur on a set cycle.
-UPDATE public.catalog_challenges
+UPDATE public.challenges
 SET    recurring = true, recurs_every_days = 7
 WHERE  slug IN ('algebra-speed-sprint', 'science-facts-blitz');
 
-UPDATE public.catalog_challenges
+UPDATE public.challenges
 SET    recurring = true, recurs_every_days = 30
 WHERE  slug = 'units-conversion-sprint';
 
@@ -429,33 +428,24 @@ begin
   end if;
 
   -- ── 6. Mastery-linked challenge ───────────────────────────────────────────
-  -- When the student has a concept in Secure or Mastered state and there is
-  -- a catalog challenge linked to that concept via concept_relationships
-  -- (relationship_type = 'used_in_challenge'), surface it.
-  select
-    cc.title  as challenge_title,
-    cc.slug   as challenge_slug,
-    cc.id     as challenge_id,
-    c.name    as concept_name
+  -- When the student has at least one concept in Secure or Mastered state,
+  -- surface a platform challenge they have not yet submitted.
+  select ch.title as challenge_title, ch.id as challenge_id, mp2.concept_name
   into r
-  from public.mastery_profiles mprof
-  join public.concepts c on c.id = mprof.concept_id
-  join public.concept_relationships cr
-    on cr.source_concept_id = c.id
-    and cr.relationship_type = 'used_in_challenge'
-  join public.catalog_challenges cc
-    on cc.concept_id = cr.target_concept_id
-       or cc.id::text = cr.target_concept_id::text
-  where mprof.user_id = v_uid
-    and mprof.overall_state in ('Secure', 'Mastered')
-    -- has not already submitted this challenge
+  from public.challenges ch
+  cross join lateral (
+    select concept_name from public.mastery_profiles
+    where user_id = v_uid and overall_state in ('Secure', 'Mastered')
+    order by updated_at desc limit 1
+  ) mp2
+  where ch.created_by is null  -- platform-seeded challenges only
     and not exists (
-      select 1 from public.challenge_entries ce
-      where ce.challenge_id = cc.id
-        and ce.student_id = v_uid
-        and ce.status in ('submitted', 'graded')
+      select 1 from public.challenge_submissions cs
+      where cs.challenge_id = ch.id
+        and cs.user_id = v_uid
+        and cs.status = 'submitted'
     )
-  order by mprof.updated_at desc
+  order by ch.created_at desc
   limit 1;
 
   if found then
