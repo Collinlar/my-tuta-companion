@@ -213,9 +213,24 @@ async function createProvisionalConcept(query: string): Promise<ConceptRow> {
     .select("id, name, slug, subject, description, learning_stage, difficulty")
     .single();
 
-  if (inserted) return inserted as ConceptRow;
+  if (inserted) {
+    // Record demand so admins can track which open concepts are being requested.
+    void trackConceptDemand(slug, query.trim(), classified.subject);
+    return inserted as ConceptRow;
+  }
 
-  // If insert failed (e.g. duplicate), fall back to a local stub.
+  // Insert failed (e.g. concurrent duplicate) — look it up instead.
+  const { data: existing } = await supabase
+    .from("concepts")
+    .select("id, name, slug, subject, description, learning_stage, difficulty")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (existing) {
+    void trackConceptDemand(slug, query.trim(), classified.subject);
+    return existing as ConceptRow;
+  }
+
+  // Ultimate fallback — local stub (never reaches DB).
   return {
     id:            `provisional:${slug}`,
     name:          query.trim(),
@@ -225,6 +240,41 @@ async function createProvisionalConcept(query: string): Promise<ConceptRow> {
     learning_stage: classified.stage,
     difficulty:    "medium",
   };
+}
+
+// ----------------------------------------------------------------
+// Demand tracking — upsert / increment concept_demand row
+// ----------------------------------------------------------------
+async function trackConceptDemand(
+  slug: string,
+  name: string,
+  subject: string,
+): Promise<void> {
+  try {
+    // Try to increment existing row first.
+    const { data: existing } = await supabase
+      .from("concept_demand")
+      .select("id, request_count")
+      .eq("concept_slug", slug)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase
+        .from("concept_demand")
+        .update({ request_count: (existing.request_count ?? 0) + 1, last_requested_at: new Date().toISOString() })
+        .eq("id", existing.id);
+    } else {
+      await supabase.from("concept_demand").insert({
+        concept_slug: slug,
+        concept_name: name,
+        subject,
+        request_count: 1,
+        last_requested_at: new Date().toISOString(),
+      });
+    }
+  } catch {
+    // Non-fatal — demand tracking should never block learning.
+  }
 }
 
 // ----------------------------------------------------------------

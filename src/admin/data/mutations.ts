@@ -273,3 +273,30 @@ export function useRecordRefund() {
     },
   });
 }
+
+export function usePromoteConceptTierB() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ conceptId, slug }: { conceptId: string; slug: string }) => {
+      // Mark the concept as Tier B (approved, reviewer set to admin)
+      const { error: conceptErr } = await supabase
+        .from("concepts")
+        .update({ status: "approved", reviewer: "admin", last_reviewed_at: new Date().toISOString() })
+        .eq("id", conceptId);
+      if (conceptErr) throw conceptErr;
+
+      // Mark demand record as promoted
+      await supabase
+        .from("concept_demand")
+        .update({ promoted_at: new Date().toISOString(), promoted_to_tier: "B" })
+        .eq("concept_slug", slug);
+
+      return conceptId;
+    },
+    onSuccess: (conceptId) => {
+      void qc.invalidateQueries({ queryKey: ["admin", "concept", conceptId] });
+      void qc.invalidateQueries({ queryKey: ["admin", "concept-demand"] });
+      void qc.invalidateQueries({ queryKey: ["admin", "concepts"] });
+    },
+  });
+}

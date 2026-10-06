@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { a, card, sectionLabel, badgeTone, ghostBtn, primaryBtn, input, td, th } from "./theme";
 import { useAdminConceptDetail } from "./data/queries";
-import { useSetConceptStatus, useUpsertConcept, useUpsertMisconception } from "./data/mutations";
+import { useSetConceptStatus, useUpsertConcept, useUpsertMisconception, usePromoteConceptTierB } from "./data/mutations";
+import { useConceptDemand } from "./data/queries";
 import { useConceptContentUnits, useSetContentUnitStatus } from "./data/contentUnitQueries";
 import { useConceptRelationships, useUpsertRelationship, useDeleteRelationship } from "./data/relationshipQueries";
 import { PageHeader, Loading, ErrorNote, ActionModal } from "./ui";
@@ -53,6 +54,7 @@ export default function ConceptDetail() {
   const setUnitStatus = useSetContentUnitStatus();
   const upsertRel = useUpsertRelationship();
   const deleteRel = useDeleteRelationship();
+  const promoteTierB = usePromoteConceptTierB();
 
   const units = useConceptContentUnits(conceptId);
   const rels = useConceptRelationships(conceptId);
@@ -120,6 +122,20 @@ export default function ConceptDetail() {
         {activeTab === "Overview" && (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20, alignItems: "start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              {str(c.slug).startsWith("provisional-") && (
+                <div style={{ background: "#FEF3E2", border: "1px solid #E8A020", borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 13.5, color: "#633806" }}>Provisional (Tier C)</div>
+                    <div style={{ fontSize: 12.5, color: "#633806", marginTop: 2 }}>This concept was AI-generated from a student request. Promote it to Tier B to make it a structured catalog concept.</div>
+                  </div>
+                  <button type="button"
+                    disabled={promoteTierB.isPending}
+                    onClick={() => void promoteTierB.mutateAsync({ conceptId: str(c.id), slug: str(c.slug) })}
+                    style={{ background: "#E8A020", color: "#fff", border: "none", fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 9, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0 }}>
+                    {promoteTierB.isPending ? "Promoting..." : "Promote to Tier B"}
+                  </button>
+                </div>
+              )}
               <Panel title="Details">
                 <div style={{ marginBottom: 10 }}>
                   <span style={badgeTone(str(c.status) === "published" ? "green" : "amber")}>{str(c.status).replace("_", " ")}</span>

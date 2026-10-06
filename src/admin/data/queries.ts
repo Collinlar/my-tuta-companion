@@ -392,3 +392,31 @@ export function useAuditLog(limit = 50, offset = 0, action?: string, targetType?
     },
   });
 }
+
+export type DemandRow = {
+  id: string;
+  concept_slug: string;
+  concept_name: string;
+  subject: string | null;
+  request_count: number;
+  last_requested_at: string;
+  promoted_at: string | null;
+  promoted_to_tier: string | null;
+};
+
+export function useConceptDemand(limit = 50) {
+  return useQuery({
+    queryKey: ["admin", "concept-demand", limit],
+    queryFn: async (): Promise<DemandRow[]> => {
+      const { data, error } = await supabase
+        .from("concept_demand")
+        .select("id, concept_slug, concept_name, subject, request_count, last_requested_at, promoted_at, promoted_to_tier")
+        .is("promoted_at", null)
+        .order("request_count", { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return (data ?? []) as DemandRow[];
+    },
+    staleTime: 60_000,
+  });
+}

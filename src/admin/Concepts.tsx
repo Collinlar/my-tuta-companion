@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { a, card, th, td, badgeTone, input, ghostBtn, primaryBtn } from "./theme";
-import { useAdminConcepts, type ConceptRow } from "./data/queries";
-import { useUpsertConcept, type ConceptInput } from "./data/mutations";
+import { useAdminConcepts, useConceptDemand, type ConceptRow } from "./data/queries";
+import { useUpsertConcept, usePromoteConceptTierB, type ConceptInput } from "./data/mutations";
 import { PageHeader, Loading, ErrorNote, ActionModal } from "./ui";
 
 const PAGE = 100;
@@ -15,61 +15,123 @@ const EMPTY: ConceptInput = { id: null, slug: "", subject: "", name: "", descrip
 
 export default function Concepts() {
   const nav = useNavigate();
+  const [tab, setTab] = useState<"catalog" | "demand">("catalog");
   const [search, setSearch] = useState("");
   const [subject, setSubject] = useState("");
   const [status, setStatus] = useState("");
   const [offset, setOffset] = useState(0);
   const [form, setForm] = useState<ConceptInput | null>(null);
   const { data, isLoading, error } = useAdminConcepts(search, subject, status, PAGE, offset);
+  const { data: demandRows, isLoading: demandLoading } = useConceptDemand(100);
   const upsert = useUpsertConcept();
+  const promote = usePromoteConceptTierB();
   const resetTo = (fn: () => void) => { fn(); setOffset(0); };
   const set = (k: keyof ConceptInput, v: unknown) => setForm((p) => (p ? { ...p, [k]: v } : p));
+
+  const tabBtn = (t: "catalog" | "demand"): React.CSSProperties => ({
+    padding: "8px 14px", fontSize: 13, fontWeight: tab === t ? 600 : 400,
+    color: tab === t ? a.ink : a.muted, background: "none", border: "none",
+    borderBottom: `2px solid ${tab === t ? "#1D9E75" : "transparent"}`,
+    cursor: "pointer", whiteSpace: "nowrap" as const,
+  });
 
   return (
     <>
       <PageHeader title="Concepts" subtitle="The STEM concept library — create, edit, and govern content status."
         right={<button type="button" onClick={() => setForm({ ...EMPTY })} style={primaryBtn()}>+ New concept</button>} />
+      <div style={{ padding: "0 30px", borderBottom: "1px solid #E5E7EB", display: "flex", gap: 4 }}>
+        <button type="button" style={tabBtn("catalog")} onClick={() => setTab("catalog")}>Catalog</button>
+        <button type="button" style={tabBtn("demand")} onClick={() => setTab("demand")}>
+          Demand{demandRows?.length ? ` (${demandRows.length})` : ""}
+        </button>
+      </div>
       <div style={{ padding: 30 }}>
-        <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-          <input value={search} onChange={(e) => resetTo(() => setSearch(e.target.value))} placeholder="Search name or slug" style={{ ...input, maxWidth: 260 }} />
-          <input value={subject} onChange={(e) => resetTo(() => setSubject(e.target.value))} placeholder="Subject" style={{ ...input, maxWidth: 160 }} />
-          <select value={status} onChange={(e) => resetTo(() => setStatus(e.target.value))} style={{ ...input, maxWidth: 170 }}>
-            <option value="">All statuses</option>
-            {["draft", "under_review", "approved", "published", "needs_revision", "archived"].map((s) => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
-          </select>
-        </div>
-
-        {isLoading ? <Loading /> : error || !data ? <ErrorNote message="Could not load concepts." /> : (
+        {tab === "catalog" && (
           <>
-            <div style={{ ...card, overflow: "hidden" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead><tr>
-                  <th style={th}>Concept</th><th style={th}>Subject</th><th style={th}>Stage</th><th style={th}>Status</th>
-                  <th style={{ ...th, textAlign: "right" }}>Learners</th><th style={{ ...th, textAlign: "right" }}>Stages</th><th style={{ ...th, textAlign: "right" }}>Misconceptions</th>
-                </tr></thead>
-                <tbody>
-                  {data.rows.length === 0 && <tr><td style={{ ...td, color: a.faint }} colSpan={7}>No concepts match.</td></tr>}
-                  {data.rows.map((c: ConceptRow) => (
-                    <tr key={c.id} onClick={() => nav(`/admin/concepts/${c.id}`)} style={{ cursor: "pointer" }}>
-                      <td style={{ ...td, fontWeight: 600, color: a.ink }}>{c.name}</td>
-                      <td style={{ ...td, color: a.muted }}>{c.subject}</td>
-                      <td style={{ ...td, color: a.muted }}>{c.learning_stage || "—"}</td>
-                      <td style={td}><span style={badgeTone(statusTone[c.status] || "neutral")}>{c.status.replace("_", " ")}</span></td>
-                      <td style={{ ...td, textAlign: "right" }}>{c.learners}</td>
-                      <td style={{ ...td, textAlign: "right" }}>{c.stages}</td>
-                      <td style={{ ...td, textAlign: "right" }}>{c.misconceptions}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+              <input value={search} onChange={(e) => resetTo(() => setSearch(e.target.value))} placeholder="Search name or slug" style={{ ...input, maxWidth: 260 }} />
+              <input value={subject} onChange={(e) => resetTo(() => setSubject(e.target.value))} placeholder="Subject" style={{ ...input, maxWidth: 160 }} />
+              <select value={status} onChange={(e) => resetTo(() => setStatus(e.target.value))} style={{ ...input, maxWidth: 170 }}>
+                <option value="">All statuses</option>
+                {["draft", "under_review", "approved", "published", "needs_revision", "archived"].map((s) => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
+              </select>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 14, fontSize: 13, color: a.muted }}>
-              <span>{data.total === 0 ? 0 : offset + 1}–{Math.min(offset + PAGE, data.total)} of {data.total}</span>
-              <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-                <button type="button" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE))} style={{ ...ghostBtn(), opacity: offset === 0 ? 0.5 : 1 }}>Previous</button>
-                <button type="button" disabled={offset + PAGE >= data.total} onClick={() => setOffset(offset + PAGE)} style={{ ...ghostBtn(), opacity: offset + PAGE >= data.total ? 0.5 : 1 }}>Next</button>
+
+            {isLoading ? <Loading /> : error || !data ? <ErrorNote message="Could not load concepts." /> : (
+              <>
+                <div style={{ ...card, overflow: "hidden" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead><tr>
+                      <th style={th}>Concept</th><th style={th}>Subject</th><th style={th}>Stage</th><th style={th}>Status</th>
+                      <th style={{ ...th, textAlign: "right" }}>Learners</th><th style={{ ...th, textAlign: "right" }}>Stages</th><th style={{ ...th, textAlign: "right" }}>Misconceptions</th>
+                    </tr></thead>
+                    <tbody>
+                      {data.rows.length === 0 && <tr><td style={{ ...td, color: a.faint }} colSpan={7}>No concepts match.</td></tr>}
+                      {data.rows.map((c: ConceptRow) => (
+                        <tr key={c.id} onClick={() => nav(`/admin/concepts/${c.id}`)} style={{ cursor: "pointer" }}>
+                          <td style={{ ...td, fontWeight: 600, color: a.ink }}>{c.name}</td>
+                          <td style={{ ...td, color: a.muted }}>{c.subject}</td>
+                          <td style={{ ...td, color: a.muted }}>{c.learning_stage || "—"}</td>
+                          <td style={td}><span style={badgeTone(statusTone[c.status] || "neutral")}>{c.status.replace("_", " ")}</span></td>
+                          <td style={{ ...td, textAlign: "right" }}>{c.learners}</td>
+                          <td style={{ ...td, textAlign: "right" }}>{c.stages}</td>
+                          <td style={{ ...td, textAlign: "right" }}>{c.misconceptions}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 14, fontSize: 13, color: a.muted }}>
+                  <span>{data.total === 0 ? 0 : offset + 1}–{Math.min(offset + PAGE, data.total)} of {data.total}</span>
+                  <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+                    <button type="button" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE))} style={{ ...ghostBtn(), opacity: offset === 0 ? 0.5 : 1 }}>Previous</button>
+                    <button type="button" disabled={offset + PAGE >= data.total} onClick={() => setOffset(offset + PAGE)} style={{ ...ghostBtn(), opacity: offset + PAGE >= data.total ? 0.5 : 1 }}>Next</button>
+                  </div>
+                </div>
+              </>
+            )}
+          </>
+        )}
+
+        {tab === "demand" && (
+          <>
+            <div style={{ fontSize: 13.5, color: a.muted, marginBottom: 16 }}>
+              Concepts students have requested that are not yet in the reviewed catalog. Promote to Tier B to add them as structured concepts.
+            </div>
+            {demandLoading ? <Loading /> : !demandRows?.length
+              ? <div style={{ ...card, padding: "20px 18px", fontSize: 13, color: a.faint }}>No open concept requests yet. Requests appear here when students search for concepts not in the catalog.</div>
+              : <div style={{ ...card, overflow: "hidden" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead><tr>
+                    <th style={th}>Concept</th><th style={th}>Subject</th><th style={{ ...th, textAlign: "right" }}>Requests</th><th style={th}>Last requested</th><th style={th}></th>
+                  </tr></thead>
+                  <tbody>
+                    {demandRows.map((d) => (
+                      <tr key={d.id}>
+                        <td style={{ ...td, fontWeight: 600, color: a.ink }}>{d.concept_name}</td>
+                        <td style={{ ...td, color: a.muted }}>{d.subject || "—"}</td>
+                        <td style={{ ...td, textAlign: "right", fontWeight: 600, color: d.request_count >= 5 ? "#E8A020" : a.ink }}>{d.request_count}</td>
+                        <td style={{ ...td, color: a.muted }}>{new Date(d.last_requested_at).toLocaleDateString()}</td>
+                        <td style={{ ...td, textAlign: "right" }}>
+                          <button type="button"
+                            disabled={promote.isPending}
+                            onClick={() => {
+                              // Find the concept by slug and promote it
+                              const matchingConcept = data?.rows.find((c: ConceptRow) => c.slug === d.concept_slug);
+                              if (matchingConcept) {
+                                void promote.mutateAsync({ conceptId: matchingConcept.id, slug: d.concept_slug });
+                              }
+                            }}
+                            style={{ ...ghostBtn(), fontSize: 12, padding: "4px 10px", color: "#1D9E75", fontWeight: 600 }}>
+                            Promote to Tier B
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
+            }
           </>
         )}
       </div>
