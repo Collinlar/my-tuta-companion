@@ -187,8 +187,17 @@ export default function Lab() {
       <p style={{ fontSize: 15, color: c.muted, marginBottom: 24 }}>Nicely done. You've turned a concept into something you did with your own hands.</p>
       <div style={{ background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, borderRadius: 16, padding: "18px 20px", marginBottom: 16 }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: c.greenDark, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>What this shows</div>
-        <div style={{ fontSize: 14, color: c.ink, lineHeight: 1.6 }}>This activity is evidence of <strong>{current.demonstrates}</strong>. Record your observations, then open Learn if you want to connect it to a mastery path.</div>
+        <div style={{ fontSize: 14, color: c.ink, lineHeight: 1.6 }}>This activity is evidence of <strong>{current.demonstrates}</strong>. Open Learn to connect this practical work to a mastery path and track it in Progress.</div>
       </div>
+      {(current as LabActivityVM & { conceptSlug?: string }).conceptSlug && (
+        <div style={{ background: "#F5F0FF", border: "1px solid #C4B5FD", borderRadius: 14, padding: "14px 18px", marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#5c2d91", letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 6 }}>Concept link</div>
+          <div style={{ fontSize: 13.5, color: c.ink, lineHeight: 1.55, marginBottom: 10 }}>This activity connects to a concept in your mastery library. Build on what you just did.</div>
+          <button type="button" onClick={() => nav(`/student/learn?concept=${(current as LabActivityVM & { conceptSlug?: string }).conceptSlug}`)} style={{ background: "#7c3aed", color: "#fff", border: "none", fontWeight: 600, fontSize: 13, padding: "9px 16px", borderRadius: 9, cursor: "pointer" }}>
+            Go to mastery path
+          </button>
+        </div>
+      )}
       <div style={{ display: "flex", gap: 12 }}>
         <button onClick={() => nav("/student/progress")} style={{ flex: 1, background: c.green, color: "#fff", border: "none", fontWeight: 700, fontSize: 14.5, padding: 14, borderRadius: 12, cursor: "pointer" }}>See it in Progress</button>
         <button onClick={() => setView("list")} style={{ background: c.surface, border: `1px solid ${c.border}`, color: c.soft, fontWeight: 600, fontSize: 14.5, padding: "14px 22px", borderRadius: 12, cursor: "pointer" }}>More activities</button>

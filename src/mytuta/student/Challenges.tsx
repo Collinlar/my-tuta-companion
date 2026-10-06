@@ -11,6 +11,10 @@ import type { Json } from "@/integrations/supabase/types";
 
 type View = "list" | "detail" | "run" | "done";
 
+// ChallengeVM is expected to have an optional `recurring` flag and `conceptId`.
+// Both may be absent on older rows — the component handles gracefully.
+type ChallengeVMExt = ChallengeVM & { recurring?: boolean; masteryLinked?: boolean };
+
 function matchesChallengeScope(scope: string, levelLabel: string): boolean {
   if (levelLabel === "All") return true;
   const s = (scope || "").toLowerCase();
@@ -32,13 +36,13 @@ export default function Challenges() {
   const [work, setWork] = useState<Record<number, string>>({});
   const resumedFor = useRef<string | null>(null);
 
-  const all = challenges || [];
+  const all = (challenges || []) as ChallengeVMExt[];
   const filtered = useMemo(() => {
     const label = challengeLevels[levelIdx] || "All";
     return all.filter((ch) => matchesChallengeScope(ch.scope, label));
   }, [all, levelIdx]);
 
-  const current: ChallengeVM = all.find((ch) => ch.id === selectedId) || filtered[0] || all[0];
+  const current = (all.find((ch) => ch.id === selectedId) || filtered[0] || all[0]) as ChallengeVMExt;
   const { data: mySubmission } = useMyChallengeSubmission(current?.id);
 
   // Once per challenge, resume from any saved in-progress work.
@@ -53,7 +57,7 @@ export default function Challenges() {
   if (isLoading) return <Loading label="Loading challenges…" />;
   if (all.length === 0) return <EmptyState title="No challenges yet" body="Challenges will appear here once content is loaded from the STEM catalog." />;
 
-  const open = (ch: ChallengeVM) => { setSelectedId(ch.id); setWork({}); resumedFor.current = null; setView("detail"); };
+  const open = (ch: ChallengeVMExt) => { setSelectedId(ch.id); setWork({}); resumedFor.current = null; setView("detail"); };
   const featured = all.find((ch) => ch.isFeatured) || all[0];
   const rest = filtered.filter((ch) => ch.id !== featured.id || levelIdx !== 0);
   const hasProgress = mySubmission?.status === "in_progress";
@@ -85,9 +89,11 @@ export default function Challenges() {
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 14 }}>
             {(levelIdx === 0 ? rest : filtered).map((ch) => (
-              <button key={ch.id} type="button" onClick={() => open(ch)} style={{ textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 20, cursor: "pointer" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              <button key={ch.id} type="button" onClick={() => open(ch)} style={{ textAlign: "left", background: ch.masteryLinked ? "#F0FDF8" : c.surface, border: `1px solid ${ch.masteryLinked ? "#A7F3D0" : c.border2}`, borderRadius: 16, padding: 20, cursor: "pointer" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: ch.fg, background: ch.bg, padding: "4px 10px", borderRadius: 20 }}>{ch.type}</span>
+                  {ch.recurring && <span style={{ fontSize: 10.5, fontWeight: 600, color: "#185fa5", background: "#E6F1FB", padding: "3px 8px", borderRadius: 20 }}>Recurring</span>}
+                  {ch.masteryLinked && <span style={{ fontSize: 10.5, fontWeight: 600, color: "#085041", background: "#E1F5EE", padding: "3px 8px", borderRadius: 20 }}>Ready for you</span>}
                   <span style={{ marginLeft: "auto", fontSize: 11, color: c.faint }}>{ch.scope}</span>
                 </div>
                 <div style={{ fontWeight: 600, fontSize: 15.5, lineHeight: 1.3, marginBottom: 8 }}>{ch.title}</div>

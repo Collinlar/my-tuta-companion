@@ -16,14 +16,15 @@ export default function NextActionCard() {
   const isPrereqGap    = primary.key === "prerequisite_gap";
   const isDecayReview  = primary.key === "decay_review";
   const isExplWeak     = primary.key === "explanation_weak";
+  const isChallenge    = primary.key === "challenge";
   const isWarning      = isPrereqGap || isDecayReview || isExplWeak;
 
   return (
     <div style={{ marginBottom: 30 }}>
       <div style={{ fontSize: 11, fontWeight: 600, color: c.greenDark, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 10 }}>mytuta today</div>
       <div style={{
-        background: isWarning ? "linear-gradient(135deg,#fef9ec,#fffbf2)" : "linear-gradient(135deg,#eaf5ef,#f3faf5)",
-        border: `1px solid ${isWarning ? "#E8A020" : c.greenTintBorder}`,
+        background: isWarning ? "linear-gradient(135deg,#fef9ec,#fffbf2)" : isChallenge ? "linear-gradient(135deg,#f5f0ff,#ede9fb)" : "linear-gradient(135deg,#eaf5ef,#f3faf5)",
+        border: `1px solid ${isWarning ? "#E8A020" : isChallenge ? "#c4b5fd" : c.greenTintBorder}`,
         borderRadius: 16, padding: "22px 24px",
       }}>
         {isPrereqGap && (
@@ -41,6 +42,11 @@ export default function NextActionCard() {
             Explanation not clicking
           </div>
         )}
+        {isChallenge && (
+          <div style={{ fontSize: 11.5, fontWeight: 600, color: "#5c2d91", background: "#f3e8ff", borderRadius: 6, padding: "4px 10px", display: "inline-block", marginBottom: 12 }}>
+            You are ready for a challenge
+          </div>
+        )}
         <div style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: font.display, fontSize: 19, lineHeight: 1.25, color: c.ink, marginBottom: 8 }}>{primary.action}</div>
@@ -53,10 +59,11 @@ export default function NextActionCard() {
           </div>
           <div style={{ flex: "none", textAlign: "right" }}>
             {primary.est_minutes ? <div style={{ fontSize: 12, color: c.faint, marginBottom: 10 }}>~{primary.est_minutes} min</div> : null}
-            <button type="button" onClick={() => go(primary)} style={{ background: isWarning ? "#E8A020" : c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 22px", borderRadius: 11, cursor: "pointer", whiteSpace: "nowrap" }}>
+            <button type="button" onClick={() => go(primary)} style={{ background: isWarning ? "#E8A020" : isChallenge ? "#7c3aed" : c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 22px", borderRadius: 11, cursor: "pointer", whiteSpace: "nowrap" }}>
               {isPrereqGap  ? `Learn ${primary.prerequisite ?? "prerequisite"} first`
                : isDecayReview ? "Review now"
                : isExplWeak    ? "Try another explanation"
+               : isChallenge   ? "Join challenge"
                : "Start now"}
             </button>
           </div>
