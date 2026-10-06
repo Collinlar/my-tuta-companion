@@ -30,13 +30,20 @@ export function useNextBestAction() {
   });
 }
 
+export interface ConceptEntry {
+  concept:       string;
+  state:         string;
+  decayed:       boolean;          // true if state was recently decayed by forgetting model
+  last_practice: string | null;    // ISO timestamp of last successful attempt
+}
+
 export interface LearnerModel {
   identity: { learning_stage: string | null; subjects: string[]; onboarding: Record<string, unknown> };
   skills: Record<string, number>;
   strengths: string[];
   challenges: string[];
   top_mistake: string | null;
-  concepts: { concept: string; state: string }[];
+  concepts: ConceptEntry[];
   goals: { id: string; title: string; kind: string; status: string }[];
   support_level: string;
   prefs: Record<string, unknown>;
@@ -193,6 +200,28 @@ export function useUpdateGoal() {
   return useIntelWrite(async (a: { id: string; status: "active" | "achieved" | "dropped" }) => {
     const { error } = await supabase.from("student_goals").update({ status: a.status }).eq("id", a.id);
     if (error) throw error;
+  });
+}
+
+/**
+ * Triggers the forgetting-curve decay on the current user's mastery profiles.
+ * Call once when the student opens the app (e.g. from the Home screen effect).
+ * Returns the number of concepts whose state was decayed.
+ */
+export function useApplyMasteryDecay() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<number> => {
+      const { data, error } = await supabase.rpc("apply_mastery_decay");
+      if (error) throw error;
+      return (data as number) ?? 0;
+    },
+    onSuccess: (count) => {
+      if (count > 0) {
+        qc.invalidateQueries({ queryKey: ["intel", "model"] });
+        qc.invalidateQueries({ queryKey: ["intel", "nba"] });
+      }
+    },
   });
 }
 
