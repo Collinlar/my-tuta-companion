@@ -1,13 +1,26 @@
 /**
  * pathBuilder — Retrieve → Compose → Adapt → Generate
  *
- * For Tier A/B Concepts: assembles a Mastery Path from approved Content Units.
- * For Tier C / open Concepts: falls back to Groq generation, marks as ai_generated,
- * and shows a transparency notice to the student.
+ * For Tier A/B Concepts (>=3 approved units): assembles a Mastery Path from
+ * reviewed Content Units only.  No AI generation is used.
+ * For Tier C / open Concepts (<3 approved units): falls back to Groq for any
+ * stage that has no approved unit, marks content as ai_generated, and shows a
+ * transparency notice to the student.
+ *
+ * Phase 3 additions:
+ *   - adaptation_rules filtering: units tagged skip_for_levels are excluded;
+ *     boost_for_levels units are sorted first within a stage type bucket.
+ *   - Content reuse tracking: all served approved units have their usage_count
+ *     incremented in a single RPC call after the path is composed.
+ *   - AI fallback threshold: Groq is only called when approvedCount < 3.
  */
 import { supabase } from "@/integrations/supabase/client";
 import { groqApiService } from "@/services/groqApiService";
 import { sanitizeLlmJson } from "./jsonRepair";
+
+// Minimum approved units before we treat a concept as well-covered and stop
+// calling AI to fill gaps.
+const AI_FALLBACK_THRESHOLD = 3;
 
 // Standard 10-stage Mastery Path structure (maps to Content Unit types).
 const STAGE_ORDER: Array<{ phase: string; unitTypes: string[]; label: string }> = [
@@ -31,14 +44,21 @@ export type PathStage = {
   aiContent?:    string;
 };
 
+type AdaptationRules = {
+  skip_for_levels?:  string[];
+  boost_for_levels?: string[];
+  variant?:          "support" | "core" | "extension";
+};
+
 type ConceptContentUnit = {
-  id:           string;
-  unit_type:    string;
-  difficulty:   string | null;
-  content:      Record<string, unknown>;
-  hints?:       unknown;
-  review_status:string;
-  ai_generated: boolean;
+  id:               string;
+  unit_type:        string;
+  difficulty:       string | null;
+  content:          Record<string, unknown>;
+  hints?:           unknown;
+  review_status:    string;
+  ai_generated:     boolean;
+  adaptation_rules: AdaptationRules | null;
 };
 
 type ConceptRow = {
@@ -52,11 +72,11 @@ type ConceptRow = {
 };
 
 export type BuiltPath = {
-  concept:       ConceptRow;
-  stages:        PathStage[];
-  aiGenerated:   boolean; // true if any stage was AI-generated
-  provisional:   boolean; // true if the concept itself is provisional (Tier C)
-  notice?:       string;  // shown to student when provisional
+  concept:     ConceptRow;
+  stages:      PathStage[];
+  aiGenerated: boolean; // true if any stage was AI-generated
+  provisional: boolean; // true if the concept itself is provisional (Tier C)
+  notice?:     string;  // shown to student when provisional
 };
 
 // ----------------------------------------------------------------
@@ -69,25 +89,54 @@ export async function buildMasteryPath(
   // 1. Retrieve: look up the concept by slug or name.
   const concept = await findOrCreateConcept(conceptQuery);
 
-  // 2. Retrieve approved Content Units for this concept.
+  // 2. Retrieve approved Content Units — include adaptation_rules for Phase 3 filtering.
   const { data: units } = await supabase
     .from("content_units")
-    .select("id, unit_type, difficulty, content, hints, review_status, ai_generated")
+    .select("id, unit_type, difficulty, content, hints, review_status, ai_generated, adaptation_rules")
     .eq("concept_id", concept.id)
     .in("review_status", ["approved", "published"])
     .order("unit_type");
 
+  const approvedCount = (units ?? []).length;
+
+  // 3. Fetch learner support level once so both compose and adapt can use it.
+  const { data: profile } = await supabase
+    .from("learner_profile")
+    .select("support_level")
+    .eq("user_id", userId)
+    .maybeSingle();
+  const supportLevel = (profile?.support_level as string | null) ?? "guided";
+
+  // Group units by type, applying adaptation_rules filtering and ordering.
   const unitsByType: Record<string, ConceptContentUnit[]> = {};
   for (const u of units ?? []) {
-    if (!unitsByType[u.unit_type]) unitsByType[u.unit_type] = [];
-    unitsByType[u.unit_type].push(u as ConceptContentUnit);
+    const unit = u as ConceptContentUnit;
+    const rules = unit.adaptation_rules;
+
+    // Skip units the learner's support level should not see.
+    if (rules?.skip_for_levels?.includes(supportLevel)) continue;
+
+    if (!unitsByType[unit.unit_type]) unitsByType[unit.unit_type] = [];
+    unitsByType[unit.unit_type].push(unit);
   }
 
-  const approvedCount = Object.values(unitsByType).flat().length;
+  // Within each type bucket: boost_for_levels units sort first.
+  for (const key of Object.keys(unitsByType)) {
+    unitsByType[key].sort((ua, ub) => {
+      const aBoost = ua.adaptation_rules?.boost_for_levels?.includes(supportLevel) ? 0 : 1;
+      const bBoost = ub.adaptation_rules?.boost_for_levels?.includes(supportLevel) ? 0 : 1;
+      return aBoost - bBoost;
+    });
+  }
 
-  // 3. Compose stages — prefer approved content, fall back to AI generation.
+  // 4. Compose stages.
+  //    If the concept has < AI_FALLBACK_THRESHOLD approved units it is under-covered
+  //    and we fall back to Groq for any missing stage.
+  //    If it has enough reviewed content we compose strictly from approved units
+  //    and skip stages that have no approved unit rather than generating.
   const stages: PathStage[] = [];
   let anyAiGenerated = false;
+  const servedUnitIds: string[] = [];
 
   for (const stageDef of STAGE_ORDER) {
     let chosen: ConceptContentUnit | undefined;
@@ -100,14 +149,15 @@ export async function buildMasteryPath(
     }
 
     if (chosen) {
+      servedUnitIds.push(chosen.id);
       stages.push({
         phase:       stageDef.phase,
         label:       stageDef.label,
         contentUnit: chosen,
         aiGenerated: false,
       });
-    } else {
-      // Generate this stage with Groq.
+    } else if (approvedCount < AI_FALLBACK_THRESHOLD) {
+      // Under-covered concept: fill the gap with Groq.
       anyAiGenerated = true;
       const aiContent = await generateStageContent(
         concept,
@@ -115,16 +165,23 @@ export async function buildMasteryPath(
         stageDef.unitTypes[0],
       );
       stages.push({
-        phase:      stageDef.phase,
-        label:      stageDef.label,
-        aiGenerated:true,
+        phase:       stageDef.phase,
+        label:       stageDef.label,
+        aiGenerated: true,
         aiContent,
       });
     }
+    // Well-covered concept with no unit for this stage: omit the stage silently.
+    // The path is still complete enough to learn from.
   }
 
-  // 4. Adapt — apply Intelligence Layer (support level, prerequisite skips).
-  const adapted = await adaptPath(stages, userId, concept.id);
+  // 5. Adapt — prerequisite skips via Intelligence Layer.
+  const adapted = await adaptPath(stages, userId, concept.id, supportLevel);
+
+  // 6. Track reuse — fire-and-forget; never blocks the learner.
+  if (servedUnitIds.length > 0) {
+    void recordUsage(servedUnitIds);
+  }
 
   const provisional = concept.id.startsWith("provisional:");
   return {
@@ -134,10 +191,21 @@ export async function buildMasteryPath(
     provisional,
     notice: provisional
       ? "This topic is AI-generated and has not yet been fully reviewed. A reviewed version is on the way."
-      : approvedCount < 5
+      : approvedCount < AI_FALLBACK_THRESHOLD
       ? "Some stages use AI-generated content while our team reviews this concept."
       : undefined,
   };
+}
+
+// ----------------------------------------------------------------
+// Content reuse tracking — single RPC, non-blocking
+// ----------------------------------------------------------------
+async function recordUsage(unitIds: string[]): Promise<void> {
+  try {
+    await supabase.rpc("record_content_unit_usage", { unit_ids: unitIds });
+  } catch {
+    // Non-fatal — usage metrics should never block learning.
+  }
 }
 
 // ----------------------------------------------------------------
@@ -167,7 +235,6 @@ async function findOrCreateConcept(query: string): Promise<ConceptRow> {
 }
 
 async function createProvisionalConcept(query: string): Promise<ConceptRow> {
-  // Ask Groq to classify the concept.
   let classified: { subject: string; domain: string; stage: string; valid: boolean } = {
     subject: "Science",
     domain: query,
@@ -214,7 +281,6 @@ async function createProvisionalConcept(query: string): Promise<ConceptRow> {
     .single();
 
   if (inserted) {
-    // Record demand so admins can track which open concepts are being requested.
     void trackConceptDemand(slug, query.trim(), classified.subject);
     return inserted as ConceptRow;
   }
@@ -251,7 +317,6 @@ async function trackConceptDemand(
   subject: string,
 ): Promise<void> {
   try {
-    // Try to increment existing row first.
     const { data: existing } = await supabase
       .from("concept_demand")
       .select("id, request_count")
@@ -278,7 +343,7 @@ async function trackConceptDemand(
 }
 
 // ----------------------------------------------------------------
-// Generate a single stage via Groq (Tier C fallback)
+// Generate a single stage via Groq (Tier C fallback only)
 // ----------------------------------------------------------------
 async function generateStageContent(
   concept: ConceptRow,
@@ -309,23 +374,18 @@ Keep it under 150 words total. JSON only, no markdown.`,
 }
 
 // ----------------------------------------------------------------
-// Adapt path based on Intelligence Layer (support level, prerequisite state)
+// Adapt path based on Intelligence Layer (prerequisite state)
+// supportLevel is already known from the compose step — passed in to avoid
+// a second DB round-trip.
 // ----------------------------------------------------------------
 async function adaptPath(
   stages: PathStage[],
   userId: string,
   conceptId: string,
+  supportLevel: string,
 ): Promise<PathStage[]> {
-  // Fetch learner support level.
-  const { data: profile } = await supabase
-    .from("learner_profile")
-    .select("support_level")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  const supportLevel = (profile?.support_level as string | null) ?? "guided";
-
-  // For "independent" learners: skip the Diagnose and Recall stages if mastery > 50%.
+  // For "independent" learners: skip the Diagnose and Foundations stages if
+  // the learner already has a mastered state on this concept.
   if (supportLevel === "independent") {
     const { data: masteryProfile } = await supabase
       .from("mastery_profiles")
