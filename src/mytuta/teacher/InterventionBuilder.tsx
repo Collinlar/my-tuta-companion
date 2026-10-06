@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { c, font } from "../theme";
 import { useLayout, pageBox } from "../layout";
 import { supabase } from "@/integrations/supabase/client";
 import { generateInterventionDraft, type InterventionDraft } from "../data/ai";
 import { useToast } from "@/hooks/use-toast";
+import { useInterventionTemplates, useSaveAsTemplate } from "./data/interventionQueries";
 
 const INTERVENTION_TYPES = [
   "prerequisite_review", "misconception_correction", "guided_practice",
@@ -29,6 +30,10 @@ export default function InterventionBuilder() {
   const [draft, setDraft] = useState<InterventionDraft | null>(null);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const { data: templates } = useInterventionTemplates();
+  const saveAsTemplate = useSaveAsTemplate();
 
   const canGenerate = concept.trim().length > 0 && misconceptionPattern.trim().length > 0;
 
@@ -64,7 +69,7 @@ export default function InterventionBuilder() {
         conceptId = conceptRow?.id ?? null;
       }
 
-      const { error } = await supabase.from("teacher_interventions").insert({
+      const { data: insertedData, error } = await supabase.from("teacher_interventions").insert({
         teacher_id: user.id,
         concept_id: conceptId,
         intervention_type: interventionType,
@@ -72,11 +77,11 @@ export default function InterventionBuilder() {
         content: draft.content,
         ai_generated: true,
         status: "draft",
-      });
+      }).select("id").single();
 
       if (error) throw error;
+      setSavedId(insertedData?.id ?? null);
       toast({ title: "Intervention saved", description: "It is ready to assign to students." });
-      nav("/teacher/insights");
     } catch {
       toast({ title: "Could not save", description: "Something went wrong. Try again.", variant: "destructive" });
     } finally {
@@ -91,6 +96,33 @@ export default function InterventionBuilder() {
         <div style={{ fontFamily: font.display, fontSize: 22, color: c.ink }}>Build an intervention</div>
         <div style={{ fontSize: 14, color: c.soft, marginTop: 4 }}>AI drafts a focused session to address a specific misconception. You review, edit, and assign.</div>
       </div>
+
+      {/* Load from template */}
+      {templates && templates.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <button type="button" onClick={() => setShowTemplates(!showTemplates)}
+            style={{ background: "none", border: `1px solid ${c.border2}`, color: c.soft, fontSize: 13, fontWeight: 600, padding: "8px 14px", borderRadius: 9, cursor: "pointer" }}>
+            {showTemplates ? "Hide templates" : `Load from template (${templates.length})`}
+          </button>
+          {showTemplates && (
+            <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+              {templates.map((tmpl) => (
+                <button key={tmpl.id} type="button"
+                  onClick={() => {
+                    setTitle(tmpl.title);
+                    setInterventionType(tmpl.intervention_type);
+                    setDraft({ title: tmpl.title, intervention_type: tmpl.intervention_type, content: tmpl.content as InterventionDraft["content"] });
+                    setShowTemplates(false);
+                  }}
+                  style={{ textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 10, padding: "10px 14px", cursor: "pointer" }}>
+                  <div style={{ fontWeight: 600, fontSize: 13.5, color: c.ink }}>{tmpl.title}</div>
+                  <div style={{ fontSize: 12, color: c.faint, marginTop: 2 }}>{tmpl.intervention_type.replace(/_/g, " ")} · used {tmpl.use_count} {tmpl.use_count === 1 ? "time" : "times"}</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 24, marginBottom: 20 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
@@ -142,16 +174,32 @@ export default function InterventionBuilder() {
             </div>
           ))}
 
-          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-            <button type="button" onClick={handleSave} disabled={saving}
-              style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 24px", borderRadius: 11, cursor: "pointer" }}>
-              {saving ? "Saving..." : "Save intervention"}
-            </button>
-            <button type="button" onClick={handleGenerate} disabled={generating}
-              style={{ background: "none", border: `1px solid ${c.border2}`, color: c.soft, fontWeight: 500, fontSize: 13, padding: "12px 18px", borderRadius: 11, cursor: "pointer" }}>
-              Regenerate
-            </button>
-          </div>
+          {savedId ? (
+            <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+              <span style={{ fontSize: 13, color: "#085041", background: "#E1F5EE", padding: "8px 14px", borderRadius: 9, fontWeight: 600 }}>Intervention saved</span>
+              <button type="button"
+                disabled={saveAsTemplate.isPending}
+                onClick={() => void saveAsTemplate.mutateAsync(savedId).then(() => toast({ title: "Saved as template" }))}
+                style={{ background: "none", border: `1px solid ${c.border2}`, color: c.soft, fontWeight: 600, fontSize: 13, padding: "8px 14px", borderRadius: 9, cursor: "pointer" }}>
+                Save as template
+              </button>
+              <button type="button" onClick={() => nav("/teacher/interventions")}
+                style={{ background: "none", border: `1px solid ${c.border2}`, color: c.soft, fontWeight: 500, fontSize: 13, padding: "8px 14px", borderRadius: 9, cursor: "pointer" }}>
+                View all interventions
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+              <button type="button" onClick={handleSave} disabled={saving}
+                style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 24px", borderRadius: 11, cursor: "pointer" }}>
+                {saving ? "Saving..." : "Save intervention"}
+              </button>
+              <button type="button" onClick={handleGenerate} disabled={generating}
+                style={{ background: "none", border: `1px solid ${c.border2}`, color: c.soft, fontWeight: 500, fontSize: 13, padding: "12px 18px", borderRadius: 11, cursor: "pointer" }}>
+                Regenerate
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

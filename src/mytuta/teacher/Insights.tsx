@@ -4,6 +4,7 @@ import { c, font } from "../theme";
 import { Bar, Loading } from "../ui";
 import { useLayout, pageBox } from "../layout";
 import { useTeacherDashboard } from "../data/queries";
+import { useClassMisconceptionSummary, type MisconceptionPattern } from "./data/interventionQueries";
 
 function progressColor(status: string): [string, string] {
   switch (status) {
@@ -19,6 +20,17 @@ export default function Insights() {
   const nav = useNavigate();
   const { data: dash, isLoading } = useTeacherDashboard();
   const [expandedQ, setExpandedQ] = useState<number | null>(null);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  const { data: classMisconceptions, isLoading: cmLoading } = useClassMisconceptionSummary(selectedClassId);
+
+  // Use class-level grouping when a class is selected; fall back to dashboard data.
+  const misconceptions = selectedClassId && classMisconceptions
+    ? classMisconceptions.map((p: MisconceptionPattern) => ({
+        concept: p.concept_name,
+        pct:     `${p.pct_of_class}% of class`,
+        detail:  `${p.pattern}: ${p.detail} (${p.student_count} student${p.student_count === 1 ? "" : "s"})`,
+      }))
+    : (dash?.misconceptions || []);
 
   if (isLoading) return <Loading label="Loading insights…" />;
 
@@ -33,8 +45,21 @@ export default function Insights() {
   const classProgress = dash?.classProgress || [];
   const questionAnalysis = dash?.questionAnalysis || [];
 
+  const classes = (dash as (typeof dash & { classes?: { id: string; name: string }[] }))?.classes ?? [];
+
   return (
     <div style={pageBox(L.pad, 1020)}>
+      {classes.length > 0 && (
+        <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 12.5, fontWeight: 600, color: c.faint }}>Filter by class:</span>
+          <select value={selectedClassId ?? ""} onChange={(e) => setSelectedClassId(e.target.value || null)}
+            style={{ fontSize: 13, padding: "6px 10px", borderRadius: 8, border: `1px solid ${c.border2}`, background: c.surface, color: c.ink, cursor: "pointer" }}>
+            <option value="">All classes</option>
+            {classes.map((cls: { id: string; name: string }) => <option key={cls.id} value={cls.id}>{cls.name}</option>)}
+          </select>
+          {cmLoading && <span style={{ fontSize: 12, color: c.faint }}>Loading...</span>}
+        </div>
+      )}
       <div style={{ display: "grid", gridTemplateColumns: L.gStats, gap: 12, marginBottom: 26 }}>
         {insightStats.map((s) => (
           <div key={s.label} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: 17 }}>

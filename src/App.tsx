@@ -55,6 +55,7 @@ import Classes from "./mytuta/teacher/Classes";
 import Assessments from "./mytuta/teacher/Assessments";
 import Insights from "./mytuta/teacher/Insights";
 import InterventionBuilder from "./mytuta/teacher/InterventionBuilder";
+import InterventionList from "./mytuta/teacher/InterventionList";
 import ChallengeCreate from "./mytuta/teacher/ChallengeCreate";
 import ChallengeEdit from "./mytuta/teacher/ChallengeEdit";
 import ChallengeReview from "./mytuta/teacher/ChallengeReview";
@@ -170,6 +171,7 @@ const App = () => (
                 <Route path="/teacher/assessments/new" element={<Assessments />} />
                 <Route path="/teacher/insights" element={<Insights />} />
                 <Route path="/teacher/intervention/new" element={<InterventionBuilder />} />
+                <Route path="/teacher/interventions" element={<InterventionList />} />
 
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/profile" element={<Profile />} />
