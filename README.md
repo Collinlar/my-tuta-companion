@@ -1,75 +1,162 @@
-# mytuta - AI-Powered Study Companion
+# mytuta — STEM Mastery Platform
 
-## Project info
+**Live:** https://mytuta.org  
+**Stack:** React 18 + Vite + TypeScript · Supabase (PostgreSQL + Auth) · Groq AI · Paystack
 
-**Application**: mytuta AI Study Companion  
-**Website**: https://mytuta.org  
-**Description**: Transform your lesson notes into smart revision plans with interactive quizzes, flashcards, and contests. Your personal mytuta AI study companion for exam success.
+mytuta is a mastery-based STEM learning platform for Ghanaian secondary school students and their teachers. Students follow concept-level Mastery Paths built from reviewed content, labs, and challenges. Teachers create experiences, set assignments, run assessments, and act on misconception intelligence.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## Quick start
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/3397d5c0-4e9b-479b-900f-63760a8e362d) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+git clone https://github.com/Collinlar/my-tuta-companion.git
+cd my-tuta-companion
+npm install
+cp .env.example .env          # fill in GROQ_API_KEY at minimum
+npm run dev                   # http://localhost:5000
 ```
 
-**Edit a file directly in GitHub**
+### Required env vars (local dev)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+| Variable | Purpose |
+|----------|---------|
+| `GROQ_API_KEY` | Server-side Groq key — proxied via `/api/groq`, never exposed to the browser |
+| `VITE_SUPABASE_URL` | Supabase project URL (optional — falls back to hard-coded dev project) |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon key (optional with above) |
+| `VITE_PAYSTACK_PUBLIC_KEY` | Paystack public key for the credit purchase popup |
+| `PAYSTACK_SECRET_KEY` | Server-side Paystack secret for `/api/paystack-verify` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Grants credits after payment verification |
 
-**Use GitHub Codespaces**
+See `.env.example` for the full list. See `.env.staging.example` for staging.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## Architecture overview
 
-This project is built with:
+```
+src/
+  main.tsx                 Entry — mounts React, installs global error handlers
+  App.tsx                  Router — public pages, app shell, admin panel
+  mytuta/
+    AppShell.tsx           Authenticated shell: side rail, header, mobile nav
+    student/               Student views: Home, Learn, Solve, Lab, Challenges, Progress
+    teacher/               Teacher views: Home, Experiences, Classes, Assessments, Insights
+    intelligence/          NBA engine: NextActionCard, learner model hooks
+    data/                  Shared React Query hooks and mutations
+    credits/               CreditGate provider and wallet
+  admin/                   Full admin panel (users, payments, AI ops, support)
+  components/              Shared UI: ErrorBoundary, ProtectedRoute
+  lib/
+    monitoring.ts          Error + RPC monitoring (Sentry-compatible, Supabase fallback)
+    analytics.ts           GA4 event wrappers
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+api/
+  groq.ts                  Vercel serverless — proxies Groq requests server-side
+  paystack-verify.ts       Vercel serverless — verifies payments, grants credits
 
-## How can I deploy this project?
+supabase/migrations/       Ordered migration files (apply with supabase db push)
+```
 
-Simply open [Lovable](https://lovable.dev/projects/3397d5c0-4e9b-479b-900f-63760a8e362d) and click on Share -> Publish.
+### AI architecture — Retrieve → Compose → Adapt → Generate
 
-## Can I connect a custom domain to my Lovable project?
+`src/mytuta/data/pathBuilder.ts` builds every Mastery Path in four steps:
 
-Yes, you can!
+1. **Retrieve** — fetch approved `content_units` for the concept, filtered by `review_status`
+2. **Compose** — assemble into the standard 10-stage structure
+3. **Adapt** — apply `adaptation_rules` per unit (skip/boost based on `support_level`)
+4. **Generate** — call Groq only when fewer than 3 approved units exist for a stage
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Open concepts (not in the DB) get a provisional AI-generated path with a transparency notice.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Intelligence layer
+
+`next_best_action()` (Supabase RPC) fires on every Home load and returns one primary action plus up to three alternatives, prioritised:
+
+| Priority | Signal | Condition |
+|----------|--------|-----------|
+| 0 | `prerequisite_gap` | Active path < 30% and a prerequisite is not Secure |
+| 0b | `decay_review` | Mastery decayed within 14 days |
+| 0c | `explanation_weak` | Same explanation unit failed 3+ times in 30 days |
+| 1 | `assignment` | Teacher assignment due within 5 days |
+| 2 | `continue` | Unfinished active Mastery Path |
+| 3 | `recall` | Recall cards due today |
+| 4 | `misconception` | Same mistake category 3+ times in 30 days |
+| 5 | `goal` | Active student goal |
+| 6 | `challenge` | Secure/Mastered concept + unsubmitted platform challenge |
+| — | `start` / `explore` | Fallback |
+
+---
+
+## Database — key tables
+
+| Table | Purpose |
+|-------|---------|
+| `concepts` | 100+ STEM concepts (Mathematics, Biology, Chemistry, Physics) |
+| `concept_relationships` | Typed prerequisite/extension/lab/challenge graph |
+| `content_units` | Modular learning content with adaptation rules and review workflow |
+| `mastery_paths` | Per-student per-concept journey with stage progress |
+| `mastery_profiles` | Per-student per-concept skill dimensions + forgetting curve state |
+| `lab_activities` | 40+ practical activities across all subjects |
+| `challenges` | Platform-level STEM challenges with scope and recurrence |
+| `teacher_interventions` | AI-drafted teacher interventions with follow-up tracking |
+| `intervention_templates` | Reusable intervention blueprints |
+| `rpc_error_log` | Slow/failed RPC events (Phase 7 monitoring) |
+| `frontend_error_log` | Uncaught JS exceptions from ErrorBoundary (Phase 7 monitoring) |
+
+Apply migrations in order: `supabase db push` or run each `.sql` file via the Supabase SQL editor.
+
+---
+
+## Testing
+
+```bash
+npm run test:run    # vitest run — 50 tests across 8 suites
+npm test            # vitest watch mode
+```
+
+Test files live in `src/__tests__/`. Each PRD phase has its own suite.
+
+---
+
+## Environment separation
+
+| Environment | Vercel target | Supabase project | Paystack keys |
+|-------------|--------------|-----------------|---------------|
+| Production  | `main` branch | prod project | Live keys |
+| Staging     | Preview deployments | Separate staging project | Test keys |
+| Local dev   | `npm run dev` | Dev project or prod (read-only) | Test keys |
+
+Set staging vars in Vercel's **Preview** environment scope. Never use production DB or live Paystack keys in staging.
+
+---
+
+## Error monitoring (Phase 7)
+
+`src/lib/monitoring.ts` provides:
+
+- **`captureException(error, context)`** — routes to Sentry if `window.Sentry` is initialised, otherwise writes to `frontend_error_log` via Supabase RPC
+- **`trackedRpc(name, call)`** — wraps any Supabase RPC call; logs failures and calls slower than 3 s to `rpc_error_log`
+- **`installGlobalErrorHandlers()`** — called once in `main.tsx`; catches `unhandledrejection` and `window.onerror`
+
+To activate Sentry: `npm install @sentry/react`, add `Sentry.init({ dsn: import.meta.env.VITE_SENTRY_DSN })` to `main.tsx` before `installGlobalErrorHandlers()`.
+
+Admin AI Ops panel queries `rpc_error_log` and the `rpc_slow_summary` view.
+
+---
+
+## Deployment
+
+```bash
+# Production — push to main; Vercel deploys automatically
+git push origin main
+
+# Manual build check
+npm run build
+```
+
+`vercel.json` configures rewrites (SPA fallback), security headers, and asset caching. `VITE_APP_RELEASE` is automatically set to `VERCEL_GIT_COMMIT_SHA` by Vercel for release tagging in error logs.
+
+---
+
+*mytuta Platform Evolution — 7 phases complete. Built for Ghana, designed for Africa.*

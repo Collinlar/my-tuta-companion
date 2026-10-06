@@ -82,6 +82,20 @@ export default function AppShell() {
 
   return (
     <div style={{ height: "100dvh", display: "flex", background: c.paper, color: c.ink, overflow: "hidden", fontFamily: font.body }}>
+      {/* Skip to main content — visually hidden, appears on focus for keyboard users */}
+      <a
+        href="#main-content"
+        style={{
+          position: "absolute", top: -999, left: -999, zIndex: 9999,
+          background: c.green, color: "#fff", padding: "10px 18px", fontWeight: 600, fontSize: 14,
+          borderRadius: 8, textDecoration: "none",
+        }}
+        onFocus={(e) => { e.currentTarget.style.top = "8px"; e.currentTarget.style.left = "8px"; }}
+        onBlur={(e)  => { e.currentTarget.style.top = "-999px"; e.currentTarget.style.left = "-999px"; }}
+      >
+        Skip to main content
+      </a>
+
       {/* Desktop side rail */}
       {!mobile && (
         <nav aria-label="Primary" style={{ width: 76, flex: "none", background: c.green, display: "flex", flexDirection: "column", alignItems: "center", padding: "18px 0", gap: 6, zIndex: 5 }}>
@@ -97,13 +111,18 @@ export default function AppShell() {
                 type="button"
                 onClick={() => nav(item.path)}
                 title={item.label}
+                aria-label={item.label}
+                aria-current={on ? "page" : undefined}
                 style={{
                   position: "relative",
                   width: 58, height: 56, border: "none", borderRadius: 12,
                   background: on ? "rgba(255,255,255,.18)" : "transparent",
                   color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
                   gap: 4, cursor: "pointer", opacity: on ? 1 : 0.82,
+                  outline: "none",
                 }}
+                onFocus={(e) => e.currentTarget.style.boxShadow = "0 0 0 2px rgba(255,255,255,.7)"}
+                onBlur={(e)  => e.currentTarget.style.boxShadow = "none"}
               >
                 <span style={{ fontSize: 17, lineHeight: 1 }}>{item.icon}</span>
                 <span style={{ fontSize: 9.5, fontWeight: 600, letterSpacing: ".01em" }}>{item.label}</span>
@@ -171,11 +190,11 @@ export default function AppShell() {
           </div>
         </header>
 
-        <div className="mytuta-main" style={{ flex: 1, overflowY: "auto", overflowX: "hidden", WebkitOverflowScrolling: "touch" }}>
+        <main id="main-content" tabIndex={-1} className="mytuta-main" style={{ flex: 1, overflowY: "auto", overflowX: "hidden", WebkitOverflowScrolling: "touch", outline: "none" }}>
           <CreditGateProvider>
             <Outlet />
           </CreditGateProvider>
-        </div>
+        </main>
 
         {/* Mobile bottom nav */}
         {mobile && (
