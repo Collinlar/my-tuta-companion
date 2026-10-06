@@ -40,7 +40,6 @@ export default function Insights() {
     { value: `${dash?.reachingSecure ?? 0}%`, label: "Reaching Secure" },
     { value: String(dash?.conceptsTaught ?? 0), label: "Concepts taught" },
   ];
-  const misconceptions = dash?.misconceptions || [];
   const classSkills = dash?.classSkills || [];
   const classProgress = dash?.classProgress || [];
   const questionAnalysis = dash?.questionAnalysis || [];
