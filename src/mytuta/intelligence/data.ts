@@ -10,6 +10,7 @@ import { useDueRecallCount } from "../data/queries";
 
 export interface NbaCandidate {
   key: string; action: string; reason: string; route: string; est_minutes?: number;
+  blocked_concept?: string; prerequisite?: string;
 }
 export interface NextBestAction {
   primary: NbaCandidate | null;

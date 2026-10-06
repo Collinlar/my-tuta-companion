@@ -13,19 +13,36 @@ export default function NextActionCard() {
   if (isLoading || !primary) return null;
 
   const go = (cand: NbaCandidate) => nav(cand.route);
+  const isPrereqGap = primary.key === "prerequisite_gap";
 
   return (
     <div style={{ marginBottom: 30 }}>
       <div style={{ fontSize: 11, fontWeight: 600, color: c.greenDark, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 10 }}>mytuta today</div>
-      <div style={{ background: "linear-gradient(135deg,#eaf5ef,#f3faf5)", border: `1px solid ${c.greenTintBorder}`, borderRadius: 16, padding: "22px 24px" }}>
+      <div style={{
+        background: isPrereqGap ? "linear-gradient(135deg,#fef9ec,#fffbf2)" : "linear-gradient(135deg,#eaf5ef,#f3faf5)",
+        border: `1px solid ${isPrereqGap ? "#E8A020" : c.greenTintBorder}`,
+        borderRadius: 16, padding: "22px 24px",
+      }}>
+        {isPrereqGap && (
+          <div style={{ fontSize: 11.5, fontWeight: 600, color: "#633806", background: "#FEF3E2", borderRadius: 6, padding: "4px 10px", display: "inline-block", marginBottom: 12 }}>
+            Foundation gap detected
+          </div>
+        )}
         <div style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: font.display, fontSize: 19, lineHeight: 1.25, color: c.ink, marginBottom: 8 }}>{primary.action}</div>
             <div style={{ fontSize: 14, color: c.soft, lineHeight: 1.5 }}>{primary.reason}</div>
+            {isPrereqGap && primary.blocked_concept && (
+              <div style={{ marginTop: 10, fontSize: 12.5, color: "#633806" }}>
+                Strengthen <strong>{primary.prerequisite}</strong> before continuing with <strong>{primary.blocked_concept}</strong>.
+              </div>
+            )}
           </div>
           <div style={{ flex: "none", textAlign: "right" }}>
             {primary.est_minutes ? <div style={{ fontSize: 12, color: c.faint, marginBottom: 10 }}>~{primary.est_minutes} min</div> : null}
-            <button type="button" onClick={() => go(primary)} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 22px", borderRadius: 11, cursor: "pointer", whiteSpace: "nowrap" }}>Start now</button>
+            <button type="button" onClick={() => go(primary)} style={{ background: isPrereqGap ? "#E8A020" : c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 22px", borderRadius: 11, cursor: "pointer", whiteSpace: "nowrap" }}>
+              {isPrereqGap ? `Learn ${primary.prerequisite ?? "prerequisite"} first` : "Start now"}
+            </button>
           </div>
         </div>
         {alts.length > 0 && (

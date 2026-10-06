@@ -415,6 +415,72 @@ Use materials Ghanaian JHS/SHS students can realistically access (household or b
   };
 }
 
+// ----------------------------------------------------------------
+// Teacher Intervention Builder
+// ----------------------------------------------------------------
+
+export type InterventionDraft = {
+  title:             string;
+  intervention_type: string;
+  summary:           string;
+  content: {
+    opening:    string;
+    explanation:string;
+    example:    string;
+    follow_up:  string;
+  };
+  estimated_minutes: number;
+};
+
+/**
+ * Generate a targeted intervention draft for a teacher.
+ * Used by InterventionBuilder.tsx when a class misconception pattern is detected.
+ */
+export async function generateInterventionDraft(input: {
+  concept:              string;
+  misconceptionPattern: string;
+  studentCount:         number;
+  className?:           string;
+}): Promise<InterventionDraft> {
+  const raw = await groqApiService.makeRequest(
+    [
+      { role: "system", content: SYSTEM },
+      {
+        role: "user",
+        content: `A teacher needs a targeted intervention for their class.
+
+Concept: ${input.concept}
+Misconception pattern: ${input.misconceptionPattern}
+Affected students: ${input.studentCount}${input.className ? ` in ${input.className}` : ""}
+
+Write a short intervention a teacher can deliver in 8-10 minutes. Return JSON:
+{
+  "title": "Short title for the intervention (under 10 words)",
+  "intervention_type": one of: "misconception_correction" | "guided_practice" | "prerequisite_review",
+  "summary": "1-sentence summary of what this addresses",
+  "content": {
+    "opening": "How the teacher introduces the topic (1 sentence, direct, no em dash)",
+    "explanation": "The correct concept explained clearly (2-3 sentences, Ghana context where relevant)",
+    "example": "One worked example relevant to the misconception",
+    "follow_up": "One practice question to check understanding"
+  },
+  "estimated_minutes": 8
+}
+No em dashes. No filler phrases. JSON only.`,
+      },
+    ],
+    1200,
+  );
+
+  const parsed = parseJson<InterventionDraft>(raw);
+  if (!parsed.title || !parsed.content?.explanation) {
+    throw new Error("Intervention draft was incomplete. Try again.");
+  }
+  return parsed;
+}
+
+// ----------------------------------------------------------------
+
 /** Solve's "Try Similar Question" follow-up: one new question practising the
  * same skill with different numbers/context. Plain text, not JSON. */
 export async function generateSimilarQuestion(question: string): Promise<string> {
