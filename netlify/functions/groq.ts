@@ -1,6 +1,17 @@
 import type { Handler, HandlerEvent } from "@netlify/functions";
 
 const handler: Handler = async (event: HandlerEvent) => {
+  // GET /models — list models available to this key
+  if (event.httpMethod === "GET") {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) return { statusCode: 500, body: JSON.stringify({ error: "No key" }) };
+    const r = await fetch("https://api.groq.com/openai/v1/models", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    const d = await r.json();
+    return { statusCode: r.status, headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) };
+  }
+
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
