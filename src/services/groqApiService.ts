@@ -1,4 +1,6 @@
-const GROQ_API_URL = '/api/groq';
+const GROQ_API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+  ? '/.netlify/functions/groq'
+  : '/api/groq';
 
 // Available models — verified against this account's Groq key (October 2026)
 const AVAILABLE_MODELS = [
