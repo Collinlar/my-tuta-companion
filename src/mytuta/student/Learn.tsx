@@ -984,22 +984,110 @@ function answerMatches(input: string, expected: string): boolean {
   return hits >= Math.max(1, Math.ceil(Math.min(a.length, b.size) * 0.35));
 }
 
+type FoundationItem = {
+  icon: string;
+  title: string;
+  body: string;
+  question?: { prompt: string; options: string[]; correctIndex: number; explanation: string };
+};
+
 function Foundations({ content, onNext }: { content: Record<string, any>; onNext: () => void }) {
-  const items = (content.items as { icon: string; title: string; body: string; status: string }[]) || [];
+  const items = (content.items as FoundationItem[]) || [];
+  const [open, setOpen] = useState<number | null>(null);
+  const [picked, setPicked] = useState<Record<number, number>>({});
+  const [revealed, setRevealed] = useState<Record<number, boolean>>({});
+
+  function toggle(i: number) {
+    if (!items[i]?.question) return;
+    setOpen((prev) => (prev === i ? null : i));
+  }
+
+  function choose(itemIdx: number, optIdx: number) {
+    if (revealed[itemIdx]) return;
+    setPicked((p) => ({ ...p, [itemIdx]: optIdx }));
+  }
+
+  function check(itemIdx: number) {
+    setRevealed((r) => ({ ...r, [itemIdx]: true }));
+  }
+
+  function statusLabel(i: number) {
+    if (!items[i]?.question) return null;
+    if (!revealed[i]) return { text: "Check your knowledge", col: c.green };
+    const correct = picked[i] === items[i].question!.correctIndex;
+    return correct
+      ? { text: "Got it", col: c.green }
+      : { text: "Worth reviewing", col: c.amber };
+  }
+
   return (
     <>
       <p style={{ fontSize: 14.5, color: c.muted, marginBottom: 20 }}>{content.intro}</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 22 }}>
-        {items.map((f) => (
-          <div key={f.title} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 13, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-            <span style={{ width: 30, height: 30, flex: "none", borderRadius: 8, background: c.greenTint, color: c.green, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{f.icon}</span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>{f.title}</div>
-              <div style={{ fontSize: 12.5, color: c.muted }}>{f.body}</div>
+        {items.map((f, i) => {
+          const status = statusLabel(i);
+          const isOpen = open === i;
+          const q = f.question;
+          const hasPick = picked[i] !== undefined;
+          const isRevealed = !!revealed[i];
+          const isCorrect = isRevealed && picked[i] === q?.correctIndex;
+
+          return (
+            <div key={f.title} style={{ background: c.surface, border: `1px solid ${isOpen ? c.green : c.border2}`, borderRadius: 13, overflow: "hidden", transition: "border-color .15s" }}>
+              <div
+                onClick={() => toggle(i)}
+                style={{ padding: "16px 18px", display: "flex", alignItems: "center", gap: 14, cursor: q ? "pointer" : "default" }}
+              >
+                <span style={{ width: 30, height: 30, flex: "none", borderRadius: 8, background: isCorrect ? c.greenTint : isRevealed ? c.amberTint : c.greenTint, color: isCorrect ? c.green : isRevealed ? c.amber : c.green, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{f.icon}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, fontSize: 14 }}>{f.title}</div>
+                  <div style={{ fontSize: 12.5, color: c.muted }}>{f.body}</div>
+                </div>
+                {status && (
+                  <span style={{ fontSize: 11.5, fontWeight: 600, color: status.col, whiteSpace: "nowrap" }}>{status.text}</span>
+                )}
+              </div>
+
+              {isOpen && q && (
+                <div style={{ borderTop: `1px solid ${c.border2}`, padding: "16px 18px", background: c.paper }}>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: c.ink, marginBottom: 12, lineHeight: 1.5 }}><MathText text={q.prompt} /></p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+                    {q.options.map((opt, j) => {
+                      let bg = c.surface;
+                      let border = c.border2;
+                      let col = c.ink;
+                      if (isRevealed) {
+                        if (j === q.correctIndex) { bg = c.greenTint; border = c.green; col = c.greenDark; }
+                        else if (j === picked[i]) { bg = c.amberTint; border = c.amber; col = c.amberDark ?? c.amber; }
+                      } else if (picked[i] === j) {
+                        border = c.green; bg = c.greenTint;
+                      }
+                      return (
+                        <button
+                          key={j}
+                          onClick={() => choose(i, j)}
+                          disabled={isRevealed}
+                          style={{ background: bg, border: `1px solid ${border}`, borderRadius: 10, padding: "10px 14px", fontSize: 13.5, color: col, textAlign: "left", cursor: isRevealed ? "default" : "pointer", fontFamily: "inherit", transition: "all .12s" }}
+                        >
+                          <MathText text={`${["A","B","C","D"][j]}. ${opt}`} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {!isRevealed && (
+                    <button onClick={() => check(i)} disabled={!hasPick} style={{ ...btnPrimary, opacity: hasPick ? 1 : 0.5, cursor: hasPick ? "pointer" : "default" }}>Check my answer</button>
+                  )}
+                  {isRevealed && (
+                    <div style={{ background: isCorrect ? c.greenTint : c.amberTint, border: `1px solid ${isCorrect ? c.green : c.amber}`, borderRadius: 10, padding: "12px 14px", fontSize: 13.5, color: c.ink, lineHeight: 1.6 }}>
+                      <span style={{ fontWeight: 700, color: isCorrect ? c.greenDark : c.amber }}>{isCorrect ? "Correct." : "Not quite."}</span>{" "}
+                      <MathText text={q.explanation} />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <span style={{ fontSize: 11.5, fontWeight: 600, color: c.green }}>{f.status}</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <button onClick={onNext} style={btnPrimary}>Continue to understand</button>
     </>

@@ -243,7 +243,7 @@ Return JSON: {"stages":[{"ord":0,"name":"Foundations","loop_phase":"Diagnose","d
 Use these stage names in order: ${JSON.stringify(names)}.
 Phases in order: ${JSON.stringify(phases)}.
 content must be rich JSON matching the stage:
-- Foundations: {intro, items:[{icon,title,body,status}]}
+- Foundations: {intro, items:[{icon,title,body,question:{prompt,options:["A","B","C","D"],correctIndex:0,explanation}}]} — each item has one diagnostic MCQ question that tests prior knowledge of that specific idea before the student starts
 - Understand: {modes:["Core explanation","Analogy","Step by step","Visual description","Real-world example"], texts:[5 paragraphs — one per mode, each a genuinely different angle on the concept], misconception}
 - Worked examples: {question, steps:[{n,title,body}]}
 - Recall: {intro, cards:[{front,back}], count}
