@@ -17,8 +17,8 @@ import {
   type DiagnosticResult,
   type MasteryQuestion,
 } from "../data/ai";
-import { useMasteryPaths, useConcept, useConceptsCatalog, type ConceptStageVM, type PathVM } from "../data/queries";
-import { useAdvanceStage, useEnsureConceptStages, useEnsureRecallCards, useLogIndependentAttempt, useRateRecallCard, useSaveMasteryResult, useStartMasteryPath, useUploadIntakeFile, type RecallCardState, type UploadedIntakeFile } from "../data/mutations";
+import { useMasteryPaths, useConcept, useConceptsCatalog, usePendingConfirmation, type ConceptStageVM, type PathVM } from "../data/queries";
+import { useAdvanceStage, useAnswerConfirmation, useEnsureConceptStages, useEnsureRecallCards, useLogIndependentAttempt, useRateRecallCard, useSaveMasteryResult, useStartMasteryPath, useUploadIntakeFile, type RecallCardState, type UploadedIntakeFile } from "../data/mutations";
 import { useCreditGate } from "../credits/CreditGate";
 import { recordEvent } from "../intelligence/data";
 
@@ -64,10 +64,14 @@ export default function Learn() {
   const { data: paths, isLoading: pathsLoading } = useMasteryPaths();
   const { data: catalog } = useConceptsCatalog();
   const { data: concept, isLoading: conceptLoading, refetch: refetchConcept } = useConcept(slug);
+  const { data: pendingConfirmation } = usePendingConfirmation();
   const advance = useAdvanceStage();
   const startPath = useStartMasteryPath();
   const ensureStages = useEnsureConceptStages();
   const saveMastery = useSaveMasteryResult();
+  const answerConfirmation = useAnswerConfirmation();
+  const [confirmPicked, setConfirmPicked] = useState<number | null>(null);
+  const [confirmRevealed, setConfirmRevealed] = useState(false);
 
   const stages = concept?.stages || [];
   const activePath = useMemo(
@@ -218,6 +222,77 @@ export default function Learn() {
       null
     );
   };
+
+  if (view === "begin" && pendingConfirmation && !confirmRevealed) {
+    const q = pendingConfirmation.question;
+    const isCorrect = confirmPicked === q.correctIndex;
+    return (
+      <div style={{ maxWidth: 680, margin: "0 auto", padding: "32px 20px" }}>
+        <div style={{ fontSize: 11.5, fontWeight: 600, color: c.green, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 6 }}>Mastery confirmation</div>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: c.ink, marginBottom: 6 }}>{pendingConfirmation.concept_name}</h2>
+        <p style={{ fontSize: 14, color: c.muted, marginBottom: 28 }}>
+          You completed this path a couple of days ago. One question to confirm it stuck.
+        </p>
+        <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: "22px 24px", marginBottom: 16 }}>
+          <p style={{ fontSize: 15, fontWeight: 500, color: c.ink, lineHeight: 1.6, marginBottom: 18 }}><MathText text={q.prompt} /></p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {q.options.map((opt: string, j: number) => {
+              let bg = c.surface; let border = c.border2; let col = c.ink;
+              if (confirmRevealed) {
+                if (j === q.correctIndex) { bg = c.greenTint; border = c.green; col = c.greenDark; }
+                else if (j === confirmPicked) { bg = c.amberTint; border = c.amber; col = c.amber; }
+              } else if (confirmPicked === j) { border = c.green; bg = c.greenTint; }
+              return (
+                <button key={j} onClick={() => !confirmRevealed && setConfirmPicked(j)}
+                  style={{ background: bg, border: `1px solid ${border}`, borderRadius: 11, padding: "12px 16px", fontSize: 14, color: col, textAlign: "left", cursor: confirmRevealed ? "default" : "pointer", fontFamily: "inherit" }}>
+                  <MathText text={`${["A","B","C","D"][j]}. ${opt}`} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            if (confirmPicked === null) return;
+            void answerConfirmation.mutateAsync({
+              confirmationId: pendingConfirmation.id,
+              pathId: pendingConfirmation.path_id,
+              conceptName: pendingConfirmation.concept_name,
+              subject: pendingConfirmation.subject ?? undefined,
+              correct: confirmPicked === q.correctIndex,
+              level: "Secured",
+            }).then(() => setConfirmRevealed(true));
+          }}
+          disabled={confirmPicked === null || answerConfirmation.isPending}
+          style={{ ...btnPrimary, opacity: confirmPicked === null ? 0.5 : 1, cursor: confirmPicked === null ? "default" : "pointer", marginBottom: 0 }}
+        >
+          {answerConfirmation.isPending ? "Checking…" : "Submit my answer"}
+        </button>
+      </div>
+    );
+  }
+
+  if (view === "begin" && pendingConfirmation && confirmRevealed) {
+    const correct = confirmPicked === pendingConfirmation.question.correctIndex;
+    return (
+      <div style={{ maxWidth: 680, margin: "0 auto", padding: "32px 20px" }}>
+        <div style={{ background: correct ? c.greenTint : c.amberTint, border: `1px solid ${correct ? c.green : c.amber}`, borderRadius: 16, padding: "24px 26px", marginBottom: 24 }}>
+          <div style={{ fontSize: 17, fontWeight: 700, color: correct ? c.greenDark : c.amber, marginBottom: 8 }}>
+            {correct ? `${pendingConfirmation.concept_name} is now Secured.` : "Not quite — let's revisit this."}
+          </div>
+          <p style={{ fontSize: 14, color: c.ink, lineHeight: 1.6 }}>
+            <MathText text={pendingConfirmation.question.explanation} />
+          </p>
+          {!correct && (
+            <p style={{ fontSize: 13.5, color: c.muted, marginTop: 10 }}>
+              mytuta will bring {pendingConfirmation.concept_name} back in your Next Best Action so you can strengthen it.
+            </p>
+          )}
+        </div>
+        <button onClick={() => { setConfirmRevealed(false); setConfirmPicked(null); }} style={btnPrimary}>Continue to Learn</button>
+      </div>
+    );
+  }
 
   if (view === "begin") {
     return (

@@ -286,6 +286,44 @@ Formula error, Calculation error, Unit error, Interpretation error, Incomplete r
   });
 }
 
+export interface ConfirmationQuestion {
+  prompt: string;
+  options: [string, string, string, string];
+  correctIndex: number;
+  explanation: string;
+}
+
+export async function generateConfirmationQuestion(
+  conceptName: string,
+  subject: string,
+): Promise<ConfirmationQuestion> {
+  const raw = await groqApiService.makeRequest(
+    [
+      { role: "system", content: SYSTEM },
+      {
+        role: "user",
+        content: `Generate one unseen application question to confirm a student has genuinely understood "${conceptName}" (${subject}).
+
+Rules:
+- This question tests TRANSFER — the student must apply the concept to a scenario they have not seen before, not just recall a definition or repeat a worked example.
+- Use a real-world Ghanaian context (market, farm, household, road, trotro, Accra, Kumasi, etc.).
+- MCQ with exactly 4 options. Only one is correct.
+- The explanation must say WHY the correct answer is right and what concept it demonstrates.
+- Do not use em dashes. Do not use filler phrases.
+
+Return JSON exactly: {"prompt":"...","options":["A text","B text","C text","D text"],"correctIndex":0,"explanation":"..."}
+correctIndex is 0-based.`,
+      },
+    ],
+    800,
+  );
+  const q = parseJson<ConfirmationQuestion>(raw);
+  if (!q?.prompt || !q?.options || q.correctIndex === undefined) {
+    throw new Error("Confirmation question generation failed");
+  }
+  return q;
+}
+
 export async function answerConceptQuestion(conceptName: string, subject: string, contextText: string, question: string): Promise<string> {
   const raw = await groqApiService.makeRequest(
     [

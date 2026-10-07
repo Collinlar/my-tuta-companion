@@ -667,6 +667,27 @@ export function useSaveMasteryResult() {
       const user_id = await uid();
       if (!user_id) throw new Error("Not signed in");
       const pct = Math.min(100, Math.round((input.overall / 5) * 100));
+      // Schedule a confirmation question 48–72 hours from now (random offset to vary delivery)
+      const hoursAhead = 48 + Math.floor(Math.random() * 24);
+      const scheduledFor = new Date(Date.now() + hoursAhead * 60 * 60 * 1000).toISOString();
+      let confirmationStored = false;
+      try {
+        const { generateConfirmationQuestion } = await import("./ai");
+        const q = await generateConfirmationQuestion(input.conceptName, input.subject || "STEM");
+        await supabase.from("mastery_confirmations").insert({
+          user_id,
+          concept_id: input.conceptId || null,
+          concept_name: input.conceptName,
+          subject: input.subject || null,
+          path_id: input.pathId,
+          question: q,
+          scheduled_for: scheduledFor,
+        });
+        confirmationStored = true;
+      } catch {
+        // If question generation fails, still complete the path normally
+      }
+
       await supabase
         .from("mastery_paths")
         .update({
@@ -674,8 +695,8 @@ export function useSaveMasteryResult() {
           stage_label: "Mastery check",
           pct: Math.max(pct, 85),
           level: input.level,
-          next_action: "See progress",
-          status: "completed",
+          next_action: confirmationStored ? "Confirmation pending" : "See progress",
+          status: confirmationStored ? "awaiting_confirmation" : "completed",
         })
         .eq("id", input.pathId);
 
@@ -685,7 +706,8 @@ export function useSaveMasteryResult() {
           concept_id: input.conceptId || null,
           concept_name: input.conceptName,
           subject: input.subject || null,
-          overall_state: input.level,
+          // Gate 2 pending: hold at "Mastery check passed" until confirmation answered
+          overall_state: confirmationStored ? "Mastery check passed" : input.level,
           concept_knowledge: input.knowledge,
           application: input.application,
           reasoning: input.analysis,
@@ -701,6 +723,71 @@ export function useSaveMasteryResult() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["mastery_paths"] });
       qc.invalidateQueries({ queryKey: ["mastery_profiles"] });
+      qc.invalidateQueries({ queryKey: ["learner_stats"] });
+    },
+  });
+}
+
+// ---------- Mastery confirmation (Gate 2) ----------
+
+export function useAnswerConfirmation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      confirmationId: string;
+      pathId: string | null;
+      conceptId?: string | null;
+      conceptName: string;
+      subject?: string;
+      correct: boolean;
+      level: string;
+    }) => {
+      const user_id = await uid();
+      if (!user_id) throw new Error("Not signed in");
+
+      // Record the answer
+      await supabase
+        .from("mastery_confirmations")
+        .update({ answered_at: new Date().toISOString(), correct: input.correct })
+        .eq("id", input.confirmationId);
+
+      if (input.correct) {
+        // Gate 2 passed: mark concept as Secured
+        await supabase
+          .from("mastery_profiles")
+          .update({ overall_state: "Secured" })
+          .eq("user_id", user_id)
+          .eq("concept_name", input.conceptName);
+
+        if (input.pathId) {
+          await supabase
+            .from("mastery_paths")
+            .update({ status: "completed", next_action: "See progress" })
+            .eq("id", input.pathId);
+        }
+      } else {
+        // Gate 2 failed: back to in_progress, path re-opened for review
+        await supabase
+          .from("mastery_profiles")
+          .update({ overall_state: "In progress" })
+          .eq("user_id", user_id)
+          .eq("concept_name", input.conceptName);
+
+        if (input.pathId) {
+          await supabase
+            .from("mastery_paths")
+            .update({ status: "in_progress", next_action: "Review and retry" })
+            .eq("id", input.pathId);
+        }
+      }
+
+      await refreshLearnerStats(user_id);
+      return input;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pending_confirmation"] });
+      qc.invalidateQueries({ queryKey: ["mastery_profiles"] });
+      qc.invalidateQueries({ queryKey: ["mastery_paths"] });
       qc.invalidateQueries({ queryKey: ["learner_stats"] });
     },
   });

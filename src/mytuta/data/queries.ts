@@ -593,6 +593,36 @@ export interface WalletVM {
 }
 
 /** The signed-in user's live credit balance (per-bucket + nearest expiry). */
+export interface PendingConfirmation {
+  id: string;
+  concept_name: string;
+  subject: string | null;
+  path_id: string | null;
+  question: { prompt: string; options: string[]; correctIndex: number; explanation: string };
+  scheduled_for: string;
+}
+
+export function usePendingConfirmation() {
+  return useQuery({
+    queryKey: ["pending_confirmation"],
+    queryFn: async (): Promise<PendingConfirmation | null> => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data } = await supabase
+        .from("mastery_confirmations")
+        .select("id, concept_name, subject, path_id, question, scheduled_for")
+        .eq("user_id", user.id)
+        .is("answered_at", null)
+        .lte("scheduled_for", new Date().toISOString())
+        .order("scheduled_for", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      return data as PendingConfirmation | null;
+    },
+    staleTime: 60_000,
+  });
+}
+
 export function useWalletSummary() {
   return useQuery({
     queryKey: ["wallet_summary"],
