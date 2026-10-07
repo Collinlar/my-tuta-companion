@@ -14,7 +14,7 @@ export interface OnbStep {
 
 export const studentSteps: OnbStep[] = [
   { kicker: "About you", title: "What is your learning stage?", sub: "This shapes the level of every explanation.", options: ["Lower secondary", "Upper secondary", "Early tertiary", "Other"] },
-  { kicker: "Your subjects", title: "Which STEM areas interest you?", sub: "Maths and General Science are live. More are coming soon.", options: ["Mathematics", "General Science", "Biology", "Chemistry", "Physics", "Computing", "Engineering"], soon: [2, 3, 4, 5, 6] },
+  { kicker: "Your subjects", title: "Which STEM areas interest you?", sub: "Pick what you study. Computing and Engineering are coming soon.", options: ["Mathematics", "General Science", "Biology", "Chemistry", "Physics", "Computing", "Engineering"], soon: [5, 6] },
   { kicker: "Your goals", title: "What do you want from mytuta?", sub: "Pick as many as you like.", options: ["Understand difficult topics", "Improve in school", "Prepare for a test", "Solve questions better", "Build practical skills", "Join challenges", "Explore STEM"] },
   { kicker: "Where you struggle", title: "What makes STEM hard for you?", sub: "We will meet you there first.", options: ["Some explanations are unclear", "I forget what I study", "I struggle to start questions", "I make calculation mistakes", "I struggle to apply concepts", "I need more practice"] },
   { kicker: "How you learn", title: "How do you like to learn?", sub: "This only shapes your first experience.", options: ["Simple explanations", "Visual explanations", "Worked examples", "Step-by-step guidance", "Practice questions", "Practical activities"] },
