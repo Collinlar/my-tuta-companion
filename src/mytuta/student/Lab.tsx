@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, filter, seg } from "../theme";
 import { Loading, EmptyState } from "../ui";
@@ -33,6 +33,10 @@ export default function Lab() {
   const [reflection, setReflection] = useState<Record<number, string>>({});
   const [hint, setHint] = useState<string | null>(null);
   const [hintLoading, setHintLoading] = useState(false);
+  const hintRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (hint) hintRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [hint]);
   const recordObservation = useRecordLabObservation();
   const completeActivity = useCompleteLabActivity();
 
@@ -265,7 +269,7 @@ export default function Lab() {
         {/* Lab Assistant */}
         <div style={{ marginBottom: 16 }}>
           {hint && (
-            <div style={{ background: "#F5F0FF", border: "1px solid #C4B5FD", borderRadius: 12, padding: "14px 16px", marginBottom: 10 }}>
+            <div ref={hintRef} style={{ background: "#F5F0FF", border: "1px solid #C4B5FD", borderRadius: 12, padding: "14px 16px", marginBottom: 10 }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: "#5c2d91", letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 6 }}>Lab Assistant</div>
               <p style={{ fontSize: 13.5, color: c.ink, lineHeight: 1.6, margin: 0 }}>{hint}</p>
             </div>

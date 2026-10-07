@@ -35,6 +35,10 @@ export default function Challenges() {
   const [work, setWork] = useState<Record<number, string>>({});
   const [hint, setHint] = useState<string | null>(null);
   const [hintLoading, setHintLoading] = useState(false);
+  const hintRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (hint) hintRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [hint]);
   const resumedFor = useRef<string | null>(null);
 
   const all = (challenges || []) as ChallengeVMExt[];
@@ -270,7 +274,7 @@ export default function Challenges() {
         {/* Challenge Coach */}
         <div style={{ marginBottom: 16 }}>
           {hint && (
-            <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 12, padding: "14px 16px", marginBottom: 10 }}>
+            <div ref={hintRef} style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 12, padding: "14px 16px", marginBottom: 10 }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: "#92400E", letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 6 }}>Challenge Coach</div>
               <p style={{ fontSize: 13.5, color: c.ink, lineHeight: 1.6, margin: 0 }}>{hint}</p>
             </div>
