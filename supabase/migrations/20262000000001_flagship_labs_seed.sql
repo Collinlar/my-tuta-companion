@@ -3,6 +3,10 @@
 -- the existing flat fields. The renderer reads `content` for mission, prediction,
 -- reflection, whatThisProves, skillTags, and the enriched step fields (watchFor, thinkingPrompt).
 
+-- Add extended content column if it doesn't exist yet.
+alter table lab_activities add column if not exists content jsonb default '{}'::jsonb;
+alter table challenges add column if not exists content jsonb default '{}'::jsonb;
+
 -- Clear any previous thin placeholder labs for these 5 slugs so we can replace cleanly.
 delete from lab_activities where slug in (
   'density-investigation',
