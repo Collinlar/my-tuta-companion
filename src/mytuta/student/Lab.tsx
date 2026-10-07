@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { c, filter, seg } from "../theme";
 import { Loading, EmptyState } from "../ui";
 import { useLayout, pageBox } from "../layout";
+import { MathText } from "../MathText";
 import type { LabActivityVM } from "../data/queries";
 import { useLabActivities } from "../data/queries";
 import { useRecordLabObservation, useCompleteLabActivity } from "../data/mutations";
@@ -240,11 +241,11 @@ export default function Lab() {
         <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 18, padding: "28px 26px", marginBottom: 16 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 12 }}>{stepCur.phase} · Step {step + 1} of {current.steps.length}</div>
           <h2 style={{ fontSize: 21, marginBottom: 10 }}>{stepCur.title}</h2>
-          <p style={{ fontSize: 15, color: c.body, lineHeight: 1.65 }}>{stepCur.body}</p>
+          <p style={{ fontSize: 15, color: c.body, lineHeight: 1.65 }}><MathText text={stepCur.body} /></p>
           {stepCur.watchFor && (
             <div style={{ background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, borderRadius: 11, padding: "12px 14px", marginTop: 16 }}>
               <span style={{ fontSize: 11, fontWeight: 600, color: c.greenDark, letterSpacing: ".05em", textTransform: "uppercase" }}>Watch for: </span>
-              <span style={{ fontSize: 13, color: c.ink, lineHeight: 1.55 }}>{stepCur.watchFor}</span>
+              <span style={{ fontSize: 13, color: c.ink, lineHeight: 1.55 }}><MathText text={stepCur.watchFor} /></span>
             </div>
           )}
           {stepCur.record && (
