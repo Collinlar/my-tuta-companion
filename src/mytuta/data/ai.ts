@@ -244,7 +244,7 @@ Use these stage names in order: ${JSON.stringify(names)}.
 Phases in order: ${JSON.stringify(phases)}.
 content must be rich JSON matching the stage:
 - Foundations: {intro, items:[{icon,title,body,status}]}
-- Understand: {modes:[5 strings], texts:[5 paragraphs], misconception}
+- Understand: {modes:["Core explanation","Analogy","Step by step","Visual description","Real-world example"], texts:[5 paragraphs — one per mode, each a genuinely different angle on the concept], misconception}
 - Worked examples: {question, steps:[{n,title,body}]}
 - Recall: {intro, cards:[{front,back}], count}
 - Guided practice: {question, coachSteps:[{mark,bg,fg,q,hint,expected}]}
@@ -252,6 +252,7 @@ content must be rich JSON matching the stage:
 - Apply: {badges, title, body, takeHome, prompt, rubric:["..."]}
 - Mastery check: {intro, questions:[{"prompt":"...","options":["A","B","C","D"],"correctIndex":0,"dimension":"Knowledge|Application|Analysis"}]}
 All content must be about ${conceptName}, Ghana-grounded. expected is a short model answer for checking learner steps.
+For Understand: modes must be exactly ["Core explanation","Analogy","Step by step","Visual description","Real-world example"] in that order. Each text in texts[] is a plain-English paragraph written for that specific mode — do not use "Reading", "Video", "Simulation", "Discussion", or "Summary" as mode names. The app renders all modes as text; do not promise video or interactive content.
 CRITICAL: every question-like field (Worked examples "question", Guided practice "question" and each coachStep "q",
 Independent practice "text", Apply "prompt", Mastery check "prompt") MUST be fully self-contained: state every
 number, equation, or given value needed to answer it right there in that field. Never write a vague stem like
