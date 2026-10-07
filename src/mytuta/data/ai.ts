@@ -539,3 +539,77 @@ ${question}`,
   );
   return raw.trim().replace(/^["'`]+|["'`]+$/g, "");
 }
+
+// ---------- Lab Assistant ----------
+
+/**
+ * Returns a single coaching hint for the current lab step.
+ * The prompt instructs the AI to ask a further question rather than reveal the answer.
+ * Free — no credit deduction.
+ */
+export async function getLabAssistantHint(input: {
+  labTitle: string;
+  stepTitle: string;
+  stepBody: string;
+  studentObservation: string;
+  conceptName: string;
+}): Promise<string> {
+  const raw = await groqApiService.makeRequest(
+    [
+      { role: "system", content: SYSTEM },
+      {
+        role: "user",
+        content: `You are the Lab Assistant in a secondary school practical activity.
+Lab: "${input.labTitle}"
+Step: "${input.stepTitle}"
+Step instruction: "${input.stepBody}"
+Concept being studied: "${input.conceptName}"
+Student's observation so far: "${input.studentObservation || "(nothing written yet)"}"
+
+Your job: give ONE short coaching hint (2-3 sentences) that helps the student think more carefully.
+Do NOT reveal the expected result or conclusion. Ask a question that pushes their thinking forward.
+Write directly to the student. Use plain English. No bullet points. No preamble.
+Return only the hint text, nothing else.`,
+      },
+    ],
+    400,
+  );
+  return raw.trim().replace(/^["'`]+|["'`]+$/g, "");
+}
+
+// ---------- Challenge Coach ----------
+
+/**
+ * Returns a single coaching nudge for the current challenge stage.
+ * Helps the student think, never completes the work for them.
+ * Free — no credit deduction.
+ */
+export async function getChallengeCoachHint(input: {
+  challengeTitle: string;
+  stageName: string;
+  stageTask: string;
+  studentWork: string;
+  conceptNames: string[];
+}): Promise<string> {
+  const raw = await groqApiService.makeRequest(
+    [
+      { role: "system", content: SYSTEM },
+      {
+        role: "user",
+        content: `You are the Challenge Coach in a STEM challenge activity.
+Challenge: "${input.challengeTitle}"
+Current stage: "${input.stageName}"
+Stage task: "${input.stageTask}"
+Related concepts: ${input.conceptNames.join(", ") || "general STEM"}
+Student's work so far: "${input.studentWork || "(nothing written yet)"}"
+
+Your job: give ONE short coaching nudge (2-3 sentences) that helps the student develop their thinking.
+Do NOT write their answer or solution for them. Ask a question or point to something they may have missed.
+Write directly to the student. Use plain English. No bullet points. No preamble.
+Return only the nudge text, nothing else.`,
+      },
+    ],
+    400,
+  );
+  return raw.trim().replace(/^["'`]+|["'`]+$/g, "");
+}

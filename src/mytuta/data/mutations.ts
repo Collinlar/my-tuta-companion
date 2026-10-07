@@ -883,6 +883,49 @@ export function useRecordLabObservation() {
   });
 }
 
+/** Records a completed lab activity with its reflection, observations, and skill evidence.
+ * Writes to learning_events so mastery profiles can attribute practical evidence. */
+export function useCompleteLabActivity() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      labId: string;
+      labTitle: string;
+      conceptSlug?: string;
+      conceptName?: string;
+      skillTags?: string[];
+      observations: Record<number, string>;
+      reflection: Record<number, string>;
+      prediction?: string;
+      predictionAccurate?: boolean;
+    }) => {
+      const user_id = await uid();
+      if (!user_id) return;
+      const { error } = await supabase.from("learning_events").insert({
+        user_id,
+        event_type: "lab_completed",
+        payload: {
+          lab_id: input.labId,
+          lab_title: input.labTitle,
+          concept_slug: input.conceptSlug,
+          concept_name: input.conceptName,
+          skill_tags: input.skillTags || [],
+          observations: input.observations,
+          reflection: input.reflection,
+          prediction: input.prediction,
+          prediction_accurate: input.predictionAccurate,
+          completed_at: new Date().toISOString(),
+        } as unknown as Json,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["learner_stats"] });
+      qc.invalidateQueries({ queryKey: ["mastery_profiles"] });
+    },
+  });
+}
+
 /** Marks an assigned experience as opened (in_progress) or done (completed).
  * Always writes exactly the status it's given — callers are responsible for
  * only firing "in_progress" when there's no existing (possibly completed)

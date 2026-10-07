@@ -11,10 +11,32 @@ import { supabase } from "@/integrations/supabase/client";
 export interface PathVM { id: string; concept: string; subject: string; stage: string; pct: number; color: string; level: string; next: string; currentStage: number; conceptSlug?: string }
 export interface StudentAssignmentVM { id: string; icon: string; color: string; title: string; teacher: string; due: string; status: string; statusColor: string; assessmentId: string | null; experienceId: string | null }
 export interface LearnerStatsVM { mastered: number; developing: number; accuracy: number; streak: number; skills: { name: string; pct: number }[] }
-export interface LabStep { phase: string; title: string; body: string; record?: boolean }
-export interface LabActivityVM { id: string; slug: string; color: string; cat: string; catFg: string; catBg: string; title: string; body: string; equip: string; time: string; demonstrates: string; objective: string; materials: string[]; safety: string; steps: LabStep[]; subject: string; difficulty: string; teamMode: string; dimensions: string[] }
-export interface ChallengeStage { name: string; goal: string; task: string }
-export interface ChallengeVM { id: string; type: string; fg: string; bg: string; scope: string; mode: string; timeline: string; accent: string; title: string; body: string; brief: string; stages: ChallengeStage[]; isFeatured: boolean }
+export interface LabStep { phase: string; title: string; body: string; record?: boolean; watchFor?: string; thinkingPrompt?: string }
+export interface LabActivityVM {
+  id: string; slug: string; color: string; cat: string; catFg: string; catBg: string;
+  title: string; body: string; equip: string; time: string; demonstrates: string;
+  objective: string; materials: string[]; safety: string; steps: LabStep[];
+  subject: string; difficulty: string; teamMode: string; dimensions: string[];
+  // MVP experience fields
+  mission?: string;
+  predictionPrompt?: string;
+  reflectionPrompts?: string[];
+  whatThisProves?: string;
+  skillTags?: string[];
+  conceptSlug?: string;
+  conceptName?: string;
+}
+export interface ChallengeStage { name: string; goal: string; task: string; weight?: number }
+export interface ChallengeVM {
+  id: string; type: string; fg: string; bg: string; scope: string; mode: string;
+  timeline: string; accent: string; title: string; body: string; brief: string;
+  stages: ChallengeStage[]; isFeatured: boolean;
+  // MVP experience fields
+  story?: string;
+  rubric?: { criterion: string; description: string; max: number }[];
+  conceptNames?: string[];
+  coachContext?: string;
+}
 export interface MasteryMapVM { concept: string; subject: string; level: string }
 export interface ConceptStageVM { ord: number; name: string; loopPhase: string; description: string; estTime: string; content: Record<string, unknown> }
 export interface ExperienceVM { id: string; cover: string; subject: string; form: string; title: string; stages: number; status: string; tags: string[] }
@@ -205,12 +227,22 @@ export function useLabActivities() {
     queryFn: async (): Promise<LabActivityVM[]> => {
       const { data, error } = await supabase.from("lab_activities").select("*").order("created_at");
       if (error) throw error;
-      return (data || []).map((a) => ({
-        id: a.id, slug: a.slug, color: a.color || "#2e9e6b", cat: a.category, catFg: a.cat_fg || "#2e9e6b", catBg: a.cat_bg || "#eaf5ef",
-        title: a.title, body: a.body || "", equip: a.equipment || "", time: a.time_estimate || "", demonstrates: a.demonstrates || "",
-        objective: a.objective || "", materials: (a.materials as unknown as string[]) || [], safety: a.safety || "", steps: (a.steps as unknown as LabStep[]) || [],
-        subject: a.subject || "", difficulty: a.difficulty || "", teamMode: a.team_mode || "", dimensions: (a.dimensions as unknown as string[]) || [],
-      }));
+      return (data || []).map((a) => {
+        const content = (a.content as Record<string, unknown>) || {};
+        return {
+          id: a.id, slug: a.slug, color: a.color || "#2e9e6b", cat: a.category, catFg: a.cat_fg || "#2e9e6b", catBg: a.cat_bg || "#eaf5ef",
+          title: a.title, body: a.body || "", equip: a.equipment || "", time: a.time_estimate || "", demonstrates: a.demonstrates || "",
+          objective: a.objective || "", materials: (a.materials as unknown as string[]) || [], safety: a.safety || "", steps: (a.steps as unknown as LabStep[]) || [],
+          subject: a.subject || "", difficulty: a.difficulty || "", teamMode: a.team_mode || "", dimensions: (a.dimensions as unknown as string[]) || [],
+          mission: (content.mission as string) || undefined,
+          predictionPrompt: (content.predictionPrompt as string) || undefined,
+          reflectionPrompts: (content.reflectionPrompts as string[]) || undefined,
+          whatThisProves: (content.whatThisProves as string) || undefined,
+          skillTags: (content.skillTags as string[]) || undefined,
+          conceptSlug: (content.conceptSlug as string) || (a as Record<string, unknown>).concept_slug as string || undefined,
+          conceptName: (content.conceptName as string) || undefined,
+        };
+      });
     },
   });
 }
@@ -221,11 +253,18 @@ export function useChallenges() {
     queryFn: async (): Promise<ChallengeVM[]> => {
       const { data, error } = await supabase.from("challenges").select("*").order("is_featured", { ascending: false }).order("created_at");
       if (error) throw error;
-      return (data || []).map((c) => ({
-        id: c.id, type: c.type, fg: c.fg || "#6b5aa8", bg: c.bg || "#f0edf7", scope: c.scope || "", mode: c.mode || "",
-        timeline: c.timeline || "", accent: c.accent || "#6b5aa8", title: c.title, body: c.body || "", brief: c.brief || "",
-        stages: (c.stages as unknown as ChallengeStage[]) || [], isFeatured: !!c.is_featured,
-      }));
+      return (data || []).map((c) => {
+        const content = (c.content as Record<string, unknown>) || {};
+        return {
+          id: c.id, type: c.type, fg: c.fg || "#6b5aa8", bg: c.bg || "#f0edf7", scope: c.scope || "", mode: c.mode || "",
+          timeline: c.timeline || "", accent: c.accent || "#6b5aa8", title: c.title, body: c.body || "", brief: c.brief || "",
+          stages: (c.stages as unknown as ChallengeStage[]) || [], isFeatured: !!c.is_featured,
+          story: (content.story as string) || undefined,
+          rubric: (content.rubric as ChallengeVM["rubric"]) || undefined,
+          conceptNames: (content.conceptNames as string[]) || undefined,
+          coachContext: (content.coachContext as string) || undefined,
+        };
+      });
     },
   });
 }
