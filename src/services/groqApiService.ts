@@ -1,30 +1,18 @@
 const GROQ_API_URL = '/api/groq';
 
-// Available models with their characteristics (Updated 2024 - Current active Groq models)
+// Available models — verified against this account's Groq key (October 2026)
 const AVAILABLE_MODELS = [
   {
-    name: 'llama-3.3-70b-versatile',
+    name: 'qwen/qwen3.8-27b',
     maxTokens: 12000,
     priority: 1,
-    description: 'Latest Llama 3.3 70B model with versatile capabilities'
+    description: 'Qwen 3.8 27B — primary model for educational content generation'
   },
   {
-    name: 'llama-3.1-8b-instant',
+    name: 'allam-2-7b',
     maxTokens: 8000,
     priority: 2,
-    description: 'Fast, efficient model for quick responses'
-  },
-  {
-    name: 'groq/compound',
-    maxTokens: 8000,
-    priority: 3,
-    description: 'Groq compound model for diverse tasks'
-  },
-  {
-    name: 'groq/compound-mini',
-    maxTokens: 4000,
-    priority: 4,
-    description: 'Lightweight Groq compound model for quick tasks'
+    description: 'Allam 2 7B — fast fallback for shorter generations'
   }
 ];
 
