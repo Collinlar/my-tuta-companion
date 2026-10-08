@@ -140,7 +140,7 @@ export default function Create() {
       </div>
       <div style={{ display: "flex", gap: 6, marginBottom: 28 }}>
         {[0, 1, 2, 3, 4].map((i) => (
-          <span key={i} style={{ flex: 1, height: 5, borderRadius: 3, background: i <= step ? c.green : "#eae3d4" }} />
+          <span key={i} style={{ flex: 1, height: 5, borderRadius: 3, background: i < step ? c.green : i === step ? "#9fd3ba" : "#eae3d4" }} />
         ))}
       </div>
       <div style={{ background: c.surface, border: `1px solid ${c.border}`, borderRadius: 18, padding: "32px 30px" }}>

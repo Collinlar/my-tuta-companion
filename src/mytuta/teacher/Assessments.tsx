@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { c, font, chip } from "../theme";
 import { Loading } from "../ui";
@@ -278,7 +278,9 @@ export default function Assessments() {
 
   // result
   const row = rows.find((r) => r.id === rowId) || rows[0];
-  if (!row) { setView("list"); return null; }
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useLayoutEffect(() => { if (view === "result" && !row) setView("list"); }, [view, row]);
+  if (view === "result" && !row) return null;
   return (
     <div style={pageBox(L.pad, 680)}>
       <button type="button" onClick={() => setView("list")} style={backBtn}>← Assessments</button>

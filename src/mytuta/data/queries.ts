@@ -42,7 +42,7 @@ export interface MasteryMapVM { concept: string; subject: string; level: string 
 export interface ConceptStageVM { ord: number; name: string; loopPhase: string; description: string; estTime: string; content: Record<string, unknown> }
 export interface ExperienceVM { id: string; cover: string; subject: string; form: string; title: string; stages: number; status: string; tags: string[] }
 export interface ClassVM { id: string; name: string; students: number; code: string; color: string; mark: string; stats: { v: string; l: string }[] }
-export interface ClassStudentVM { name: string; mark: string; color: string; concept: string; stage: string; level: string }
+export interface ClassStudentVM { id: string; name: string; mark: string; color: string; concept: string; stage: string; level: string }
 export interface AssessmentVM { id: string; title: string; type: string; klass: string; avg: string; color: string; submitted: number; total: number; dist: { l: string; v: number; c: string }[] }
 export interface TeacherInsightVM { concept: string; pct: string; detail: string }
 export interface TeacherStatsVM { activeClasses: number; students: number; reachingSecure: number; conceptsTaught: number; classSkills: { name: string; pct: number; color: string }[] }
@@ -462,7 +462,7 @@ export function useClassStudents(classId: string | undefined) {
     queryFn: async (): Promise<ClassStudentVM[]> => {
       const { data, error } = await supabase.from("class_students").select("*").eq("class_id", classId!).order("created_at");
       if (error) throw error;
-      return (data || []).map((s) => ({ name: s.display_name, mark: s.mark || "", color: s.color || "#2e9e6b", concept: s.current_concept || "", stage: s.stage || "", level: s.mastery_level || "Beginning" }));
+      return (data || []).map((s) => ({ id: s.id, name: s.display_name, mark: s.mark || "", color: s.color || "#2e9e6b", concept: s.current_concept || "", stage: s.stage || "", level: s.mastery_level || "Beginning" }));
     },
   });
 }

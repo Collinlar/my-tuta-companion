@@ -39,7 +39,7 @@ export default function Experiences() {
           {list.length === 0 && (
             <div style={{ fontSize: 13, color: c.muted, padding: "16px 0" }}>No experiences match this filter.</div>
           )}
-          <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: L.mobile ? "1fr" : L.g3, gap: 14 }}>
             {list.map((e) => (
               <button key={e.id} onClick={() => nav(`/teacher/experiences/${e.id}/edit`)} style={{ textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}>
                 <div style={{ height: 72, background: e.cover, display: "flex", alignItems: "flex-end", padding: "11px 14px" }}>

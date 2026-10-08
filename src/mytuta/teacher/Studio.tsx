@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { c } from "../theme";
 import { Loading, EmptyState } from "../ui";
 import { useLayout } from "../layout";
@@ -13,6 +14,7 @@ import { useCreditGate } from "../credits/CreditGate";
 export default function Studio() {
   const L = useLayout();
   const nav = useNavigate();
+  const { toast } = useToast();
   const { experienceId } = useParams();
   const [studioParams] = useSearchParams();
   const { data: exp, isLoading } = useExperience(experienceId);
@@ -85,8 +87,24 @@ export default function Studio() {
     const next = sectionInserts.filter((_, i) => i !== idx);
     saveSection.mutate({ experienceId: exp.id, ord: section, name: sectionName, body, aiBlocks: next });
   };
-  const doSave = () => { saveSection.mutate({ experienceId: exp.id, ord: section, name: sectionName, body, aiBlocks: sectionInserts }); setSaved(true); };
-  const assign = (name: string, id: string) => { assignExp.mutate({ experienceId: exp.id, classId: id }); setAssignedTo(name); setAssignOpen(false); setSaved(true); };
+  const doSave = async () => {
+    try {
+      await saveSection.mutateAsync({ experienceId: exp.id, ord: section, name: sectionName, body, aiBlocks: sectionInserts });
+      setSaved(true);
+    } catch {
+      toast({ title: "Could not save this section", description: "Check your connection and try again.", variant: "destructive" });
+    }
+  };
+  const assign = async (name: string, id: string) => {
+    try {
+      await assignExp.mutateAsync({ experienceId: exp.id, classId: id });
+      setAssignedTo(name);
+      setAssignOpen(false);
+      setSaved(true);
+    } catch {
+      toast({ title: "Could not assign this experience", description: "Check your connection and try again.", variant: "destructive" });
+    }
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: L.mobile ? "column" : "row", height: "100%", animation: "fadein .3s ease" }}>
@@ -196,7 +214,7 @@ export default function Studio() {
           </div>
 
           <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap" }}>
-            <button type="button" onClick={doSave} style={{ background: saved ? c.greenDark : c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 22px", borderRadius: 11, cursor: "pointer" }}>{saved ? "✓ Saved" : "Save experience"}</button>
+            <button type="button" onClick={() => void doSave()} disabled={saveSection.isPending} style={{ background: saved ? c.greenDark : c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 22px", borderRadius: 11, cursor: "pointer", opacity: saveSection.isPending ? 0.7 : 1 }}>{saveSection.isPending ? "Saving…" : saved ? "✓ Saved" : "Save experience"}</button>
             <button type="button" onClick={() => setAssignOpen(!assignOpen)} style={{ background: "none", border: `1px solid ${c.border}`, color: c.soft, fontWeight: 600, fontSize: 14, padding: "12px 20px", borderRadius: 11, cursor: "pointer" }}>Assign to a class</button>
           </div>
           {assignOpen && (
@@ -205,7 +223,7 @@ export default function Studio() {
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {(classes || []).length === 0 && <div style={{ fontSize: 13, color: c.muted }}>Create a class first, or finish onboarding so starter classes appear.</div>}
                 {(classes || []).map((cl) => (
-                  <button key={cl.id} type="button" onClick={() => assign(cl.name, cl.id)} style={{ textAlign: "left", display: "flex", alignItems: "center", gap: 12, background: "#fff", border: `1px solid ${c.border2}`, borderRadius: 11, padding: "11px 13px", cursor: "pointer" }}>
+                  <button key={cl.id} type="button" onClick={() => void assign(cl.name, cl.id)} disabled={assignExp.isPending} style={{ textAlign: "left", display: "flex", alignItems: "center", gap: 12, background: "#fff", border: `1px solid ${c.border2}`, borderRadius: 11, padding: "11px 13px", cursor: assignExp.isPending ? "default" : "pointer", opacity: assignExp.isPending ? 0.7 : 1 }}>
                     <span style={{ width: 32, height: 32, flex: "none", borderRadius: 8, background: cl.color, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>{cl.mark}</span>
                     <span style={{ flex: 1, fontSize: 13.5, fontWeight: 600 }}>{cl.name}</span>
                     <span style={{ fontSize: 12, color: c.faint }}>{cl.students} students</span>

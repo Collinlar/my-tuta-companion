@@ -153,7 +153,7 @@ export default function Classes() {
             </div>
             {(students || []).length === 0 && <div style={{ padding: "16px 18px", fontSize: 13, color: c.muted }}>No students on the roster yet. Share the join code {current.code}.</div>}
             {(students || []).map((s) => (
-              <div key={s.name} style={{ display: "grid", gridTemplateColumns: "2fr 1.3fr 1fr 1fr", alignItems: "center", padding: "13px 18px", borderBottom: `1px solid ${c.paper}`, fontSize: 13.5 }}>
+              <div key={s.id} style={{ display: "grid", gridTemplateColumns: "2fr 1.3fr 1fr 1fr", alignItems: "center", padding: "13px 18px", borderBottom: `1px solid ${c.paper}`, fontSize: 13.5 }}>
                 <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ width: 28, height: 28, flex: "none", borderRadius: "50%", background: s.color, color: "#fff", fontWeight: 700, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center" }}>{s.mark}</span>{s.name}
                 </span>
@@ -256,8 +256,13 @@ export default function Classes() {
           <button
             disabled={createClass.isPending || !form["Class name"]}
             onClick={async () => {
-              await createClass.mutateAsync({ name: form["Class name"] || "New class", subject: form["Subject"], year_group: form["Year group"] });
-              setView("list");
+              try {
+                await createClass.mutateAsync({ name: form["Class name"] || "New class", subject: form["Subject"], year_group: form["Year group"] });
+                setView("list");
+              } catch (e) {
+                const msg = e instanceof Error ? e.message : "Could not create this class.";
+                toast({ title: "Create failed", description: msg, variant: "destructive" });
+              }
             }}
             style={{ flex: 1, background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14.5, padding: 13, borderRadius: 11, cursor: "pointer", opacity: createClass.isPending || !form["Class name"] ? 0.6 : 1 }}
           >{createClass.isPending ? "Creating…" : "Create class"}</button>
