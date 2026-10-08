@@ -233,7 +233,11 @@ export function useLabActivities() {
         return {
           id: a.id, slug: a.slug, color: a.color || "#2e9e6b", cat: a.category, catFg: a.cat_fg || "#2e9e6b", catBg: a.cat_bg || "#eaf5ef",
           title: a.title, body: a.body || "", equip: a.equipment || "", time: a.time_estimate || "", demonstrates: a.demonstrates || "",
-          objective: a.objective || "", materials: (a.materials as unknown as string[]) || [], safety: a.safety || "", steps: (a.steps as unknown as LabStep[]) || [],
+          objective: a.objective || "", materials: (a.materials as unknown as string[]) || [], safety: a.safety || "",
+          steps: ((a.steps as unknown as LabStep[]) || []).map((st, i) => ({
+            ...st,
+            rubric: (content.rubric as (LabStep["rubric"])[])?.[ i] ?? undefined,
+          })),
           subject: a.subject || "", difficulty: a.difficulty || "", teamMode: a.team_mode || "", dimensions: (a.dimensions as unknown as string[]) || [],
           mission: (content.mission as string) || undefined,
           predictionPrompt: (content.predictionPrompt as string) || undefined,
