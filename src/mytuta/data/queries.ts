@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface PathVM { id: string; concept: string; subject: string; stage: string; pct: number; color: string; level: string; next: string; currentStage: number; conceptSlug?: string }
 export interface StudentAssignmentVM { id: string; icon: string; color: string; title: string; teacher: string; due: string; status: string; statusColor: string; assessmentId: string | null; experienceId: string | null }
 export interface LearnerStatsVM { mastered: number; developing: number; accuracy: number; streak: number; skills: { name: string; pct: number }[] }
-export interface LabStep { phase: string; title: string; body: string; record?: boolean; watchFor?: string; thinkingPrompt?: string }
+export interface LabStep { phase: string; title: string; body: string; record?: boolean; watchFor?: string; thinkingPrompt?: string; rubric?: { criterion: string; description: string; max: number } | null }
 export interface LabActivityVM {
   id: string; slug: string; color: string; cat: string; catFg: string; catBg: string;
   title: string; body: string; equip: string; time: string; demonstrates: string;
@@ -25,6 +25,7 @@ export interface LabActivityVM {
   skillTags?: string[];
   conceptSlug?: string;
   conceptName?: string;
+  doneVerb?: string;
 }
 export interface ChallengeStage { name: string; goal: string; task: string; weight?: number }
 export interface ChallengeVM {
@@ -241,6 +242,7 @@ export function useLabActivities() {
           skillTags: (content.skillTags as string[]) || undefined,
           conceptSlug: (content.conceptSlug as string) || (a as Record<string, unknown>).concept_slug as string || undefined,
           conceptName: (content.conceptName as string) || undefined,
+          doneVerb: (content.doneVerb as string) || undefined,
         };
       });
     },

@@ -9,7 +9,9 @@ import { useLabActivities } from "../data/queries";
 import { useRecordLabObservation, useCompleteLabActivity } from "../data/mutations";
 import { getLabAssistantHint } from "../data/ai";
 
-type View = "list" | "detail" | "prediction" | "run" | "reflection" | "done";
+type View = "list" | "detail" | "prediction" | "run" | "reflection" | "confirm" | "done";
+
+const MIN_WORK = 80;
 
 const facets: { label: string; get: (a: LabActivityVM) => string }[] = [
   { label: "Equipment", get: (a) => a.equip },
@@ -231,6 +233,8 @@ export default function Lab() {
   if (view === "run") {
     const stepCur = current.steps[Math.min(step, current.steps.length - 1)];
     const last = step + 1 >= current.steps.length;
+    const charCount = (observations[step] || "").length;
+    const canProceed = !stepCur.record || charCount >= MIN_WORK;
     return (
       <div style={pageBox(L.pad, 680)}>
         <button onClick={() => setView("detail")} style={backBtn}>← {current.title}</button>
@@ -252,6 +256,15 @@ export default function Lab() {
               <span style={{ fontSize: 13, color: c.ink, lineHeight: 1.55 }}><MathText text={stepCur.watchFor} /></span>
             </div>
           )}
+          {stepCur.rubric && (
+            <div style={{ background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, borderRadius: 10, padding: "12px 14px", marginTop: stepCur.watchFor ? 10 : 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: c.greenDark, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 4 }}>
+                What the marker looks for · {stepCur.rubric.max} marks
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: c.ink }}>{stepCur.rubric.criterion}</div>
+              <div style={{ fontSize: 12.5, color: c.muted, marginTop: 3 }}>{stepCur.rubric.description}</div>
+            </div>
+          )}
           {stepCur.record && (
             <div style={{ marginTop: 18 }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>Record your result</div>
@@ -262,6 +275,12 @@ export default function Lab() {
                 rows={3}
                 style={{ width: "100%", boxSizing: "border-box", resize: "vertical", background: "#fff", border: `1px solid ${c.border}`, borderRadius: 11, padding: "14px 15px", color: c.ink, fontSize: 13.5, minHeight: 64, outline: "none", fontFamily: "inherit" }}
               />
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
+                <span style={{ fontSize: 11.5, color: canProceed ? c.green : c.faint }}>{charCount} chars</span>
+                {!canProceed && (
+                  <span style={{ fontSize: 11.5, color: c.faint }}>{MIN_WORK - charCount} more to continue</span>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -279,7 +298,7 @@ export default function Lab() {
             onClick={askLabAssistant}
             disabled={hintLoading}
             style={{ background: "none", border: `1px solid #C4B5FD`, color: "#5c2d91", fontWeight: 600, fontSize: 13, padding: "9px 16px", borderRadius: 9, cursor: hintLoading ? "default" : "pointer", opacity: hintLoading ? 0.6 : 1 }}
-          >{hintLoading ? "Thinking…" : hint ? "Ask again" : "Ask for a hint"}</button>
+          >{hintLoading ? "Thinking…" : hint ? "Ask again" : "Ask the Lab Assistant"}</button>
         </div>
 
         <div style={{ display: "flex", gap: 12 }}>
@@ -292,19 +311,20 @@ export default function Lab() {
             style={{ background: c.surface, border: `1px solid ${c.border}`, color: c.soft, fontWeight: 600, fontSize: 14.5, padding: "14px 22px", borderRadius: 12, cursor: "pointer" }}
           >Back</button>
           <button
+            disabled={!canProceed}
             onClick={() => {
               if (stepCur.record && observations[step]?.trim()) {
                 recordObservation.mutate({ activityTitle: current.title, stepTitle: stepCur.title, observation: observations[step] });
               }
               setHint(null);
               if (last) {
-                setView(current.reflectionPrompts?.length ? "reflection" : "done");
+                setView(current.reflectionPrompts?.length ? "reflection" : "confirm");
               } else {
                 setStep(step + 1);
               }
             }}
-            style={{ flex: 1, background: c.green, color: "#fff", border: "none", fontWeight: 700, fontSize: 14.5, padding: 14, borderRadius: 12, cursor: "pointer" }}
-          >{last ? (current.reflectionPrompts?.length ? "Reflect on this activity" : "Finish activity") : "Next step"}</button>
+            style={{ flex: 1, background: canProceed ? c.green : c.track, color: canProceed ? "#fff" : c.faint, border: "none", fontWeight: 700, fontSize: 14.5, padding: 14, borderRadius: 12, cursor: canProceed ? "pointer" : "default" }}
+          >{last ? (current.reflectionPrompts?.length ? "Reflect on this activity" : "Review and save") : "Next step"}</button>
         </div>
       </div>
     );
@@ -353,34 +373,108 @@ export default function Lab() {
         ))}
 
         <button
-          onClick={() => {
-            completeActivity.mutate({
-              labId: current.id,
-              labTitle: current.title,
-              conceptSlug: current.conceptSlug,
-              conceptName: current.conceptName,
-              skillTags: current.skillTags,
-              observations,
-              reflection,
-              prediction: prediction || undefined,
-              predictionAccurate,
-            });
-            setView("done");
-          }}
-          style={{ width: "100%", background: c.green, color: "#fff", border: "none", fontWeight: 700, fontSize: 15, padding: 15, borderRadius: 12, cursor: "pointer", opacity: allAnswered ? 1 : 0.55 }}
+          onClick={() => setView("confirm")}
+          style={{ width: "100%", background: allAnswered ? c.green : c.track, color: allAnswered ? "#fff" : c.faint, border: "none", fontWeight: 700, fontSize: 15, padding: 15, borderRadius: 12, cursor: allAnswered ? "pointer" : "default" }}
           disabled={!allAnswered}
-        >Finish and save my work</button>
-        {!allAnswered && <p style={{ fontSize: 12.5, color: c.faint, textAlign: "center", marginTop: 10 }}>Answer all three questions to finish.</p>}
+        >Review and save</button>
+        {!allAnswered && <p style={{ fontSize: 12.5, color: c.faint, textAlign: "center", marginTop: 10 }}>Answer all three questions to continue.</p>}
+      </div>
+    );
+  }
+
+  // CONFIRM VIEW
+  if (view === "confirm") {
+    const recordedSteps = current.steps.map((st, i) => ({ st, i, obs: observations[i] || "" })).filter(({ st }) => st.record);
+    const totalMarks = current.steps.reduce((sum, st) => sum + (st.rubric?.max ?? 0), 0);
+    const totalWords = Object.values(observations).join(" ").trim().split(/\s+/).filter(Boolean).length;
+    return (
+      <div style={pageBox(L.pad, 680)}>
+        <button onClick={() => setView(current.reflectionPrompts?.length ? "reflection" : "run")} style={backBtn}>← Back</button>
+        <div style={{ fontSize: 12, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>Review before saving</div>
+        <h1 style={{ fontSize: 24, lineHeight: 1.2, marginBottom: 6 }}>{current.title}</h1>
+        <p style={{ fontSize: 14, color: c.muted, marginBottom: 22 }}>{totalWords} words across {recordedSteps.length} recorded steps. Check your work before it is saved.</p>
+
+        {recordedSteps.map(({ st, i, obs }) => (
+          <div key={i} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 22, height: 22, borderRadius: "50%", background: c.green, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flex: "none" }}>✓</span>
+                <span style={{ fontWeight: 600, fontSize: 13.5 }}>{st.title}</span>
+              </div>
+              {st.rubric && <span style={{ fontSize: 12, fontWeight: 600, color: c.greenDark }}>{st.rubric.max}m</span>}
+            </div>
+            <p style={{ fontSize: 13, color: c.body, lineHeight: 1.5, margin: 0 }}>{obs.slice(0, 220)}{obs.length > 220 ? "…" : ""}</p>
+          </div>
+        ))}
+
+        {totalMarks > 0 && (
+          <div style={{ background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, borderRadius: 12, padding: "12px 16px", marginBottom: 20 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: c.greenDark }}>Total: {totalMarks} marks</div>
+          </div>
+        )}
+
+        <div style={{ background: "#FEF3E2", border: "1px solid #F6D090", borderRadius: 12, padding: "12px 16px", marginBottom: 22, fontSize: 13, color: "#5a3e00", lineHeight: 1.5 }}>
+          Once saved, your observations are recorded in your progress log. Make sure you are happy with every step before continuing.
+        </div>
+
+        <div style={{ display: "flex", gap: 12 }}>
+          <button
+            onClick={() => setView(current.reflectionPrompts?.length ? "reflection" : "run")}
+            style={{ background: c.surface, border: `1px solid ${c.border}`, color: c.soft, fontWeight: 600, fontSize: 14, padding: "14px 18px", borderRadius: 12, cursor: "pointer" }}
+          >Edit work</button>
+          <button
+            onClick={() => {
+              completeActivity.mutate({
+                labId: current.id,
+                labTitle: current.title,
+                conceptSlug: current.conceptSlug,
+                conceptName: current.conceptName,
+                skillTags: current.skillTags,
+                observations,
+                reflection,
+                prediction: prediction || undefined,
+                predictionAccurate,
+              });
+              setView("done");
+            }}
+            style={{ flex: 1, background: c.green, color: "#fff", border: "none", fontWeight: 700, fontSize: 14.5, padding: 14, borderRadius: 12, cursor: "pointer" }}
+          >Save my lab work</button>
+        </div>
+        <div style={{ fontSize: 12, color: c.faint, textAlign: "center", marginTop: 10 }}>
+          {totalWords} words · {recordedSteps.length} steps recorded
+        </div>
       </div>
     );
   }
 
   // DONE VIEW
+  const doneVerb = current.doneVerb || "completed";
+  const totalWords = Object.values(observations).join(" ").trim().split(/\s+/).filter(Boolean).length;
+  const recordedCount = current.steps.filter(st => st.record).length;
+  const totalMarks = current.steps.reduce((sum, st) => sum + (st.rubric?.max ?? 0), 0);
   return (
     <div style={pageBox(L.padTall, 640)}>
-      <div style={{ fontSize: 12.5, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Activity complete</div>
-      <h1 style={{ fontSize: 27, lineHeight: 1.15, marginBottom: 8 }}>{current.title}</h1>
-      <p style={{ fontSize: 15, color: c.muted, marginBottom: 24 }}>Nicely done. You have turned a concept into something you did with your own hands.</p>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 24 }}>
+        <div style={{ width: 64, height: 64, borderRadius: "50%", background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 14 }}>★</div>
+        <div style={{ fontSize: 11, fontWeight: 600, color: c.green, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 8 }}>Activity saved</div>
+        <h1 style={{ fontSize: 26, lineHeight: 1.2, textAlign: "center", marginBottom: 8 }}>You {doneVerb} something real.</h1>
+        <p style={{ fontSize: 14.5, color: c.muted, textAlign: "center", lineHeight: 1.6, margin: 0 }}>A complete record for <strong>{current.title}</strong>, saved to your progress log.</p>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 22 }}>
+        <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: "14px 12px", textAlign: "center" }}>
+          <div style={{ fontSize: 26, fontWeight: 700, color: c.green, lineHeight: 1 }}>{totalWords}</div>
+          <div style={{ fontSize: 11, color: c.faint, marginTop: 4 }}>Words written</div>
+        </div>
+        <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: "14px 12px", textAlign: "center" }}>
+          <div style={{ fontSize: 26, fontWeight: 700, color: c.green, lineHeight: 1 }}>{recordedCount}</div>
+          <div style={{ fontSize: 11, color: c.faint, marginTop: 4 }}>Steps recorded</div>
+        </div>
+        <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: "14px 12px", textAlign: "center" }}>
+          <div style={{ fontSize: 26, fontWeight: 700, color: c.green, lineHeight: 1 }}>{totalMarks || current.steps.length}</div>
+          <div style={{ fontSize: 11, color: c.faint, marginTop: 4 }}>{totalMarks ? "Marks available" : "Steps complete"}</div>
+        </div>
+      </div>
 
       {current.whatThisProves ? (
         <div style={{ background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, borderRadius: 16, padding: "18px 20px", marginBottom: 16 }}>
