@@ -87,8 +87,11 @@ export default function Assessments() {
     }
   };
 
-  if (isLoading) return <Loading label="Loading assessments…" />;
   const rows = assessments || [];
+  const resultRow = rows.find((r) => r.id === rowId) || rows[0];
+  useLayoutEffect(() => { if (view === "result" && !resultRow) setView("list"); }, [view, resultRow]);
+
+  if (isLoading) return <Loading label="Loading assessments…" />;
   const classList = classes || [];
   const buildType = assessTypesData[typeIdx];
   const buildClass = classList[classIdx];
@@ -277,10 +280,8 @@ export default function Assessments() {
   }
 
   // result
-  const row = rows.find((r) => r.id === rowId) || rows[0];
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useLayoutEffect(() => { if (view === "result" && !row) setView("list"); }, [view, row]);
-  if (view === "result" && !row) return null;
+  const row = resultRow;
+  if (!row) return null;
   return (
     <div style={pageBox(L.pad, 680)}>
       <button type="button" onClick={() => setView("list")} style={backBtn}>← Assessments</button>
