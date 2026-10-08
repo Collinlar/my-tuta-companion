@@ -13,7 +13,13 @@ export default function Experiences() {
   const [filterIdx, setFilterIdx] = useState(0);
 
   if (isLoading) return <Loading label="Loading your experiences…" />;
-  const list = experiences || [];
+  const all = experiences || [];
+  const activeFilter = expFilters[filterIdx];
+  const list = activeFilter === "All" ? all : all.filter((e) => {
+    if (activeFilter === "Published") return e.status?.toLowerCase() === "published";
+    if (activeFilter === "Drafts") return e.status?.toLowerCase() !== "published";
+    return e.subject?.toLowerCase() === activeFilter.toLowerCase();
+  });
 
   return (
     <div style={pageBox(L.pad, 1120)}>
@@ -21,7 +27,7 @@ export default function Experiences() {
         <p style={{ fontSize: 14, color: c.muted }}>Complete STEM learning experiences you have created or drafted.</p>
         <button onClick={() => nav("/teacher/experiences/new")} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 10, cursor: "pointer" }}>＋ New experience</button>
       </div>
-      {list.length === 0 ? (
+      {all.length === 0 ? (
         <EmptyState title="No experiences yet" body="Create your first STEM learning experience and mytuta drafts the full mastery loop for you to edit." actionLabel="Create experience" onAction={() => nav("/teacher/experiences/new")} />
       ) : (
         <>
@@ -30,6 +36,9 @@ export default function Experiences() {
               <button key={f} onClick={() => setFilterIdx(i)} style={filter(filterIdx === i)}>{f}</button>
             ))}
           </div>
+          {list.length === 0 && (
+            <div style={{ fontSize: 13, color: c.muted, padding: "16px 0" }}>No experiences match this filter.</div>
+          )}
           <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 14 }}>
             {list.map((e) => (
               <button key={e.id} onClick={() => nav(`/teacher/experiences/${e.id}/edit`)} style={{ textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}>

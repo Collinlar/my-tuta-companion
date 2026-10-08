@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { c, chip } from "../theme";
 import { createSteps, createReview, studioSectionNames, studioBodies } from "../data/constants";
 import { generateExperienceDraft } from "../data/ai";
@@ -13,6 +13,7 @@ const MATERIAL_STEP = 1;
 
 export default function Create() {
   const nav = useNavigate();
+  const [params] = useSearchParams();
   const create = useCreateExperience();
   const uploadFile = useUploadIntakeFile();
   const gate = useCreditGate();
@@ -22,7 +23,7 @@ export default function Create() {
   const [selected, setSelected] = useState<Record<number, Set<number>>>({});
   const [fields, setFields] = useState({
     subject: "",
-    concept: "",
+    concept: params.get("concept") ?? "",
     stage: "",
     objective: "",
   });

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { c, font, chip } from "../theme";
 import { Loading } from "../ui";
 import { useLayout, pageBox } from "../layout";
@@ -16,6 +16,7 @@ type View = "list" | "build" | "created" | "result";
 export default function Assessments() {
   const L = useLayout();
   const nav = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { data: assessments, isLoading } = useAssessments();
   const { data: classes } = useClasses();
@@ -25,10 +26,10 @@ export default function Assessments() {
   const updateQuestion = useUpdateAssessmentQuestion();
   const deleteQuestion = useDeleteAssessmentQuestion();
 
-  const [view, setView] = useState<View>("list");
+  const [view, setView] = useState<View>(searchParams.get("concept") ? "build" : "list");
   const [typeIdx, setTypeIdx] = useState(0);
   const [classIdx, setClassIdx] = useState(0);
-  const [topic, setTopic] = useState("");
+  const [topic, setTopic] = useState(searchParams.get("concept") ?? "");
   const [rowId, setRowId] = useState<string | null>(null);
   const [createdId, setCreatedId] = useState<string | null>(null);
   const [err, setErr] = useState("");
@@ -301,11 +302,33 @@ export default function Assessments() {
           );
         })}
       </div>
-      <div style={{ background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, borderRadius: 16, padding: "18px 20px" }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: c.greenDark, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 9 }}>Next step</div>
-        <div style={{ fontSize: 13.5, color: c.ink, lineHeight: 1.55, marginBottom: 14 }}>Students in Beginning share one gap. A short support activity would move most of them up a band.</div>
-        <button type="button" onClick={() => nav("/teacher/experiences/new")} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 10, cursor: "pointer" }}>Create support activity</button>
-      </div>
+      {(() => {
+        const struggling = row.dist.find((d) => d.l === "Beginning" || d.l === "Developing");
+        const strongBand = row.dist.find((d) => d.l === "Mastered" || d.l === "Secure");
+        const noSubmissions = row.submitted === 0;
+        const mostStruggling = row.dist.reduce((best, d) => (d.v > (best?.v ?? 0) ? d : best), row.dist[0]);
+        let nextStepText = "";
+        if (noSubmissions) {
+          nextStepText = "No submissions yet. Once students complete this assessment, results will show here.";
+        } else if (struggling && struggling.v > 0) {
+          const pct = Math.round((struggling.v / row.submitted) * 100);
+          nextStepText = `${struggling.v} student${struggling.v === 1 ? "" : "s"} (${pct}%) are at ${struggling.l}. A focused support activity on the same concept would move most of them up a band.`;
+        } else if (strongBand && strongBand.v === row.submitted) {
+          nextStepText = "All students reached Secure or Mastered. Consider an extension challenge to push understanding further.";
+        } else if (mostStruggling) {
+          nextStepText = `Most students landed at ${mostStruggling.l}. Review the items with the lowest correct rate and consider a short reteach before the next assessment.`;
+        }
+        const btnLabel = (!struggling || struggling.v === 0) ? "Create extension activity" : "Create support activity";
+        return (
+          <div style={{ background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, borderRadius: 16, padding: "18px 20px" }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: c.greenDark, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 9 }}>Next step</div>
+            <div style={{ fontSize: 13.5, color: c.ink, lineHeight: 1.55, marginBottom: 14 }}>{nextStepText}</div>
+            {!noSubmissions && (
+              <button type="button" onClick={() => nav(`/teacher/experiences/new?concept=${encodeURIComponent(row.title)}`)} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 10, cursor: "pointer" }}>{btnLabel}</button>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }

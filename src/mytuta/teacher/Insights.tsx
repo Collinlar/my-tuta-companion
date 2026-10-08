@@ -81,9 +81,9 @@ export default function Insights() {
                 </div>
                 <div style={{ fontSize: 13, color: c.soft, lineHeight: 1.5, marginBottom: 12 }}>{m.detail}</div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <button type="button" onClick={() => nav("/teacher/experiences/new")} style={actionBtn}>Reteach concept</button>
-                  <button type="button" onClick={() => nav("/teacher/experiences/new")} style={actionBtn}>Create support path</button>
-                  <button type="button" onClick={() => nav("/teacher/assessments/new")} style={actionBtn}>Retest students</button>
+                  <button type="button" onClick={() => nav(`/teacher/experiences/new?concept=${encodeURIComponent(m.concept)}`)} style={actionBtn}>Reteach concept</button>
+                  <button type="button" onClick={() => nav(`/teacher/experiences/new?concept=${encodeURIComponent(m.concept)}&mode=support`)} style={actionBtn}>Create support path</button>
+                  <button type="button" onClick={() => nav(`/teacher/assessments/new?concept=${encodeURIComponent(m.concept)}`)} style={actionBtn}>Retest students</button>
                   <button type="button" onClick={() => nav(`/teacher/intervention/new?concept=${encodeURIComponent(m.concept)}&misconception=${encodeURIComponent(m.detail)}`)} style={{ ...actionBtn, background: "#E8A020", color: "#fff", fontWeight: 600 }}>Create intervention</button>
                 </div>
               </div>

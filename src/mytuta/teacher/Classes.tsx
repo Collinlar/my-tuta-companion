@@ -124,7 +124,7 @@ export default function Classes() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button onClick={() => setView("settings")} style={{ background: c.surface, border: `1px solid ${c.border}`, color: c.soft, fontWeight: 600, fontSize: 13, padding: "10px 16px", borderRadius: 10, cursor: "pointer" }}>Settings</button>
             <button onClick={() => nav(`/teacher/classes/${current.id}/challenge/new`)} style={{ background: c.surface, border: `1px solid ${c.plumBorder}`, color: c.plum, fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 10, cursor: "pointer" }}>＋ Class challenge</button>
-            <button onClick={() => nav("/teacher/experiences")} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 10, cursor: "pointer" }}>Assign experience</button>
+            <button onClick={() => nav(`/teacher/experiences?assignTo=${current.id}`)} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 13, padding: "10px 18px", borderRadius: 10, cursor: "pointer" }}>Assign experience</button>
           </div>
         </div>
 

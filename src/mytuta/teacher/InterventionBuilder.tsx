@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { c, font } from "../theme";
 import { useLayout, pageBox } from "../layout";
@@ -21,6 +21,7 @@ export default function InterventionBuilder() {
   const conceptParam = params.get("concept") ?? "";
   const misconceptionParam = params.get("misconception") ?? "";
   const studentCountParam = parseInt(params.get("count") ?? "0", 10) || 0;
+  const editId = params.get("edit") ?? null;
 
   const [concept, setConcept] = useState(conceptParam);
   const [misconceptionPattern, setMisconceptionPattern] = useState(misconceptionParam);
@@ -30,10 +31,21 @@ export default function InterventionBuilder() {
   const [draft, setDraft] = useState<InterventionDraft | null>(null);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [savedId, setSavedId] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(editId);
   const [showTemplates, setShowTemplates] = useState(false);
   const { data: templates } = useInterventionTemplates();
   const saveAsTemplate = useSaveAsTemplate();
+
+  useEffect(() => {
+    if (!editId) return;
+    void (async () => {
+      const { data } = await supabase.from("teacher_interventions").select("*").eq("id", editId).maybeSingle();
+      if (!data) return;
+      setTitle(data.title ?? "");
+      setInterventionType(data.intervention_type ?? "misconception_correction");
+      setDraft({ title: data.title, intervention_type: data.intervention_type, content: data.content as InterventionDraft["content"] });
+    })();
+  }, [editId]);
 
   const canGenerate = concept.trim().length > 0 && misconceptionPattern.trim().length > 0;
 
@@ -69,19 +81,28 @@ export default function InterventionBuilder() {
         conceptId = conceptRow?.id ?? null;
       }
 
-      const { data: insertedData, error } = await supabase.from("teacher_interventions").insert({
-        teacher_id: user.id,
-        concept_id: conceptId,
-        intervention_type: interventionType,
-        title,
-        content: draft.content,
-        ai_generated: true,
-        status: "draft",
-      }).select("id").single();
-
-      if (error) throw error;
-      setSavedId(insertedData?.id ?? null);
-      toast({ title: "Intervention saved", description: "It is ready to assign to students." });
+      if (savedId && editId) {
+        const { error } = await supabase.from("teacher_interventions").update({
+          intervention_type: interventionType,
+          title,
+          content: draft.content,
+        }).eq("id", savedId);
+        if (error) throw error;
+        toast({ title: "Intervention updated", description: "Changes saved." });
+      } else {
+        const { data: insertedData, error } = await supabase.from("teacher_interventions").insert({
+          teacher_id: user.id,
+          concept_id: conceptId,
+          intervention_type: interventionType,
+          title,
+          content: draft.content,
+          ai_generated: true,
+          status: "draft",
+        }).select("id").single();
+        if (error) throw error;
+        setSavedId(insertedData?.id ?? null);
+        toast({ title: "Intervention saved", description: "It is ready to assign to students." });
+      }
     } catch {
       toast({ title: "Could not save", description: "Something went wrong. Try again.", variant: "destructive" });
     } finally {

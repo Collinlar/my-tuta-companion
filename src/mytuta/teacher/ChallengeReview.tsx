@@ -16,15 +16,20 @@ export default function ChallengeReview() {
   const { data: submissions, isLoading } = useChallengeSubmissions(challengeId);
   const review = useReviewChallengeSubmission();
 
-  const [openId, setOpenId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<{ feedback: string; level: string }>({ feedback: "", level: "" });
+  const [openIds, setOpenIds] = useState<Set<string>>(new Set());
+  const [drafts, setDrafts] = useState<Record<string, { feedback: string; level: string }>>({});
 
-  const open = (s: TeacherSubmissionVM) => {
-    setOpenId(s.id);
-    setDraft({ feedback: s.feedback, level: s.feedbackLevel });
+  const toggle = (s: TeacherSubmissionVM) => {
+    setOpenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(s.id)) { next.delete(s.id); return next; }
+      next.add(s.id);
+      return next;
+    });
+    setDrafts((prev) => prev[s.id] ? prev : { ...prev, [s.id]: { feedback: s.feedback, level: s.feedbackLevel } });
   };
 
-  useEffect(() => { setOpenId(null); }, [challengeId]);
+  useEffect(() => { setOpenIds(new Set()); setDrafts({}); }, [challengeId]);
 
   if (isLoading) return <Loading label="Loading submissions…" />;
   const list = submissions || [];
@@ -32,10 +37,12 @@ export default function ChallengeReview() {
 
   const saveReview = async (submissionId: string) => {
     if (!challengeId) return;
+    const d = drafts[submissionId];
+    if (!d) return;
     try {
-      await review.mutateAsync({ submissionId, challengeId, feedback: draft.feedback, level: draft.level });
+      await review.mutateAsync({ submissionId, challengeId, feedback: d.feedback, level: d.level });
       toast({ title: "Feedback sent", description: "The student has been notified." });
-      setOpenId(null);
+      setOpenIds((prev) => { const next = new Set(prev); next.delete(submissionId); return next; });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Could not send feedback just now.";
       toast({ title: "Review failed", description: msg, variant: "destructive" });
@@ -53,14 +60,16 @@ export default function ChallengeReview() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {list.map((s) => {
-            const isOpen = openId === s.id;
+            const isOpen = openIds.has(s.id);
+            const draft = drafts[s.id] ?? { feedback: s.feedback, level: s.feedbackLevel };
             const [fg, bg] = s.feedbackLevel ? level(s.feedbackLevel) : [c.faint, c.paper];
             return (
               <div key={s.id} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, overflow: "hidden" }}>
-                <button type="button" onClick={() => (isOpen ? setOpenId(null) : open(s))} style={{ width: "100%", textAlign: "left", background: "none", border: "none", cursor: "pointer", padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, fontFamily: font.body }}>
+                <button type="button" onClick={() => toggle(s)} style={{ width: "100%", textAlign: "left", background: "none", border: "none", cursor: "pointer", padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, fontFamily: font.body }}>
                   <span style={{ flex: 1, fontWeight: 600, fontSize: 14.5, color: c.ink }}>{s.studentName}</span>
                   <span style={{ fontSize: 11.5, fontWeight: 600, color: s.submitted ? c.green : c.faint }}>{s.submitted ? "Submitted" : "In progress"}</span>
                   {s.reviewedAt && <span style={{ fontSize: 11, fontWeight: 600, color: fg, background: bg, padding: "3px 9px", borderRadius: 20 }}>{s.feedbackLevel || "Reviewed"}</span>}
+                  <span style={{ fontSize: 12, color: c.faint }}>{isOpen ? "▲" : "▼"}</span>
                 </button>
                 {isOpen && (
                   <div style={{ padding: "0 16px 16px" }}>
@@ -83,14 +92,14 @@ export default function ChallengeReview() {
                         const on = draft.level === l;
                         const [lf, lb] = level(l);
                         return (
-                          <button key={l} type="button" onClick={() => setDraft((d) => ({ ...d, level: l }))} style={{ fontSize: 12.5, fontWeight: 600, padding: "7px 13px", borderRadius: 20, cursor: "pointer", color: on ? lf : c.soft, background: on ? lb : c.surface, border: `1px solid ${on ? lf + "55" : c.border2}` }}>{l}</button>
+                          <button key={l} type="button" onClick={() => setDrafts((d) => ({ ...d, [s.id]: { ...draft, level: l } }))} style={{ fontSize: 12.5, fontWeight: 600, padding: "7px 13px", borderRadius: 20, cursor: "pointer", color: on ? lf : c.soft, background: on ? lb : c.surface, border: `1px solid ${on ? lf + "55" : c.border2}` }}>{l}</button>
                         );
                       })}
                     </div>
 
                     <textarea
                       value={draft.feedback}
-                      onChange={(e) => setDraft((d) => ({ ...d, feedback: e.target.value }))}
+                      onChange={(e) => setDrafts((d) => ({ ...d, [s.id]: { ...draft, feedback: e.target.value } }))}
                       placeholder="Write feedback for this student…"
                       rows={3}
                       style={{ width: "100%", boxSizing: "border-box", resize: "vertical", border: `1px solid ${c.border}`, borderRadius: 11, padding: "12px 14px", fontSize: 14, color: c.ink, background: "#fff", outline: "none", fontFamily: font.body, marginBottom: 12 }}

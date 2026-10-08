@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { c } from "../theme";
 import { Loading, EmptyState } from "../ui";
 import { useLayout } from "../layout";
@@ -14,6 +14,7 @@ export default function Studio() {
   const L = useLayout();
   const nav = useNavigate();
   const { experienceId } = useParams();
+  const [studioParams] = useSearchParams();
   const { data: exp, isLoading } = useExperience(experienceId);
   const { data: sections } = useExperienceSections(experienceId);
   const { data: classes } = useClasses();
@@ -27,17 +28,20 @@ export default function Studio() {
   const [aiBusy, setAiBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const [assignedTo, setAssignedTo] = useState("");
-  const [assignOpen, setAssignOpen] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(!!studioParams.get("assignTo"));
+  const [bodyDraft, setBodyDraft] = useState<string | null>(null);
 
   const sectionName = studioSectionNames[section] || "Overview";
   const saved_ = sections?.[section];
   const templateBody = (studioBodies[sectionName] || "").split("{t}").join((exp?.title || "this topic").toLowerCase());
-  const body = saved_?.body || templateBody;
+  const persistedBody = saved_?.body || templateBody;
+  const body = bodyDraft ?? persistedBody;
   const sectionInserts = saved_?.ai_blocks || [];
 
   useEffect(() => {
     setAiAction("");
     setAiPreview("");
+    setBodyDraft(null);
   }, [section]);
 
   if (isLoading) return <Loading label="Opening the studio…" />;
@@ -137,7 +141,12 @@ export default function Studio() {
           </div>
 
           <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: L.mobile ? 18 : 24, marginBottom: 18 }}>
-            <div style={{ fontSize: 14.5, lineHeight: 1.7, color: c.body }}>{body}</div>
+            <textarea
+              value={body}
+              onChange={(e) => { setBodyDraft(e.target.value); setSaved(false); }}
+              rows={6}
+              style={{ width: "100%", boxSizing: "border-box", resize: "vertical", border: "none", outline: "none", fontSize: 14.5, lineHeight: 1.7, color: c.body, background: "transparent", fontFamily: "inherit", padding: 0 }}
+            />
             {sectionInserts.map((b, i) => (
               <div key={i} style={{ marginTop: 16, borderTop: `1px dashed ${c.border}`, paddingTop: 15, animation: "fadeup .2s ease" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 7 }}>
