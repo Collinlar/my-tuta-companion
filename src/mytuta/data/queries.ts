@@ -222,6 +222,28 @@ export function useConcept(slug: string) {
   });
 }
 
+export function useMyCompletedLabIds() {
+  return useQuery({
+    queryKey: ["my_completed_lab_ids"],
+    queryFn: async (): Promise<Set<string>> => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return new Set();
+      const { data, error } = await supabase
+        .from("learning_events")
+        .select("payload")
+        .eq("user_id", user.id)
+        .eq("event_type", "lab_completed");
+      if (error) throw error;
+      const ids = new Set<string>();
+      (data || []).forEach((row) => {
+        const id = (row.payload as Record<string, unknown>)?.lab_id;
+        if (typeof id === "string") ids.add(id);
+      });
+      return ids;
+    },
+  });
+}
+
 export function useLabActivities() {
   return useQuery({
     queryKey: ["lab_activities"],

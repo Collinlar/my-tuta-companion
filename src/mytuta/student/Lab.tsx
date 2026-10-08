@@ -1,11 +1,12 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { c, filter, seg } from "../theme";
 import { Loading, EmptyState } from "../ui";
 import { useLayout, pageBox } from "../layout";
 import { MathText } from "../MathText";
 import type { LabActivityVM } from "../data/queries";
-import { useLabActivities } from "../data/queries";
+import { useLabActivities, useMyCompletedLabIds } from "../data/queries";
 import { useRecordLabObservation, useCompleteLabActivity } from "../data/mutations";
 import { getLabAssistantHint } from "../data/ai";
 
@@ -23,7 +24,9 @@ const facets: { label: string; get: (a: LabActivityVM) => string }[] = [
 export default function Lab() {
   const L = useLayout();
   const nav = useNavigate();
+  const { toast } = useToast();
   const { data: activities, isLoading } = useLabActivities();
+  const { data: completedIds } = useMyCompletedLabIds();
   const [view, setView] = useState<View>("list");
   const [facetIdx, setFacetIdx] = useState(0);
   const [value, setValue] = useState("All");
@@ -31,7 +34,7 @@ export default function Lab() {
   const [step, setStep] = useState(0);
   const [observations, setObservations] = useState<Record<number, string>>({});
   const [prediction, setPrediction] = useState("");
-  const [predictionAccurate, setPredictionAccurate] = useState<boolean | undefined>(undefined);
+  const [predictionAccurate, setPredictionAccurate] = useState<"yes" | "partly" | "no" | undefined>(undefined);
   const [reflection, setReflection] = useState<Record<number, string>>({});
   const [hint, setHint] = useState<string | null>(null);
   const [hintLoading, setHintLoading] = useState(false);
@@ -114,12 +117,15 @@ export default function Lab() {
           <EmptyState title="Nothing in this filter" body={`No catalog activities match "${value}" yet. Try All or another facet.`} />
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: L.g3, gap: 14 }}>
-            {list.map((a, i) => (
-              <button key={a.id} type="button" onClick={() => openActivity(i)} style={{ textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}>
+            {list.map((a, i) => {
+              const done = completedIds?.has(a.id) ?? false;
+              return (
+              <button key={a.id} type="button" onClick={() => openActivity(i)} style={{ textAlign: "left", background: c.surface, border: `1px solid ${done ? c.greenTintBorder : c.border2}`, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}>
                 <div style={{ height: 6, background: a.color }} />
                 <div style={{ padding: "18px 19px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 11 }}>
                     <span style={{ fontSize: 11, fontWeight: 600, color: a.catFg, background: a.catBg, padding: "3px 9px", borderRadius: 20 }}>{a.cat}</span>
+                    {done && <span style={{ fontSize: 11, fontWeight: 600, color: c.greenDark, background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, padding: "3px 9px", borderRadius: 20, marginLeft: "auto" }}>Done ✓</span>}
                   </div>
                   <div style={{ fontWeight: 600, fontSize: 15.5, lineHeight: 1.3, marginBottom: 7 }}>{a.title}</div>
                   {a.mission && <div style={{ fontSize: 12.5, color: c.body, lineHeight: 1.5, marginBottom: 8, fontStyle: "italic" }}>{a.mission}</div>}
@@ -131,7 +137,7 @@ export default function Lab() {
                   </div>
                 </div>
               </button>
-            ))}
+            ); })}
           </div>
         )}
       </div>
@@ -241,7 +247,7 @@ export default function Lab() {
         <div style={{ display: "flex", gap: 7, marginBottom: 24 }}>
           {current.steps.map((st, i) => (
             <div key={i} style={{ flex: 1, textAlign: "center" }}>
-              <div style={{ height: 5, borderRadius: 3, background: i <= step ? c.green : c.track, marginBottom: 6 }} />
+              <div style={{ height: 5, borderRadius: 3, background: i < step ? c.green : i === step ? "#9fd3ba" : c.track, marginBottom: 6 }} />
               <div style={{ fontSize: 10.5, fontWeight: 600, color: i <= step ? c.greenDark : c.placeholder }}>{st.phase}</div>
             </div>
           ))}
@@ -351,8 +357,8 @@ export default function Lab() {
                 <button
                   key={label}
                   type="button"
-                  onClick={() => setPredictionAccurate(i === 0 ? true : i === 2 ? false : true)}
-                  style={{ fontSize: 12.5, fontWeight: 600, padding: "8px 14px", borderRadius: 8, border: `1px solid ${c.border}`, background: predictionAccurate === (i === 0 ? true : i === 2 ? false : true) && predictionAccurate !== undefined ? c.green : "#fff", color: predictionAccurate === (i === 0 ? true : i === 2 ? false : true) && predictionAccurate !== undefined ? "#fff" : c.ink, cursor: "pointer" }}
+                  onClick={() => setPredictionAccurate(i === 0 ? "yes" : i === 1 ? "partly" : "no")}
+                  style={{ fontSize: 12.5, fontWeight: 600, padding: "8px 14px", borderRadius: 8, border: `1px solid ${c.border}`, background: predictionAccurate === (i === 0 ? "yes" : i === 1 ? "partly" : "no") ? c.green : "#fff", color: predictionAccurate === (i === 0 ? "yes" : i === 1 ? "partly" : "no") ? "#fff" : c.ink, cursor: "pointer" }}
                 >{label}</button>
               ))}
             </div>
@@ -377,7 +383,7 @@ export default function Lab() {
           style={{ width: "100%", background: allAnswered ? c.green : c.track, color: allAnswered ? "#fff" : c.faint, border: "none", fontWeight: 700, fontSize: 15, padding: 15, borderRadius: 12, cursor: allAnswered ? "pointer" : "default" }}
           disabled={!allAnswered}
         >Review and save</button>
-        {!allAnswered && <p style={{ fontSize: 12.5, color: c.faint, textAlign: "center", marginTop: 10 }}>Answer all three questions to continue.</p>}
+        {!allAnswered && <p style={{ fontSize: 12.5, color: c.faint, textAlign: "center", marginTop: 10 }}>Answer all {prompts.length} {prompts.length === 1 ? "question" : "questions"} to continue.</p>}
       </div>
     );
   }
@@ -423,22 +429,27 @@ export default function Lab() {
             style={{ background: c.surface, border: `1px solid ${c.border}`, color: c.soft, fontWeight: 600, fontSize: 14, padding: "14px 18px", borderRadius: 12, cursor: "pointer" }}
           >Edit work</button>
           <button
-            onClick={() => {
-              completeActivity.mutate({
-                labId: current.id,
-                labTitle: current.title,
-                conceptSlug: current.conceptSlug,
-                conceptName: current.conceptName,
-                skillTags: current.skillTags,
-                observations,
-                reflection,
-                prediction: prediction || undefined,
-                predictionAccurate,
-              });
-              setView("done");
+            disabled={completeActivity.isPending}
+            onClick={async () => {
+              try {
+                await completeActivity.mutateAsync({
+                  labId: current.id,
+                  labTitle: current.title,
+                  conceptSlug: current.conceptSlug,
+                  conceptName: current.conceptName,
+                  skillTags: current.skillTags,
+                  observations,
+                  reflection,
+                  prediction: prediction || undefined,
+                  predictionAccurate: predictionAccurate === "yes" ? true : predictionAccurate === "no" ? false : undefined,
+                });
+                setView("done");
+              } catch {
+                toast({ title: "Could not save your work", description: "Check your connection and try again.", variant: "destructive" });
+              }
             }}
-            style={{ flex: 1, background: c.green, color: "#fff", border: "none", fontWeight: 700, fontSize: 14.5, padding: 14, borderRadius: 12, cursor: "pointer" }}
-          >Save my lab work</button>
+            style={{ flex: 1, background: c.green, color: "#fff", border: "none", fontWeight: 700, fontSize: 14.5, padding: 14, borderRadius: 12, cursor: completeActivity.isPending ? "default" : "pointer", opacity: completeActivity.isPending ? 0.7 : 1 }}
+          >{completeActivity.isPending ? "Saving…" : "Save my lab work"}</button>
         </div>
         <div style={{ fontSize: 12, color: c.faint, textAlign: "center", marginTop: 10 }}>
           {totalWords} words · {recordedSteps.length} steps recorded
