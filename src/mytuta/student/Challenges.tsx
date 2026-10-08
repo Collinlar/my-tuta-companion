@@ -397,12 +397,18 @@ export default function Challenges() {
         <div style={{ display: "flex", gap: 12 }}>
           <button onClick={() => { setStage(current.stages.length - 1); setView("run"); }} style={{ background: c.surface, border: `1px solid ${c.border}`, color: c.soft, fontWeight: 600, fontSize: 14.5, padding: "14px 22px", borderRadius: 12, cursor: "pointer" }}>Edit work</button>
           <button
-            onClick={() => {
-              submit.mutate({ challengeId: current.id, work: work as unknown as Json });
-              setView("done");
+            disabled={submit.isPending}
+            onClick={async () => {
+              try {
+                await submit.mutateAsync({ challengeId: current.id, work: work as unknown as Json });
+                setView("done");
+              } catch (e) {
+                const msg = e instanceof Error ? e.message : "Could not save your entry just now. Check your connection and try again.";
+                toast({ title: "Submit failed", description: msg, variant: "destructive" });
+              }
             }}
-            style={{ flex: 1, background: c.plum, color: "#fff", border: "none", fontWeight: 700, fontSize: 15, padding: 15, borderRadius: 12, cursor: "pointer" }}
-          >Submit my entry</button>
+            style={{ flex: 1, background: submit.isPending ? "#7c5ab8" : c.plum, color: "#fff", border: "none", fontWeight: 700, fontSize: 15, padding: 15, borderRadius: 12, cursor: submit.isPending ? "default" : "pointer", opacity: submit.isPending ? 0.75 : 1 }}
+          >{submit.isPending ? "Submitting…" : "Submit my entry"}</button>
         </div>
         <p style={{ fontSize: 11.5, color: c.faint, textAlign: "center", marginTop: 10 }}>
           {totalChars} characters · {current.stages.length} stages complete

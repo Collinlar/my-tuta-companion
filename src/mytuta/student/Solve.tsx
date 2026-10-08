@@ -535,32 +535,17 @@ Write 3 NEW questions that practise the same skill as the given one, with differ
     const done = steps.slice(0, step);
     const last = step + 1 >= steps.length;
     return (
-      <div style={pageBox(L.pad, 720)}>
-        <button type="button" onClick={() => { setView("input"); setStep(0); }} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 16 }}>← Change question</button>
-        <div style={{ background: c.divider, borderRadius: 11, padding: "14px 16px", fontSize: 13.5, lineHeight: 1.55, color: c.body }}><MathText text={question} /></div>
-        <div style={{ display: "flex", gap: 6, margin: "18px 0 24px" }}>
-          {steps.map((_, i) => (
-            <span key={i} style={{ flex: 1, height: 5, borderRadius: 3, background: i < step ? c.green : i === step ? "#9fd3ba" : c.track }} />
-          ))}
-        </div>
-        {done.map((d, i) => (
-          <div key={i} style={{ display: "flex", gap: 13, padding: "0 0 16px" }}>
-            <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", background: c.greenTint, color: c.green, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>✓</span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 2 }}><MathText text={d.q} /></div>
-              <div style={{ fontSize: 13.5, color: c.soft, lineHeight: 1.55 }}><MathText text={d.answer} /></div>
-            </div>
-          </div>
-        ))}
-        <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 22, marginBottom: 22 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Step {step + 1} of {steps.length}</div>
-          <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 10 }}><MathText text={cur.q} /></div>
-          <div style={{ fontSize: 14, color: c.soft, lineHeight: 1.6, marginBottom: 16 }}><MathText text={cur.hint} /></div>
-          <button type="button" onClick={() => { if (last) void markCompleted(); else setStep(step + 1); }} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 20px", borderRadius: 10, cursor: "pointer" }}>
-            {last ? "See the conclusion" : "Reveal this step"}
-          </button>
-        </div>
-      </div>
+      <CoachingView
+        question={question}
+        steps={steps}
+        step={step}
+        done={done}
+        cur={cur}
+        last={last}
+        onBack={() => { setView("input"); setStep(0); }}
+        onNext={() => { if (last) void markCompleted(); else setStep(step + 1); }}
+        L={L}
+      />
     );
   }
 
@@ -663,6 +648,63 @@ Write 3 NEW questions that practise the same skill as the given one, with differ
       </div>
 
       <button type="button" onClick={resetToInput} style={{ width: "100%", background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 15, padding: 14, borderRadius: 12, cursor: "pointer" }}>Solve another question</button>
+    </div>
+  );
+}
+
+function CoachingView({
+  question, steps, step, done, cur, last, onBack, onNext, L,
+}: {
+  question: string;
+  steps: CoachStep[];
+  step: number;
+  done: CoachStep[];
+  cur: CoachStep;
+  last: boolean;
+  onBack: () => void;
+  onNext: () => void;
+  L: ReturnType<typeof import("../layout").useLayout>;
+}) {
+  const [hintVisible, setHintVisible] = useState(false);
+
+  useEffect(() => { setHintVisible(false); }, [step]);
+
+  return (
+    <div style={pageBox(L.pad, 720)}>
+      <button type="button" onClick={onBack} style={{ background: "none", border: "none", color: c.faint, fontSize: 12, cursor: "pointer", padding: 0, marginBottom: 16 }}>← Change question</button>
+      <div style={{ background: c.divider, borderRadius: 11, padding: "14px 16px", fontSize: 13.5, lineHeight: 1.55, color: c.body }}><MathText text={question} /></div>
+      <div style={{ display: "flex", gap: 6, margin: "18px 0 24px" }}>
+        {steps.map((_, i) => (
+          <span key={i} style={{ flex: 1, height: 5, borderRadius: 3, background: i < step ? c.green : i === step ? "#9fd3ba" : c.track }} />
+        ))}
+      </div>
+      {done.map((d, i) => (
+        <div key={i} style={{ display: "flex", gap: 13, padding: "0 0 16px" }}>
+          <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", background: c.greenTint, color: c.green, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>✓</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 2 }}><MathText text={d.q} /></div>
+            <div style={{ fontSize: 13.5, color: c.soft, lineHeight: 1.55 }}><MathText text={d.answer} /></div>
+          </div>
+        </div>
+      ))}
+      <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 22, marginBottom: 22 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Step {step + 1} of {steps.length}</div>
+        <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 14 }}><MathText text={cur.q} /></div>
+        {hintVisible ? (
+          <div style={{ fontSize: 14, color: c.soft, lineHeight: 1.6, background: c.amberTint, border: `1px solid ${c.amberBorder}`, borderRadius: 10, padding: "12px 14px", marginBottom: 16 }}>
+            <MathText text={cur.hint} />
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setHintVisible(true)}
+            style={{ background: "none", border: `1px solid ${c.amberBorder}`, color: "#92400E", fontWeight: 600, fontSize: 13, padding: "8px 14px", borderRadius: 9, cursor: "pointer", marginBottom: 16 }}
+          >Need a hint?</button>
+        )}
+        <button type="button" onClick={onNext} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 20px", borderRadius: 10, cursor: "pointer" }}>
+          {last ? "See the conclusion" : "Reveal this step"}
+        </button>
+      </div>
     </div>
   );
 }

@@ -26,6 +26,8 @@ export default function AssessmentTake() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [flagged, setFlagged] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<{ score: number; level: string; correct: number; total: number } | null>(null);
+  const [submittedAnswers, setSubmittedAnswers] = useState<Record<string, number>>({});
+  const [showReview, setShowReview] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const hydrated = useRef(false);
   const autoSubmitted = useRef(false);
@@ -53,6 +55,7 @@ export default function AssessmentTake() {
     try {
       const payload = assessment.questions.map((qq) => ({ question_id: qq.id, chosen_index: answers[qq.id] ?? -1 }));
       const res = await submit.mutateAsync({ assessmentId: assessment.id, answers: payload });
+      setSubmittedAnswers({ ...answers });
       setResult(res);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Could not submit this assessment.";
@@ -113,6 +116,34 @@ export default function AssessmentTake() {
             <div style={{ fontSize: 13, color: c.soft }}>This is a mastery indicator, not an official exam result.</div>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setShowReview((v) => !v)}
+          style={{ width: "100%", background: c.surface, border: `1px solid ${c.border2}`, color: c.soft, fontWeight: 600, fontSize: 14, padding: 13, borderRadius: 12, cursor: "pointer", marginBottom: 12 }}
+        >{showReview ? "Hide your answers" : "Review your answers"}</button>
+        {showReview && (
+          <div style={{ marginBottom: 22 }}>
+            {assessment.questions.map((qq, i) => {
+              const chosen = submittedAnswers[qq.id] ?? -1;
+              return (
+                <div key={qq.id} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 12, padding: "14px 16px", marginBottom: 8 }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 600, color: c.faint, marginBottom: 6 }}>Question {i + 1}</div>
+                  <div style={{ fontSize: 14.5, lineHeight: 1.45, color: c.ink, marginBottom: 10 }}><MathText text={qq.prompt} /></div>
+                  {chosen >= 0 ? (
+                    <div style={{ fontSize: 13, color: c.soft }}>
+                      <span style={{ fontWeight: 600, color: c.ink }}>Your answer:</span> {String.fromCharCode(65 + chosen)}. <MathText text={qq.options[chosen] ?? ""} />
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 13, color: c.faint, fontStyle: "italic" }}>Not answered</div>
+                  )}
+                </div>
+              );
+            })}
+            <div style={{ fontSize: 12.5, color: c.faint, textAlign: "center", padding: "8px 0" }}>
+              Compare these with your notes to find what to review.
+            </div>
+          </div>
+        )}
         <button type="button" onClick={() => nav("/student/assignments")} style={{ width: "100%", background: c.green, color: "#fff", border: "none", fontWeight: 700, fontSize: 15, padding: 15, borderRadius: 12, cursor: "pointer" }}>Back to assignments</button>
       </div>
     );

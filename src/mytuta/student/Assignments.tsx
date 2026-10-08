@@ -6,6 +6,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useStudentAssignments, useMyClasses } from "../data/queries";
 import { useJoinClass } from "../data/mutations";
 
+function isOverdue(status: string): boolean {
+  const s = (status || "").toLowerCase();
+  return s.includes("overdue") || s.includes("late") || s.includes("past due");
+}
+function isToday(status: string): boolean {
+  const s = (status || "").toLowerCase();
+  return s.includes("today") || s.includes("due today");
+}
+
 export default function Assignments() {
   const nav = useNavigate();
   const { toast } = useToast();
@@ -101,9 +110,11 @@ export default function Assignments() {
                 <div style={{ width: 36, height: 36, flex: "none", borderRadius: 9, background: a.color, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{a.icon}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 600, fontSize: 14 }}>{a.title}</div>
-                  <div style={{ fontSize: 12, color: c.faint }}>{a.teacher} · due {a.due}</div>
+                  <div style={{ fontSize: 12, color: isOverdue(a.status) ? "#c05a2e" : isToday(a.status) ? "#c47a17" : c.faint }}>
+                    {a.teacher} · {isOverdue(a.status) ? <strong>Overdue</strong> : `due ${a.due}`}
+                  </div>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: clickable ? c.green : a.statusColor }}>{label}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: isOverdue(a.status) ? "#c05a2e" : clickable ? c.green : a.statusColor }}>{isOverdue(a.status) ? "Overdue" : label}</span>
               </div>
             );
           })}
