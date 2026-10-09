@@ -33,10 +33,10 @@ export function ErrorNote({ message }: { message: string }) {
  * additional inputs (amount, days, target role) above the reason field.
  */
 export function ActionModal({
-  title, description, confirmLabel, danger, busy, extra, onConfirm, onClose,
+  title, description, confirmLabel, danger, busy, extra, errorNote, onConfirm, onClose,
 }: {
   title: string; description?: string; confirmLabel: string; danger?: boolean;
-  busy?: boolean; extra?: ReactNode; onConfirm: (reason: string) => void; onClose: () => void;
+  busy?: boolean; extra?: ReactNode; errorNote?: string; onConfirm: (reason: string) => void; onClose: () => void;
 }) {
   const [reason, setReason] = useState("");
   const ready = reason.trim().length >= 3 && !busy;
@@ -47,7 +47,8 @@ export function ActionModal({
         {description && <div style={{ fontSize: 13.5, color: a.muted, lineHeight: 1.5, marginBottom: 14 }}>{description}</div>}
         {extra}
         <label style={{ fontSize: 12, fontWeight: 600, color: a.muted, display: "block", marginBottom: 6, marginTop: extra ? 12 : 0 }}>Reason (required, audited)</label>
-        <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2} placeholder="Why are you doing this?" style={{ ...input, resize: "vertical", marginBottom: 16 }} />
+        <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2} placeholder="Why are you doing this?" style={{ ...input, resize: "vertical", marginBottom: errorNote ? 10 : 16 }} />
+        {errorNote && <div style={{ fontSize: 13, color: a.red, background: a.redTint, border: "1px solid #f0c7c3", borderRadius: 8, padding: "8px 12px", marginBottom: 16 }}>{errorNote}</div>}
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button type="button" onClick={onClose} style={ghostBtn()}>Cancel</button>
           <button type="button" disabled={!ready} onClick={() => onConfirm(reason.trim())}

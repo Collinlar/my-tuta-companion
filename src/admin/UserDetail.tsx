@@ -46,6 +46,7 @@ export default function UserDetail() {
   const [action, setAction] = useState<Action>(null);
   const [amount, setAmount] = useState("");
   const [days, setDays] = useState("30");
+  const [actionErr, setActionErr] = useState("");
 
   const setStatus = useSetUserStatus();
   const changeRole = useChangeUserRole();
@@ -70,8 +71,13 @@ export default function UserDetail() {
   const isTeacher = str(acc.user_type) === "teacher";
   const hasActiveSub = str(sub.status) === "active";
 
-  const close = () => setAction(null);
-  const run = (fn: Promise<unknown>) => { void fn.then(close); };
+  const close = () => { setAction(null); setActionErr(""); };
+  const run = (fn: Promise<unknown>) => {
+    setActionErr("");
+    void fn.then(close).catch((e: unknown) => {
+      setActionErr(e instanceof Error ? e.message : "That action did not go through. Check your connection and try again.");
+    });
+  };
 
   const onConfirm = (reason: string) => {
     if (!userId || !action) return;
@@ -226,26 +232,26 @@ export default function UserDetail() {
         <ActionModal title={action.to === "suspended" ? "Suspend this account?" : "Reactivate this account?"}
           description={action.to === "suspended" ? "The account is flagged suspended and this is audited. Session-blocking enforcement lands in a later phase." : undefined}
           confirmLabel={action.to === "suspended" ? "Suspend" : "Reactivate"} danger={action.to === "suspended"} busy={busy}
-          onConfirm={onConfirm} onClose={close} />
+          errorNote={actionErr} onConfirm={onConfirm} onClose={close} />
       )}
       {action?.t === "role" && (
-        <ActionModal title={`Change role to ${action.to}?`} confirmLabel="Change role" busy={busy} onConfirm={onConfirm} onClose={close} />
+        <ActionModal title={`Change role to ${action.to}?`} confirmLabel="Change role" busy={busy} errorNote={actionErr} onConfirm={onConfirm} onClose={close} />
       )}
       {action?.t === "note" && (
-        <ActionModal title="Add an internal note" description="Notes are stored on the audit trail for this user." confirmLabel="Save note" busy={busy} onConfirm={onConfirm} onClose={close} />
+        <ActionModal title="Add an internal note" description="Notes are stored on the audit trail for this user." confirmLabel="Save note" busy={busy} errorNote={actionErr} onConfirm={onConfirm} onClose={close} />
       )}
       {action?.t === "cancelSub" && (
-        <ActionModal title="Cancel this subscription?" description="Clears remaining subscription credits and marks the subscription canceled." confirmLabel="Cancel subscription" danger busy={busy} onConfirm={onConfirm} onClose={close} />
+        <ActionModal title="Cancel this subscription?" description="Clears remaining subscription credits and marks the subscription canceled." confirmLabel="Cancel subscription" danger busy={busy} errorNote={actionErr} onConfirm={onConfirm} onClose={close} />
       )}
       {action?.t === "refund" && (
-        <ActionModal title="Refund this spend?" description="Returns the credits into a non-expiring lot. Guarded against double refunds." confirmLabel="Refund credits" busy={busy} onConfirm={onConfirm} onClose={close} />
+        <ActionModal title="Refund this spend?" description="Returns the credits into a non-expiring lot. Guarded against double refunds." confirmLabel="Refund credits" busy={busy} errorNote={actionErr} onConfirm={onConfirm} onClose={close} />
       )}
       {action?.t === "credits" && (
-        <ActionModal title="Adjust credits" description="Positive adds a non-expiring promo lot; negative draws down live credits." confirmLabel="Apply adjustment" busy={busy} onConfirm={onConfirm} onClose={close}
+        <ActionModal title="Adjust credits" description="Positive adds a non-expiring promo lot; negative draws down live credits." confirmLabel="Apply adjustment" busy={busy} errorNote={actionErr} onConfirm={onConfirm} onClose={close}
           extra={<div><label style={{ fontSize: 12, fontWeight: 600, color: a.muted, display: "block", marginBottom: 6 }}>Amount (+ add / − remove)</label><input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="e.g. 50 or -20" style={input} /></div>} />
       )}
       {action?.t === "expiry" && (
-        <ActionModal title="Extend credit expiry" description="Pushes the expiry of all this user's expiring live lots forward." confirmLabel="Extend expiry" busy={busy} onConfirm={onConfirm} onClose={close}
+        <ActionModal title="Extend credit expiry" description="Pushes the expiry of all this user's expiring live lots forward." confirmLabel="Extend expiry" busy={busy} errorNote={actionErr} onConfirm={onConfirm} onClose={close}
           extra={<div><label style={{ fontSize: 12, fontWeight: 600, color: a.muted, display: "block", marginBottom: 6 }}>Days to add</label><input type="number" value={days} onChange={(e) => setDays(e.target.value)} style={input} /></div>} />
       )}
     </>

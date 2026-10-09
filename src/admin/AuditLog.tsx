@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { a, card, th, td, badgeTone } from "./theme";
+import { a, card, th, td, badgeTone, ghostBtn } from "./theme";
 import { useAuditLog } from "./data/queries";
 import { PageHeader, Loading, ErrorNote } from "./ui";
 
@@ -53,8 +53,8 @@ export default function AuditLog() {
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 14, fontSize: 13, color: a.muted }}>
           <span>{from}–{to} of {data.total}</span>
           <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-            <button type="button" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE))} style={{ border: `1px solid ${a.border}`, background: a.panel, color: offset === 0 ? a.faint : a.body, borderRadius: 8, padding: "7px 14px", fontSize: 13, fontWeight: 600, cursor: offset === 0 ? "default" : "pointer" }}>Previous</button>
-            <button type="button" disabled={to >= data.total} onClick={() => setOffset(offset + PAGE)} style={{ border: `1px solid ${a.border}`, background: a.panel, color: to >= data.total ? a.faint : a.body, borderRadius: 8, padding: "7px 14px", fontSize: 13, fontWeight: 600, cursor: to >= data.total ? "default" : "pointer" }}>Next</button>
+            <button type="button" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE))} style={{ ...ghostBtn(), opacity: offset === 0 ? 0.5 : 1 }}>Previous</button>
+            <button type="button" disabled={to >= data.total} onClick={() => setOffset(offset + PAGE)} style={{ ...ghostBtn(), opacity: to >= data.total ? 0.5 : 1 }}>Next</button>
           </div>
         </div>
       </div>

@@ -23,6 +23,7 @@ export default function PaymentDetail() {
   const { data, isLoading, error } = useAdminPaymentDetail(paymentId);
   const refund = useRecordRefund();
   const [open, setOpen] = useState(false);
+  const [refundErr, setRefundErr] = useState("");
 
   if (isLoading) return <><PageHeader title="Payment" /><Loading /></>;
   if (error || !data) return <><PageHeader title="Payment" /><ErrorNote message="Could not load this payment." /></>;
@@ -79,8 +80,14 @@ export default function PaymentDetail() {
         <ActionModal title={`Refund GHS ${amount}?`}
           description="Calls Paystack to reverse this charge and records the refund. Requires Paystack refunds to be enabled on the account."
           confirmLabel="Issue refund" danger busy={refund.isPending}
-          onClose={() => setOpen(false)}
-          onConfirm={(reason) => { void refund.mutateAsync({ reference: str(pm.provider_ref), amountGhs: amount, reason }).then(() => setOpen(false)).catch(() => setOpen(false)); }}
+          errorNote={refundErr}
+          onClose={() => { setOpen(false); setRefundErr(""); }}
+          onConfirm={(reason) => {
+            setRefundErr("");
+            void refund.mutateAsync({ reference: str(pm.provider_ref), amountGhs: amount, reason })
+              .then(() => { setOpen(false); setRefundErr(""); })
+              .catch((e: unknown) => { setRefundErr(e instanceof Error ? e.message : "The refund did not go through. Check Paystack and try again."); });
+          }}
         />
       )}
     </>
