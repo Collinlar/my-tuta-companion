@@ -63,14 +63,14 @@ function Pricing() {
         </table>
       </div>
       {edit && (
-        <ActionModal title={`Edit “${edit.label}”`} confirmLabel=”Save cost” busy={setActionCost.isPending}
+        <ActionModal title={`Edit "${edit.label}"`} confirmLabel="Save cost" busy={setActionCost.isPending}
           onClose={() => setEdit(null)}
-          onConfirm={(reason) => { void setActionCost.mutateAsync({ actionKey: edit.action_key, cost: parseInt(cost || “0”, 10), active, reason }).then(() => setEdit(null)); }}
+          onConfirm={(reason) => { void setActionCost.mutateAsync({ actionKey: edit.action_key, cost: parseInt(cost || "0", 10), active, reason }).then(() => setEdit(null)); }}
           extra={
-            <div style={{ display: “flex”, gap: 12 }}>
+            <div style={{ display: "flex", gap: 12 }}>
               <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: a.muted, display: “block”, marginBottom: 6 }}>Cost (credits)</label>
-                <input type=”number” value={cost} onChange={(e) => setCost(e.target.value)} style={input} />
+                <label style={{ fontSize: 12, fontWeight: 600, color: a.muted, display: "block", marginBottom: 6 }}>Cost (credits)</label>
+                <input type="number" value={cost} onChange={(e) => setCost(e.target.value)} style={input} />
               </div>
               <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: a.body, alignSelf: "flex-end", paddingBottom: 9 }}>
                 <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} /> Active
@@ -125,7 +125,7 @@ function Bundles() {
         </table>
       </div>
       {edit && (
-        <ActionModal title={edit.id ? `Edit “${edit.name || edit.id}”` : "New bundle"} confirmLabel="Save bundle" busy={upsert.isPending}
+        <ActionModal title={edit.id ? `Edit "${edit.name || edit.id}"` : "New bundle"} confirmLabel="Save bundle" busy={upsert.isPending}
           onClose={() => setEdit(null)}
           onConfirm={(reason) => { void upsert.mutateAsync({ ...f, positioning: f.positioning ?? "", reason }).then(() => setEdit(null)); }}
           extra={
