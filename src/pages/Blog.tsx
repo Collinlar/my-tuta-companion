@@ -1,274 +1,81 @@
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { 
-  BookOpen,
-  Clock,
-  User,
-  Sparkles,
-  TrendingUp,
-  Lightbulb,
-  Target
-} from "lucide-react";
-import { Navigation } from "@/components/Navigation";
-import { Footer } from "@/components/Footer";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { c, font } from "@/mytuta/theme";
+import { MarketingShell } from "./marketing/chrome";
 
-const Blog = () => {
-  const blogPosts = [
-    {
-      category: "Study Tips",
-      title: "5 Proven Study Techniques That Actually Work",
-      excerpt: "Discover evidence-based study methods that will help you retain more information and ace your exams.",
-      author: "mytuta Team",
-      date: "Jan 15, 2025",
-      readTime: "5 min read",
-      image: "study-tips",
-      featured: true,
-      slug: "5-proven-study-techniques"
-    },
-    {
-      category: "For Teachers",
-      title: "How to Create Engaging Lesson Plans in 10 Minutes",
-      excerpt: "Learn how AI can help you create comprehensive, engaging lesson plans that save time and improve student outcomes.",
-      author: "Mr. Owusu",
-      date: "Jan 12, 2025",
-      readTime: "4 min read",
-      image: "lesson-planning",
-      slug: "engaging-lesson-plans"
-    },
-    {
-      category: "Student Success",
-      title: "From 45% to 87%: How Ama Transformed Her Study Habits",
-      excerpt: "Read about how one JHS student used mytuta AI to completely transform her academic performance.",
-      author: "Student Stories",
-      date: "Jan 10, 2025",
-      readTime: "6 min read",
-      image: "success-story",
-      slug: "ama-success-story"
-    },
-    {
-      category: "AI & Education",
-      title: "The Future of Learning: AI in Ghanaian Classrooms",
-      excerpt: "Explore how artificial intelligence is transforming education in Ghana and what it means for students and teachers.",
-      author: "mytuta Team",
-      date: "Jan 8, 2025",
-      readTime: "7 min read",
-      image: "ai-education",
-      slug: "ai-education-ghana"
-    },
-    {
-      category: "Study Tips",
-      title: "Mastering Flashcards: A Complete Guide",
-      excerpt: "Everything you need to know about using flashcards effectively for better memory retention and exam preparation.",
-      author: "mytuta Team",
-      date: "Jan 5, 2025",
-      readTime: "5 min read",
-      image: "flashcards",
-      slug: "mastering-flashcards"
-    },
-    {
-      category: "For Teachers",
-      title: "Differentiation Made Easy with AI",
-      excerpt: "Learn how to quickly adapt your lessons for different learning levels using mytuta AI's smart tools.",
-      author: "Ms. Adjei",
-      date: "Jan 3, 2025",
-      readTime: "4 min read",
-      image: "differentiation",
-      slug: "differentiation-made-easy"
-    }
-  ];
+interface Post {
+  category: string; title: string; excerpt: string; date: string; readTime: string; slug: string; featured?: boolean;
+}
 
-  const categories = [
-    { name: "All Posts", count: 12, icon: BookOpen },
-    { name: "Study Tips", count: 5, icon: Lightbulb },
-    { name: "For Teachers", count: 4, icon: User },
-    { name: "Student Success", count: 3, icon: TrendingUp }
-  ];
+const POSTS: Post[] = [
+  { category: "Study Tips", title: "5 Proven Study Techniques That Actually Work", excerpt: "Evidence-based study methods that help you retain more and walk into exams ready.", date: "Jan 15, 2025", readTime: "5 min read", slug: "5-proven-study-techniques", featured: true },
+  { category: "For Teachers", title: "How to Create Engaging Lesson Plans in 10 Minutes", excerpt: "Use AI to build comprehensive, engaging lesson plans that save time and lift outcomes.", date: "Jan 12, 2025", readTime: "4 min read", slug: "engaging-lesson-plans" },
+  { category: "Student Success", title: "From 45% to 87%: How Ama Transformed Her Study Habits", excerpt: "How one JHS student used mytuta to completely turn around her results.", date: "Jan 10, 2025", readTime: "6 min read", slug: "ama-success-story" },
+  { category: "AI & Education", title: "The Future of Learning: AI in Ghanaian Classrooms", excerpt: "How AI is reshaping education in Ghana, and what it means for students and teachers.", date: "Jan 8, 2025", readTime: "7 min read", slug: "ai-education-ghana" },
+  { category: "Study Tips", title: "Mastering Flashcards: A Complete Guide", excerpt: "Everything you need to use flashcards well for stronger memory and exam prep.", date: "Jan 5, 2025", readTime: "5 min read", slug: "mastering-flashcards" },
+  { category: "For Teachers", title: "Differentiation Made Easy with AI", excerpt: "Quickly adapt your lessons for different learning levels with mytuta's tools.", date: "Jan 3, 2025", readTime: "4 min read", slug: "differentiation-made-easy" },
+];
+
+function CatPill({ label, light }: { label: string; light?: boolean }) {
+  return <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".02em", color: light ? "#d6eee1" : c.greenDark, background: light ? "rgba(255,255,255,.16)" : c.greenTint, border: light ? "none" : `1px solid ${c.greenTintBorder}`, padding: "4px 11px", borderRadius: 999 }}>{label}</span>;
+}
+
+export default function Blog() {
+  const nav = useNavigate();
+  const featured = POSTS.find((p) => p.featured) || POSTS[0];
+  const rest = POSTS.filter((p) => p !== featured);
+  const open = (slug: string) => nav(`/blog/${slug}`);
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-teal-50 to-blue-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <Badge variant="secondary" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-teal-100 text-teal-700 border-teal-200">
-              <BookOpen className="w-4 h-4" />
-              Learning Resources
-            </Badge>
-            
-            <h1 className="text-5xl lg:text-6xl font-bold text-slate-900 leading-tight">
-              Study Tips, Teaching
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">
-                Strategies & More
-              </span>
-            </h1>
-            
-            <p className="text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto">
-              Articles, guides, and success stories to help you learn better and teach smarter.
-            </p>
-          </div>
-        </div>
+    <MarketingShell>
+      <Helmet>
+        <title>Resources | mytuta</title>
+        <meta name="description" content="Guides, stories and ideas for mastering STEM. Study techniques, teaching tips and real student results from mytuta." />
+      </Helmet>
+
+      {/* Hero */}
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(56px,8vw,112px) clamp(20px,4vw,48px) clamp(28px,4vw,48px)" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: "#7d7564", marginBottom: 20 }}>Resources</div>
+        <h1 style={{ fontFamily: font.display, fontWeight: 800, fontSize: "clamp(44px,7vw,104px)", lineHeight: .95, letterSpacing: "-.045em", color: c.ink, maxWidth: 1000, textWrap: "balance" }}>Guides, stories and ideas for mastering STEM.</h1>
       </section>
 
-      {/* Blog Content */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid lg:grid-cols-4 gap-12">
-              {/* Sidebar - Categories */}
-              <div className="lg:col-span-1">
-                <h3 className="text-lg font-bold text-slate-900 mb-6">Categories</h3>
-                <div className="space-y-3">
-                  {categories.map((category, index) => (
-                    <button
-                      key={index}
-                      className="w-full flex items-center justify-between p-3 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 transition-all duration-300 text-left"
-                    >
-                      <div className="flex items-center gap-3">
-                        <category.icon className="w-4 h-4 text-teal-600" />
-                        <span className="text-slate-700 font-medium">{category.name}</span>
-                      </div>
-                      <Badge variant="secondary" className="bg-slate-100 text-slate-700">
-                        {category.count}
-                      </Badge>
-                    </button>
-                  ))}
-                </div>
+      {/* Featured */}
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "0 clamp(20px,4vw,48px)" }}>
+        <button type="button" onClick={() => open(featured.slug)} className="mk-card" style={{ textAlign: "left", width: "100%", background: c.green, color: "#fff", border: "none", borderRadius: 24, padding: "clamp(28px,4vw,48px)", cursor: "pointer", display: "flex", flexDirection: "column", gap: 18 }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <CatPill label={featured.category} light />
+            <span style={{ fontSize: 13, color: "#d6eee1" }}>{featured.readTime}</span>
+          </div>
+          <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: "clamp(28px,3.8vw,52px)", lineHeight: 1.03, letterSpacing: "-.035em", maxWidth: 820 }}>{featured.title}</div>
+          <div style={{ fontSize: "clamp(16px,1.4vw,19px)", lineHeight: 1.5, maxWidth: 640, color: "#eafaf1" }}>{featured.excerpt}</div>
+          <div style={{ fontWeight: 700, fontSize: 16, marginTop: 4 }}>Read the guide →</div>
+        </button>
+      </section>
+
+      {/* Grid */}
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(24px,3vw,32px) clamp(20px,4vw,48px) clamp(64px,8vw,112px)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,320px),1fr))", gap: 20 }}>
+          {rest.map((p) => (
+            <button key={p.slug} type="button" onClick={() => open(p.slug)} className="mk-card" style={{ textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 22, padding: 26, cursor: "pointer", display: "flex", flexDirection: "column", gap: 14, minHeight: 240 }}>
+              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                <CatPill label={p.category} />
+                <span style={{ fontSize: 12.5, color: c.faint }}>{p.readTime}</span>
               </div>
-
-              {/* Main Content - Blog Posts */}
-              <div className="lg:col-span-3">
-                {/* Featured Post */}
-                {blogPosts.filter(post => post.featured).map((post, index) => (
-                  <Card key={index} className="p-8 mb-12 bg-gradient-to-br from-teal-50 to-blue-50 border-2 border-teal-200 shadow-lg">
-                    <Badge className="bg-teal-600 text-white mb-4">Featured</Badge>
-                    <div className="space-y-4">
-                      <Badge variant="outline" className="border-teal-600 text-teal-700">
-                        {post.category}
-                      </Badge>
-                      
-                      <h2 className="text-3xl font-bold text-slate-900 leading-tight">
-                        {post.title}
-                      </h2>
-                      
-                      <p className="text-lg text-slate-600 leading-relaxed">
-                        {post.excerpt}
-                      </p>
-                      
-                      <div className="flex items-center gap-6 text-sm text-slate-600 pt-4">
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4" />
-                          <span>{post.author}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          <span>{post.readTime}</span>
-                        </div>
-                        <span>{post.date}</span>
-                      </div>
-                      
-                      <Button 
-                        asChild
-                        className="mt-4 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white"
-                      >
-                        <Link to={`/blog/${post.slug}`}>
-                          Read Article
-                        </Link>
-                      </Button>
-                    </div>
-                  </Card>
-                ))}
-
-                {/* Regular Posts Grid */}
-                <div className="grid md:grid-cols-2 gap-8">
-                  {blogPosts.filter(post => !post.featured).map((post, index) => (
-                    <Card key={index} className="p-6 bg-white border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                      <div className="space-y-4">
-                        <Badge variant="outline" className="border-teal-600 text-teal-700">
-                          {post.category}
-                        </Badge>
-                        
-                        <h3 className="text-xl font-bold text-slate-900 leading-tight">
-                          {post.title}
-                        </h3>
-                        
-                        <p className="text-slate-600 leading-relaxed">
-                          {post.excerpt}
-                        </p>
-                        
-                        <div className="flex items-center gap-4 text-xs text-slate-600 pt-2 border-t border-slate-200">
-                          <div className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
-                            <span>{post.author}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            <span>{post.readTime}</span>
-                          </div>
-                        </div>
-                        
-                        <Button 
-                          asChild
-                          variant="outline"
-                          size="sm"
-                          className="w-full mt-2 border-teal-600 text-teal-700 hover:bg-teal-50"
-                        >
-                          <Link to={`/blog/${post.slug}`}>
-                            Read More
-                          </Link>
-                        </Button>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-
-                {/* Load More */}
-                <div className="text-center mt-12">
-                  <Button 
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-slate-300 text-slate-700 hover:bg-slate-50"
-                  >
-                    Load More Articles
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
+              <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: 21, lineHeight: 1.12, letterSpacing: "-.02em", color: c.ink }}>{p.title}</div>
+              <div style={{ fontSize: 15, lineHeight: 1.5, color: c.soft, flex: 1 }}>{p.excerpt}</div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: c.greenDark }}>Read the guide →</div>
+            </button>
+          ))}
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-teal-600 to-blue-600">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-8">
-            <Sparkles className="w-12 h-12 text-white mx-auto" />
-            <h2 className="text-4xl lg:text-5xl font-bold text-white leading-tight">
-              Want to Contribute?
-            </h2>
-            
-            <p className="text-xl text-white/90 leading-relaxed">
-              Have a study tip or teaching strategy to share? We'd love to feature your story on our blog.
-            </p>
-            
-            <Button 
-              size="lg" 
-              className="text-lg px-10 py-6 bg-white text-teal-700 hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
-              onClick={() => window.location.href = 'mailto:blog@mytuta.org'}
-            >
-              Submit Your Article
-            </Button>
-          </div>
+      {/* CTA */}
+      <section style={{ background: c.ink, color: "#fff" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(56px,7vw,96px) clamp(20px,4vw,48px)", display: "flex", flexWrap: "wrap", gap: 24, alignItems: "center", justifyContent: "space-between" }}>
+          <h2 style={{ fontFamily: font.display, fontWeight: 800, fontSize: "clamp(32px,4.4vw,56px)", lineHeight: 1, letterSpacing: "-.035em", color: "#fff", maxWidth: 620 }}>Got a question for the team?</h2>
+          <button type="button" onClick={() => nav("/contact")} style={{ background: c.green, color: "#fff", border: "none", fontFamily: "inherit", fontWeight: 700, fontSize: 17, padding: "16px 28px", borderRadius: 999, cursor: "pointer" }}>Talk to us</button>
         </div>
       </section>
-
-      <Footer />
-    </div>
+    </MarketingShell>
   );
-};
-
-export default Blog;
-
+}

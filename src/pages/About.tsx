@@ -1,232 +1,89 @@
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { 
-  Heart, 
-  Target, 
-  Lightbulb, 
-  Users, 
-  Flag,
-  Sparkles,
-  TrendingUp,
-  Shield
-} from "lucide-react";
-import { Navigation } from "@/components/Navigation";
-import { Footer } from "@/components/Footer";
+import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { c, font } from "@/mytuta/theme";
+import { MarketingShell } from "./marketing/chrome";
 
-const About = () => {
-  const values = [
-    {
-      icon: Heart,
-      title: "Student-Centered",
-      description: "Every feature we build starts with one question: How does this help students learn better?"
-    },
-    {
-      icon: Lightbulb,
-      title: "Innovation",
-      description: "We leverage the latest AI technology to create learning experiences that were impossible before."
-    },
-    {
-      icon: Shield,
-      title: "Trust & Safety",
-      description: "Your data is private and secure. We're committed to protecting student and teacher information."
-    },
-    {
-      icon: Users,
-      title: "Community",
-      description: "We're building a community of learners and educators who support each other's growth."
-    }
-  ];
+const VALUES = [
+  { title: "Understanding, not answers", body: "mytuta never dumps the solution. It coaches your reasoning, one step at a time, until you can do it on your own." },
+  { title: "Built for Africa", body: "Local examples, cedis and mobile money, and content tuned to national exams. Made in Accra for classrooms across the continent." },
+  { title: "Every learner, their way", body: "mytuta learns how you learn, then adapts the explanation, the pace and the support to match you." },
+  { title: "Private and safe", body: "Your learning stays yours. We protect student and teacher data and never sell it." },
+];
 
-  const milestones = [
-    { year: "2025", title: "mytuta Launch", description: "Launched mytuta AI to help Ghanaian students and teachers" },
-    { year: "2025", title: "500+ Students", description: "Reached our first 500 active student users" },
-    { year: "2025", title: "50+ Teachers", description: "50+ teachers using mytuta to save time and enhance lessons" },
-    { year: "Future", title: "Your Story", description: "Join us in transforming education across Ghana" }
-  ];
+const LOOP = [
+  { n: "1", name: "Understand", line: "The concept, explained your way." },
+  { n: "2", name: "Solve", line: "Guided working, one step at a time." },
+  { n: "3", name: "Practise", line: "Fresh questions until it sticks." },
+  { n: "4", name: "Apply", line: "Labs and challenges from real life." },
+  { n: "5", name: "Master", line: "Proof you can do it alone." },
+];
 
+export default function About() {
+  const nav = useNavigate();
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-teal-50 to-blue-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <Badge variant="secondary" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-teal-100 text-teal-700 border-teal-200">
-              <Sparkles className="w-4 h-4" />
-              About Us
-            </Badge>
-            
-            <h1 className="text-5xl lg:text-6xl font-bold text-slate-900 leading-tight">
-              We're on a Mission to
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">
-                Transform Learning in Ghana
-              </span>
-            </h1>
-            
-            <p className="text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto">
-              mytuta AI was born from a simple belief: every student deserves access to personalized, high-quality learning tools, and every teacher deserves technology that makes their job easier.
-            </p>
+    <MarketingShell>
+      <Helmet>
+        <title>About mytuta | STEM mastery for Africa</title>
+        <meta name="description" content="mytuta is the AI STEM mastery platform built in Accra for African students and teachers. We build understanding, not answer dumps, and stay with every learner until they can solve it themselves." />
+      </Helmet>
+
+      {/* Hero */}
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(56px,8vw,112px) clamp(20px,4vw,48px) clamp(32px,4vw,56px)" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: "#7d7564", marginBottom: 20 }}>About mytuta</div>
+        <h1 style={{ fontFamily: font.display, fontWeight: 800, fontSize: "clamp(44px,7vw,104px)", lineHeight: .95, letterSpacing: "-.045em", color: c.ink, maxWidth: 1000, textWrap: "balance" }}>We built mytuta so STEM finally makes sense.</h1>
+        <p style={{ fontSize: "clamp(17px,1.6vw,22px)", lineHeight: 1.5, color: c.soft, maxWidth: 640, marginTop: 30, textWrap: "pretty" }}>Too many students decide they are "just not a science person" because a concept never clicked and nobody stayed with them long enough to fix it. mytuta is the tutor that does: it finds the gap, teaches it your way, and does not leave until you can solve it yourself.</p>
+      </section>
+
+      {/* Promise */}
+      <section style={{ background: c.surface, borderTop: `1px solid ${c.border2}`, borderBottom: `1px solid ${c.border2}` }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(64px,9vw,128px) clamp(20px,4vw,48px)" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "clamp(8px,1.5vw,18px)" }}>
+            <div style={{ fontFamily: font.display, fontWeight: 700, fontSize: "clamp(34px,5.5vw,80px)", lineHeight: 1, letterSpacing: "-.04em", color: "#a39b88", textDecoration: "line-through", textDecorationThickness: ".06em", textDecorationColor: "#c9c0ad" }}>A tool that hands over answers.</div>
+            <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: "clamp(34px,5.5vw,80px)", lineHeight: 1, letterSpacing: "-.04em", color: c.greenDark }}>A tutor that builds understanding.</div>
           </div>
+          <p style={{ fontSize: "clamp(17px,1.5vw,20px)", lineHeight: 1.55, color: c.soft, maxWidth: 620, marginTop: 34, textWrap: "pretty" }}>An answer solves one question. Understanding solves every question like it. That difference is the entire reason mytuta exists.</p>
         </div>
       </section>
 
-      {/* Our Story */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
-              <div>
-                <h2 className="text-4xl font-bold text-slate-900 mb-6">Our Story</h2>
-                <div className="space-y-4 text-lg text-slate-600 leading-relaxed">
-                  <p>
-                    We saw students struggling with piles of notes, not knowing how to study effectively. We saw teachers spending hours on lesson planning instead of focusing on their students.
-                  </p>
-                  <p>
-                    We knew AI could help, but existing tools weren't built for the Ghanaian context. They didn't understand our curriculum, our challenges, or our needs.
-                  </p>
-                  <p>
-                    So we built mytuta AI - a learning platform designed specifically for Ghanaian students and teachers. One that understands the Ghana Education Service curriculum, works on slower internet connections, and puts learning first.
-                  </p>
-                </div>
+      {/* Values */}
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(64px,8vw,112px) clamp(20px,4vw,48px)" }}>
+        <h2 style={{ fontFamily: font.display, fontWeight: 800, fontSize: "clamp(32px,4.4vw,60px)", lineHeight: 1, letterSpacing: "-.035em", marginBottom: 40, maxWidth: 680 }}>What we believe</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,280px),1fr))", gap: 20 }}>
+          {VALUES.map((v) => (
+            <div key={v.title} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 22, padding: 28, display: "flex", flexDirection: "column", gap: 12, minHeight: 200 }}>
+              <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: 22, letterSpacing: "-.02em", color: c.ink }}>{v.title}</div>
+              <div style={{ fontSize: 16, lineHeight: 1.55, color: c.soft }}>{v.body}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* The loop */}
+      <section style={{ background: c.surface, borderTop: `1px solid ${c.border2}`, borderBottom: `1px solid ${c.border2}` }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(64px,8vw,112px) clamp(20px,4vw,48px)", display: "flex", flexDirection: "column", gap: 40 }}>
+          <h2 style={{ fontFamily: font.display, fontWeight: 800, fontSize: "clamp(32px,4.4vw,60px)", lineHeight: 1, letterSpacing: "-.035em", maxWidth: 680 }}>Every concept runs the same loop.</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,200px),1fr))", gap: 14 }}>
+            {LOOP.map((s) => (
+              <div key={s.name} style={{ background: c.paper, borderRadius: 18, padding: "22px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: 40, lineHeight: 1, color: c.green }}>{s.n}</div>
+                <div style={{ fontWeight: 700, fontSize: 17 }}>{s.name}</div>
+                <div style={{ fontSize: 14.5, lineHeight: 1.45, color: c.soft }}>{s.line}</div>
               </div>
-              
-              <Card className="p-8 bg-gradient-to-br from-teal-50 to-blue-50 border-2 border-teal-200">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-teal-600 to-blue-700 rounded-xl flex items-center justify-center">
-                      <Target className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-slate-900">Our Mission</h3>
-                      <p className="text-slate-600">Empower every learner to succeed</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-teal-600 to-blue-700 rounded-xl flex items-center justify-center">
-                      <Flag className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-slate-900">Our Vision</h3>
-                      <p className="text-slate-600">AI-powered education for all of Ghana</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-teal-600 to-blue-700 rounded-xl flex items-center justify-center">
-                      <TrendingUp className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-slate-900">Our Goal</h3>
-                      <p className="text-slate-600">Help 100,000+ students by 2026</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Our Values */}
-      <section className="py-20 bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-slate-900 mb-4">Our Values</h2>
-              <p className="text-xl text-slate-600">The principles that guide everything we do</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {values.map((value, index) => (
-                <Card key={index} className="p-8 text-center bg-white border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                  <div className="w-16 h-16 bg-gradient-to-br from-teal-600 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <value.icon className="w-8 h-8 text-white" />
-                  </div>
-                  
-                  <h3 className="text-lg font-bold text-slate-900 mb-3">
-                    {value.title}
-                  </h3>
-                  
-                  <p className="text-slate-600 leading-relaxed text-sm">
-                    {value.description}
-                  </p>
-                </Card>
-              ))}
-            </div>
+      {/* CTA */}
+      <section style={{ background: c.ink, color: "#fff" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(64px,8vw,112px) clamp(20px,4vw,48px)", display: "flex", flexDirection: "column", gap: 28, alignItems: "flex-start" }}>
+          <h2 style={{ fontFamily: font.display, fontWeight: 800, fontSize: "clamp(40px,6vw,88px)", lineHeight: .95, letterSpacing: "-.045em", color: "#fff" }}>Learn the way it should work.</h2>
+          <div style={{ display: "flex", gap: 20, alignItems: "center", flexWrap: "wrap" }}>
+            <button type="button" onClick={() => nav("/signup?type=student")} style={{ background: c.green, color: "#fff", border: "none", fontFamily: "inherit", fontWeight: 700, fontSize: 18, padding: "18px 32px", borderRadius: 999, cursor: "pointer" }}>Start learning free</button>
+            <a onClick={() => nav("/signin")} style={{ color: "#fff", fontWeight: 600, fontSize: 17, textDecoration: "underline", textUnderlineOffset: 4, cursor: "pointer" }}>or sign in</a>
           </div>
         </div>
       </section>
-
-      {/* Our Journey */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-slate-900 mb-4">Our Journey</h2>
-              <p className="text-xl text-slate-600">Key milestones in our mission</p>
-            </div>
-
-            <div className="space-y-8">
-              {milestones.map((milestone, index) => (
-                <Card key={index} className="p-8 bg-white border-l-4 border-teal-600 shadow-sm hover:shadow-lg transition-all duration-300">
-                  <div className="flex items-start gap-6">
-                    <div className="flex-shrink-0">
-                      <div className="w-16 h-16 bg-gradient-to-br from-teal-600 to-blue-700 rounded-xl flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">{milestone.year}</span>
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-slate-900 mb-2">
-                        {milestone.title}
-                      </h3>
-                      <p className="text-slate-600 leading-relaxed">
-                        {milestone.description}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-teal-600 to-blue-600">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-8">
-            <h2 className="text-4xl lg:text-5xl font-bold text-white leading-tight">
-              Join Us on This Journey
-            </h2>
-            
-            <p className="text-xl text-white/90 leading-relaxed">
-              Whether you're a student, teacher, or education enthusiast, you're part of the mytuta family. Let's transform learning together.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="text-lg px-10 py-6 bg-white text-teal-700 hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
-                onClick={() => window.location.href = '/onboarding'}
-              >
-                Get Started Today
-              </Button>
-            </div>
-            
-            <p className="text-sm text-white/70">
-              Join 500+ students and 50+ teachers already using mytuta
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <Footer />
-    </div>
+    </MarketingShell>
   );
-};
-
-export default About;
-
+}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { c, font } from "@/mytuta/theme";
+import { MarketingShell, Ring } from "./marketing/chrome";
 
 // The mastery loop, shown as a cycling ring in the hero.
 const STAGES = [
@@ -38,40 +39,11 @@ export default function Index() {
   const cur = STAGES[stage];
 
   return (
-    <div style={{ minHeight: "100vh", background: c.paper, color: c.ink, fontFamily: font.body, WebkitFontSmoothing: "antialiased" }}>
+    <MarketingShell>
       <Helmet>
         <title>mytuta — STEM finally makes sense | AI STEM mastery for Africa</title>
         <meta name="description" content="Snap a question, name a topic or drop in your notes. mytuta finds the gap, teaches it your way and stays with you until you can solve it yourself. Built for STEM classrooms across Africa." />
       </Helmet>
-
-      <style>{`
-        .lp-a{transition:color .15s}
-        .lp-nav:hover{color:#d6eee1 !important}
-        .lp-aud:hover{color:${c.greenDark} !important}
-        .lp-ghost:hover{background:#28905f}
-        .lp-price{transition:transform .15s,box-shadow .15s}
-        .lp-price:hover{transform:translateY(-3px)}
-      `}</style>
-
-      {/* Header */}
-      <header style={{ background: c.green, position: "sticky", top: 0, zIndex: 30, boxShadow: "0 1px 0 #28905f" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "22px clamp(20px,4vw,48px)", display: "flex", alignItems: "center", gap: 28, flexWrap: "wrap" }}>
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 3 }}>
-            <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: 28, lineHeight: 1, letterSpacing: "-.035em", color: "#fff" }}>mytuta</div>
-            <Ring size={11} dash="80 107" track="#1f7d53" fill="#fff" style={{ marginBottom: 4, flex: "none" }} />
-          </div>
-          <nav style={{ display: "flex", gap: 26, fontSize: 15, fontWeight: 500, marginLeft: "auto", flexWrap: "wrap" }}>
-            <a href="#for" className="lp-a lp-nav" style={{ color: "#fff" }}>Students</a>
-            <a href="#for" className="lp-a lp-nav" style={{ color: "#fff" }}>Teachers</a>
-            <a href="#for" className="lp-a lp-nav" style={{ color: "#fff" }}>Schools</a>
-            <a href="#pricing" className="lp-a lp-nav" style={{ color: "#fff" }}>Pricing</a>
-          </nav>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <button type="button" onClick={() => nav("/signin")} className="lp-ghost" style={{ background: "transparent", color: "#fff", border: "1.5px solid #fff", fontFamily: "inherit", fontWeight: 600, fontSize: 15, padding: "10px 18px", borderRadius: 999, cursor: "pointer" }}>Sign in</button>
-            <button type="button" onClick={() => nav("/signup?type=student")} style={{ background: "#fff", color: c.greenDark, border: "none", fontFamily: "inherit", fontWeight: 700, fontSize: 15, padding: "11px 20px", borderRadius: 999, cursor: "pointer" }}>Start free</button>
-          </div>
-        </div>
-      </header>
 
       {/* Hero */}
       <section style={{ background: c.green, color: "#fff", overflow: "hidden", position: "relative" }}>
@@ -152,7 +124,7 @@ export default function Index() {
         <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: "#7d7564", marginBottom: 20 }}>Built for</div>
         <div style={{ display: "flex", flexDirection: "column", borderTop: `2px solid ${c.ink}` }}>
           {AUDIENCES.map((a) => (
-            <a key={a.name} onClick={() => nav(a.to)} className="lp-a lp-aud" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) auto", gap: 20, alignItems: "center", padding: "clamp(22px,3vw,36px) 0", borderBottom: `2px solid ${c.ink}`, color: c.ink, cursor: "pointer" }}>
+            <a key={a.name} onClick={() => nav(a.to)} className="mk-a mk-aud" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) auto", gap: 20, alignItems: "center", padding: "clamp(22px,3vw,36px) 0", borderBottom: `2px solid ${c.ink}`, color: c.ink, cursor: "pointer" }}>
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "8px 28px" }}>
                 <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: "clamp(40px,6vw,88px)", lineHeight: 1, letterSpacing: "-.045em" }}>{a.name}</div>
                 <div style={{ fontSize: "clamp(16px,1.4vw,19px)", color: c.soft, maxWidth: 440, lineHeight: 1.4 }}>{a.line}</div>
@@ -166,12 +138,12 @@ export default function Index() {
       {/* Pricing — matches the live model (Free / Student Plus / Teachers & Schools) */}
       <section id="pricing" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 clamp(20px,4vw,48px) clamp(64px,8vw,112px)" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,280px),1fr))", gap: 20 }}>
-          <div onClick={() => nav("/signup?type=student")} className="lp-price" style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 22, padding: 32, display: "flex", flexDirection: "column", gap: 10, cursor: "pointer" }}>
+          <div onClick={() => nav("/signup?type=student")} className="mk-card" style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 22, padding: 32, display: "flex", flexDirection: "column", gap: 10, cursor: "pointer" }}>
             <div style={{ fontWeight: 700, fontSize: 17 }}>Free</div>
             <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: 52, letterSpacing: "-.03em", lineHeight: 1 }}>₵0</div>
             <div style={{ fontSize: 16, color: c.soft, lineHeight: 1.5 }}>Join a class, with daily guided questions and lessons across Maths and Science.</div>
           </div>
-          <div onClick={() => nav("/pricing")} className="lp-price" style={{ background: c.ink, color: "#fff", borderRadius: 22, padding: 32, display: "flex", flexDirection: "column", gap: 10, cursor: "pointer" }}>
+          <div onClick={() => nav("/pricing")} className="mk-card" style={{ background: c.ink, color: "#fff", borderRadius: 22, padding: 32, display: "flex", flexDirection: "column", gap: 10, cursor: "pointer" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
               <div style={{ fontWeight: 700, fontSize: 17 }}>Student Plus</div>
               <div style={{ background: c.green, fontSize: 12.5, fontWeight: 700, padding: "4px 10px", borderRadius: 999 }}>Most learners</div>
@@ -182,7 +154,7 @@ export default function Index() {
             </div>
             <div style={{ fontSize: 16, lineHeight: 1.5 }}>A monthly credit allowance for revision, guided solving and premium Mastery Checks.</div>
           </div>
-          <div onClick={() => nav("/signup?type=teacher")} className="lp-price" style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 22, padding: 32, display: "flex", flexDirection: "column", gap: 10, cursor: "pointer" }}>
+          <div onClick={() => nav("/signup?type=teacher")} className="mk-card" style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 22, padding: 32, display: "flex", flexDirection: "column", gap: 10, cursor: "pointer" }}>
             <div style={{ fontWeight: 700, fontSize: 17 }}>Teachers &amp; Schools</div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
               <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: 52, letterSpacing: "-.03em", lineHeight: 1 }}>₵150</div>
@@ -209,25 +181,7 @@ export default function Index() {
           </div>
           <Ring size="min(100%,320px)" dash="100.6 101" track="#3a4552" fill={c.green} style={{ justifySelf: "end", display: "block" }} />
         </div>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "24px clamp(20px,4vw,48px) 32px", borderTop: "1px solid #3a4552", display: "flex", flexWrap: "wrap", gap: "12px 28px", fontSize: 14, color: "#c7cdd4", alignItems: "center" }}>
-          <div style={{ fontFamily: font.display, fontWeight: 800, color: "#fff", fontSize: 17, letterSpacing: "-.03em" }}>mytuta</div>
-          <a onClick={() => nav("/about")} style={{ color: "#c7cdd4", cursor: "pointer" }}>About</a>
-          <a onClick={() => nav("/blog")} style={{ color: "#c7cdd4", cursor: "pointer" }}>Resources</a>
-          <a onClick={() => nav("/contact")} style={{ color: "#c7cdd4", cursor: "pointer" }}>Contact</a>
-          <div style={{ marginLeft: "auto" }}>Made for STEM classrooms across Africa</div>
-        </div>
       </section>
-    </div>
-  );
-}
-
-/** The mytuta progress-ring mark, used at a few sizes. */
-function Ring({ size, dash, track, fill, style }: { size: number | string; dash: string; track: string; fill: string; style?: React.CSSProperties }) {
-  const dim = typeof size === "number" ? size : undefined;
-  return (
-    <svg viewBox="0 0 44 44" width={dim} height={dim} style={{ width: typeof size === "string" ? size : undefined, ...style }}>
-      <circle cx="22" cy="22" r="16" fill="none" stroke={track} strokeWidth="9" />
-      <circle cx="22" cy="22" r="16" fill="none" stroke={fill} strokeWidth="9" strokeDasharray={dash} transform="rotate(-90 22 22)" />
-    </svg>
+    </MarketingShell>
   );
 }
