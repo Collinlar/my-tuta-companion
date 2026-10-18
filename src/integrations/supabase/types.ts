@@ -15,9 +15,27 @@ export type Database = {
   public: {
     Tables: {
       concepts: {
-        Row: { id: string; slug: string; subject: string; name: string; description: string | null; learning_stage: string | null; difficulty: string | null; related_areas: string[] | null; created_at: string | null }
-        Insert: { id?: string; slug: string; subject: string; name: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; created_at?: string | null }
-        Update: { id?: string; slug?: string; subject?: string; name?: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; created_at?: string | null }
+        Row: { id: string; slug: string; subject: string; name: string; description: string | null; learning_stage: string | null; difficulty: string | null; related_areas: string[] | null; status: string; reviewer: string | null; last_reviewed_at: string | null; created_at: string | null }
+        Insert: { id?: string; slug: string; subject: string; name: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; status?: string; reviewer?: string | null; last_reviewed_at?: string | null; created_at?: string | null }
+        Update: { id?: string; slug?: string; subject?: string; name?: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; status?: string; reviewer?: string | null; last_reviewed_at?: string | null; created_at?: string | null }
+        Relationships: []
+      }
+      content_units: {
+        Row: { id: string; concept_id: string; skill_id: string | null; unit_type: string; learning_stage: string | null; difficulty: string | null; estimated_duration_mins: number | null; content: Json; correct_answer: string | null; explanation: string | null; common_mistakes: Json | null; hints: Json | null; adaptation_rules: Json | null; source: string | null; author: string | null; reviewer: string | null; review_status: string; version: number; ai_generated: boolean; ai_model: string | null; ai_prompt_version: string | null; usage_count: number; correct_rate: number | null; created_at: string | null; updated_at: string | null }
+        Insert: { id?: string; concept_id: string; skill_id?: string | null; unit_type: string; learning_stage?: string | null; difficulty?: string | null; estimated_duration_mins?: number | null; content: Json; correct_answer?: string | null; explanation?: string | null; common_mistakes?: Json | null; hints?: Json | null; adaptation_rules?: Json | null; source?: string | null; author?: string | null; reviewer?: string | null; review_status?: string; version?: number; ai_generated?: boolean; ai_model?: string | null; ai_prompt_version?: string | null; usage_count?: number; correct_rate?: number | null; created_at?: string | null; updated_at?: string | null }
+        Update: { id?: string; concept_id?: string; skill_id?: string | null; unit_type?: string; learning_stage?: string | null; difficulty?: string | null; estimated_duration_mins?: number | null; content?: Json; correct_answer?: string | null; explanation?: string | null; common_mistakes?: Json | null; hints?: Json | null; adaptation_rules?: Json | null; source?: string | null; author?: string | null; reviewer?: string | null; review_status?: string; version?: number; ai_generated?: boolean; ai_model?: string | null; ai_prompt_version?: string | null; usage_count?: number; correct_rate?: number | null; created_at?: string | null; updated_at?: string | null }
+        Relationships: []
+      }
+      concept_relationships: {
+        Row: { id: string; source_concept_id: string; target_concept_id: string; relationship_type: string; strength: string | null; notes: string | null; created_at: string | null }
+        Insert: { id?: string; source_concept_id: string; target_concept_id: string; relationship_type: string; strength?: string | null; notes?: string | null; created_at?: string | null }
+        Update: { id?: string; source_concept_id?: string; target_concept_id?: string; relationship_type?: string; strength?: string | null; notes?: string | null; created_at?: string | null }
+        Relationships: []
+      }
+      concept_demand: {
+        Row: { id: string; concept_slug: string; concept_name: string; subject: string | null; request_count: number; last_requested_at: string; promoted_at: string | null; promoted_to_tier: string | null; notes: string | null; created_at: string }
+        Insert: { id?: string; concept_slug: string; concept_name: string; subject?: string | null; request_count?: number; last_requested_at?: string; promoted_at?: string | null; promoted_to_tier?: string | null; notes?: string | null; created_at?: string }
+        Update: { id?: string; concept_slug?: string; concept_name?: string; subject?: string | null; request_count?: number; last_requested_at?: string; promoted_at?: string | null; promoted_to_tier?: string | null; notes?: string | null; created_at?: string }
         Relationships: []
       }
       misconceptions: {
@@ -1037,6 +1055,10 @@ export type Database = {
       solve_history: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      apply_mastery_decay: {
+        Args: { p_uid?: string }
+        Returns: number
       }
       grant_welcome_credits: {
         Args: Record<PropertyKey, never>

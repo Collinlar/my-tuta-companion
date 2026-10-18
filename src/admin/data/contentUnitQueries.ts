@@ -43,8 +43,8 @@ export function useUpsertContentUnit() {
     mutationFn: async (row: Record<string, unknown>) => {
       const { id, ...fields } = row;
       const op = id
-        ? supabase.from("content_units").update(fields).eq("id", id as string).select().single()
-        : supabase.from("content_units").insert(fields).select().single();
+        ? supabase.from("content_units").update(fields as never).eq("id", id as string).select().single()
+        : supabase.from("content_units").insert(fields as never).select().single();
       const { data, error } = await op;
       if (error) throw error;
       return data;

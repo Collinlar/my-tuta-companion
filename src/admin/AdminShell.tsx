@@ -112,7 +112,7 @@ export default function AdminShell() {
 
       <main style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
         {mobile && (
-          <header style={{ flex: "none", display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderBottom: `1px solid ${a.border}`, background: a.surface, position: "sticky", top: 0, zIndex: 10 }}>
+          <header style={{ flex: "none", display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderBottom: `1px solid ${a.border}`, background: a.panel, position: "sticky", top: 0, zIndex: 10 }}>
             <button type="button" aria-label="Open menu" onClick={() => setDrawerOpen(true)} style={{ width: 44, height: 44, border: `1px solid ${a.border}`, background: a.bg, borderRadius: 10, fontSize: 18, cursor: "pointer" }}>☰</button>
             <div style={{ fontWeight: 700, fontSize: 15 }}>{title}</div>
           </header>

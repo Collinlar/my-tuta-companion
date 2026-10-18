@@ -119,6 +119,34 @@ export default function Learn() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state, catalog, paths]);
 
+  // Deep link from the Next-Best-Action engine: /student/learn?concept=<slug>
+  // (prerequisite_gap, decay_review, explanation_weak recommendations). Resolves
+  // the concept and resumes its workspace, or opens the confirm screen for a new
+  // path. `&mode=alternative` jumps to the Understand stage with a fresh angle.
+  useEffect(() => {
+    if (bootstrapped.current) return;
+    if (!catalog || !paths) return;
+    const conceptSlug = new URLSearchParams(location.search).get("concept");
+    if (!conceptSlug) return;
+    const match = catalog.find((item) => item.slug === conceptSlug) || resolveTypedConcept(conceptSlug);
+    if (!match) return;
+    bootstrapped.current = true;
+    setSlug(match.slug);
+    const existing = paths.find((p) => p.concept.toLowerCase() === match.name.toLowerCase());
+    if (existing) {
+      if (new URLSearchParams(location.search).get("mode") === "alternative") {
+        setStage(1);        // Understand is stage index 1 in every path
+        setExplainMode(1);  // show a different explanation straight away
+      } else {
+        setStage(existing.currentStage ?? 0);
+      }
+      setView("workspace");
+      return;
+    }
+    setView("confirm");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search, catalog, paths]);
+
   const ensurePathStages = async () => {
     if (!conceptMeta) return;
     if ((concept?.stages || []).length > 0) return;
@@ -237,7 +265,7 @@ export default function Learn() {
           <p style={{ fontSize: 15, fontWeight: 500, color: c.ink, lineHeight: 1.6, marginBottom: 18 }}><MathText text={q.prompt} /></p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {q.options.map((opt: string, j: number) => {
-              let bg = c.surface; let border = c.border2; let col = c.ink;
+              let bg: string = c.surface; let border: string = c.border2; let col: string = c.ink;
               if (confirmRevealed) {
                 if (j === q.correctIndex) { bg = c.greenTint; border = c.green; col = c.greenDark; }
                 else if (j === confirmPicked) { bg = c.amberTint; border = c.amber; col = c.amber; }
@@ -1128,12 +1156,12 @@ function Foundations({ content, onNext }: { content: Record<string, any>; onNext
                   <p style={{ fontSize: 14, fontWeight: 500, color: c.ink, marginBottom: 12, lineHeight: 1.5 }}><MathText text={q.prompt} /></p>
                   <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
                     {q.options.map((opt, j) => {
-                      let bg = c.surface;
-                      let border = c.border2;
-                      let col = c.ink;
+                      let bg: string = c.surface;
+                      let border: string = c.border2;
+                      let col: string = c.ink;
                       if (isRevealed) {
                         if (j === q.correctIndex) { bg = c.greenTint; border = c.green; col = c.greenDark; }
-                        else if (j === picked[i]) { bg = c.amberTint; border = c.amber; col = c.amberDark ?? c.amber; }
+                        else if (j === picked[i]) { bg = c.amberTint; border = c.amber; col = c.amber; }
                       } else if (picked[i] === j) {
                         border = c.green; bg = c.greenTint;
                       }
