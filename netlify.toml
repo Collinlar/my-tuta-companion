@@ -16,6 +16,18 @@
   force  = true
 
 [[redirects]]
+  from   = "/api/paystack-webhook"
+  to     = "/.netlify/functions/paystack-webhook"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/api/paystack-refund"
+  to     = "/.netlify/functions/paystack-refund"
+  status = 200
+  force  = true
+
+[[redirects]]
   from   = "/*"
   to     = "/index.html"
   status = 200

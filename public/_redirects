@@ -1,3 +1,5 @@
 /api/groq              /.netlify/functions/groq              200
 /api/paystack-verify   /.netlify/functions/paystack-verify   200
+/api/paystack-webhook  /.netlify/functions/paystack-webhook  200
+/api/paystack-refund   /.netlify/functions/paystack-refund   200
 /*                     /index.html                           200
