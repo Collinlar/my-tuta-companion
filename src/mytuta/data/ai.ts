@@ -540,6 +540,56 @@ ${question}`,
   return raw.trim().replace(/^["'`]+|["'`]+$/g, "");
 }
 
+// ---------- Guided practice step coach ----------
+
+export type GuidedStepVerdict = {
+  verdict: "correct" | "partial" | "wrong";
+  feedback: string;
+};
+
+/**
+ * Evaluates a student's typed reasoning step in the in-path Guided practice
+ * coach. Replaces naive keyword matching with a real read of what the student
+ * wrote. Free (the mastery path was already paid for). The caller should fall
+ * back to local matching if this throws, so the coach never dead-ends.
+ */
+export async function evaluateGuidedStep(input: {
+  conceptName: string;
+  subject: string;
+  question: string;
+  stepPrompt: string;
+  expected: string;
+  studentStep: string;
+}): Promise<GuidedStepVerdict> {
+  const raw = await groqApiService.makeRequest(
+    [
+      { role: "system", content: SYSTEM },
+      {
+        role: "user",
+        content: `A student is working through "${input.conceptName}" (${input.subject}) one reasoning step at a time.
+
+Problem: ${input.question}
+This step asks: ${input.stepPrompt}
+A correct step here looks like: ${input.expected || "(use your own judgement about what this step should contain)"}
+The student wrote: "${input.studentStep}"
+
+Judge ONLY this one step, not the whole problem. Return JSON: {"verdict":"correct|partial|wrong","feedback":"..."}.
+- "correct": right in substance, even if worded differently, loosely phrased, or using different notation.
+- "partial": on the right track but missing something or slightly off.
+- "wrong": incorrect, or does not address what this step asks.
+"feedback" is ONE or TWO sentences written directly to the student. For partial or wrong, name the specific thing to fix WITHOUT revealing the full step answer. For correct, confirm briefly and say what it sets up next. Plain English, Ghana-grounded where natural. No em dashes. No filler phrases.`,
+      },
+    ],
+    500,
+  );
+  const parsed = parseJson<Partial<GuidedStepVerdict>>(raw);
+  const verdict =
+    parsed.verdict === "correct" || parsed.verdict === "partial" || parsed.verdict === "wrong"
+      ? parsed.verdict
+      : "partial";
+  return { verdict, feedback: parsed.feedback?.trim() || "" };
+}
+
 // ---------- Lab Assistant ----------
 
 /**

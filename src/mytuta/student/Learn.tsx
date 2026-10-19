@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { beginOptions, recallRatings, supportLevels } from "../data/constants";
 import {
   answerConceptQuestion,
+  evaluateGuidedStep,
   generateConceptStages,
   generateDiagnostic,
   generateDiagnosticResult,
@@ -1013,6 +1014,8 @@ function Workspace({
           {cur.name === "Guided practice" && (
             <Guided
               content={content}
+              conceptName={conceptName}
+              subject={subject}
               supportLevel={supportLevel}
               setSupportLevel={(n) => {
                 setSupportLevel(n);
@@ -1385,9 +1388,11 @@ function Recall({
 }
 
 function Guided({
-  content, supportLevel, setSupportLevel, onStepResult, onNext,
+  content, conceptName, subject, supportLevel, setSupportLevel, onStepResult, onNext,
 }: {
   content: Record<string, any>;
+  conceptName: string;
+  subject: string;
   supportLevel: number;
   setSupportLevel: (n: number) => void;
   onStepResult: (ok: boolean) => void;
@@ -1403,6 +1408,8 @@ function Guided({
   const [stepIdx, setStepIdx] = useState(0);
   const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [verdict, setVerdict] = useState<"correct" | "partial" | "wrong" | null>(null);
+  const [checking, setChecking] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [revealedWrong, setRevealedWrong] = useState(false);
 
@@ -1410,6 +1417,8 @@ function Guided({
     setStepIdx(0);
     setInput("");
     setFeedback(null);
+    setVerdict(null);
+    setChecking(false);
     setShowHint(false);
     setRevealedWrong(false);
   }, [content, supportLevel]);
@@ -1421,34 +1430,66 @@ function Guided({
       ? "Full guidance shows each coach step and the model reasoning."
       : supportLevel === 1
         ? "Light hints show the step question only. Ask for a hint if you need one."
-        : "No hints. Solve the problem yourself. We only check your step.";
+        : "No hints. Solve the problem yourself. mytuta reads and checks your step.";
 
-  const check = () => {
+  const check = async () => {
     if (!current) {
       onNext();
       return;
     }
-    const ok = answerMatches(input, expected);
-    onStepResult(ok);
-    if (ok) {
-      setFeedback("That step looks right. Move on.");
-      setInput("");
-      setShowHint(false);
-      setRevealedWrong(false);
-      if (stepIdx + 1 >= coach.length) {
-        onNext();
-      } else {
-        setStepIdx(stepIdx + 1);
-        setFeedback(null);
+    if (!input.trim()) {
+      setVerdict("wrong");
+      setFeedback("Write your step first.");
+      return;
+    }
+    setChecking(true);
+    try {
+      // AI reads the student's actual reasoning; fall back to local matching so
+      // the coach never dead-ends if the model is unreachable.
+      let result: "correct" | "partial" | "wrong";
+      let note = "";
+      try {
+        const judged = await evaluateGuidedStep({
+          conceptName,
+          subject,
+          question: String(content.question || ""),
+          stepPrompt: String(current.q || ""),
+          expected,
+          studentStep: input.trim(),
+        });
+        result = judged.verdict;
+        note = judged.feedback;
+      } catch {
+        result = answerMatches(input, expected) ? "correct" : "wrong";
       }
-    } else {
-      setRevealedWrong(true);
-      setFeedback(
-        supportLevel === 2
-          ? "Not quite. Try again with the key idea from the question."
-          : "Not quite. Adjust your step, or open a hint.",
-      );
-      if (supportLevel === 0) setShowHint(true);
+      const ok = result === "correct";
+      setVerdict(result);
+      onStepResult(ok);
+      if (ok) {
+        setInput("");
+        setShowHint(false);
+        setRevealedWrong(false);
+        if (stepIdx + 1 >= coach.length) {
+          onNext();
+        } else {
+          setStepIdx(stepIdx + 1);
+          setFeedback(null);
+          setVerdict(null);
+        }
+      } else {
+        setRevealedWrong(true);
+        setFeedback(
+          note ||
+            (result === "partial"
+              ? "Close. Adjust your step so it fully answers what this step asks."
+              : supportLevel === 2
+                ? "Not quite. Try again with the key idea from the question."
+                : "Not quite. Adjust your step, or open a hint."),
+        );
+        if (supportLevel === 0) setShowHint(true);
+      }
+    } finally {
+      setChecking(false);
     }
   };
 
@@ -1504,18 +1545,19 @@ function Guided({
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") check(); }}
+            onKeyDown={(e) => { if (e.key === "Enter" && !checking) void check(); }}
+            disabled={checking}
             placeholder="Type your next step"
-            style={{ flex: 1, minHeight: 44, background: "#fff", border: `1px solid ${c.border}`, borderRadius: 10, padding: "12px 14px", color: c.ink, fontSize: 14 }}
+            style={{ flex: 1, minHeight: 44, background: "#fff", border: `1px solid ${c.border}`, borderRadius: 10, padding: "12px 14px", color: c.ink, fontSize: 14, opacity: checking ? 0.7 : 1 }}
           />
-          <button type="button" onClick={check} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 18px", borderRadius: 10, cursor: "pointer" }}>Check</button>
+          <button type="button" onClick={() => void check()} disabled={checking} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 18px", borderRadius: 10, cursor: "pointer", opacity: checking ? 0.7 : 1, whiteSpace: "nowrap" }}>{checking ? "Reading your step…" : "Check"}</button>
         </div>
         {supportLevel === 1 && revealedWrong && !showHint && (
           <button type="button" onClick={() => setShowHint(true)} style={{ marginTop: 10, background: "none", border: "none", color: c.amber, fontWeight: 600, fontSize: 13, cursor: "pointer", padding: 0 }}>
             Show a light hint
           </button>
         )}
-        {feedback && <p style={{ marginTop: 12, fontSize: 13.5, color: feedback.includes("right") ? c.green : c.amber }}>{feedback}</p>}
+        {feedback && <div style={{ marginTop: 12, fontSize: 13.5, lineHeight: 1.55, color: verdict === "correct" ? c.green : verdict === "partial" ? c.amber : c.red }}><MathText text={feedback} /></div>}
       </div>
     </>
   );
