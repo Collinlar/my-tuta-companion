@@ -6,6 +6,7 @@ import { buyBundle, subscribePlan } from "@/mytuta/credits/paystack";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLayout } from "@/mytuta/layout";
+import { useAuthState } from "@/hooks/useAuthState";
 
 interface Tier {
   name: string; price: string; period?: string; body: string;
@@ -48,6 +49,7 @@ const Pricing = () => {
   const { toast } = useToast();
   const L = useLayout();
   const sx = L.sectionX;
+  const { authed, homePath } = useAuthState();
 
   const buy = async (b: CreditBundle) => {
     const { data } = await supabase.auth.getSession();
@@ -70,7 +72,9 @@ const Pricing = () => {
   };
 
   const goTier = async (t: Tier) => {
-    if (!t.plan) { nav(t.to); return; }
+    // Free tiers: a signed-in visitor already has free, so send them into the
+    // app instead of back to sign up.
+    if (!t.plan) { nav(authed ? homePath : t.to); return; }
     const { data } = await supabase.auth.getSession();
     if (!data.session) { nav(t.to); return; }
     try {
@@ -94,8 +98,14 @@ const Pricing = () => {
         <div style={{ maxWidth: 1160, margin: "0 auto", padding: `15px ${sx}px`, display: "flex", alignItems: "center", gap: 16 }}>
           <a onClick={() => nav("/")} style={{ fontFamily: font.display, fontWeight: 700, fontSize: 22, color: "#1c2620", cursor: "pointer" }}>mytuta<span style={{ color: c.green }}>.</span></a>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
-            <a onClick={() => nav("/signin")} style={{ fontSize: 14.5, color: "#3a4350", fontWeight: 500, cursor: "pointer", padding: "10px 4px" }}>Sign in</a>
-            <button onClick={() => nav("/signup")} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "11px 16px", borderRadius: 11, cursor: "pointer", minHeight: 44 }}>Start free</button>
+            {authed ? (
+              <button onClick={() => nav(homePath)} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "11px 16px", borderRadius: 11, cursor: "pointer", minHeight: 44 }}>Go to mytuta</button>
+            ) : (
+              <>
+                <a onClick={() => nav("/signin")} style={{ fontSize: 14.5, color: "#3a4350", fontWeight: 500, cursor: "pointer", padding: "10px 4px" }}>Sign in</a>
+                <button onClick={() => nav("/signup")} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "11px 16px", borderRadius: 11, cursor: "pointer", minHeight: 44 }}>Start free</button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -127,9 +137,9 @@ const Pricing = () => {
           <ExampleCard title="For teachers" items={["About 4 complete Learning Experiences, or", "About 10 assessments and practice activities, or", "A mix of creation and intervention tools"]} />
         </div>
 
-        <TierGroup title="Student plans" tiers={learnerTiers} onTier={goTier} cols={L.g2} />
+        <TierGroup title="Student plans" tiers={learnerTiers} onTier={goTier} cols={L.g2} authed={authed} />
         <div style={{ height: 44 }} />
-        <TierGroup title="Teacher plans" tiers={teacherTiers} onTier={goTier} cols={L.g2} />
+        <TierGroup title="Teacher plans" tiers={teacherTiers} onTier={goTier} cols={L.g2} authed={authed} />
         <div style={{ fontSize: 12.5, color: c.faint, marginTop: 12 }}>Founding Teacher Pro keeps GHS 150/month; the standard price is GHS 200/month.</div>
 
         <div style={{ textAlign: "center", fontSize: 13.5, color: c.muted, marginTop: 44 }}>
@@ -155,7 +165,7 @@ function ExampleCard({ title, items }: { title: string; items: string[] }) {
   );
 }
 
-function TierGroup({ title, tiers, onTier, cols }: { title: string; tiers: Tier[]; onTier: (t: Tier) => void; cols: string }) {
+function TierGroup({ title, tiers, onTier, cols, authed }: { title: string; tiers: Tier[]; onTier: (t: Tier) => void; cols: string; authed: boolean }) {
   return (
     <div>
       <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 16 }}>{title}</div>
@@ -178,7 +188,7 @@ function TierGroup({ title, tiers, onTier, cols }: { title: string; tiers: Tier[
                 </div>
               ))}
             </div>
-            <button onClick={() => void onTier(t)} style={{ background: t.featured ? c.green : "#fff", color: t.featured ? "#fff" : c.greenDark, border: t.featured ? "none" : `1px solid ${c.greenTintBorder}`, fontWeight: 600, fontSize: 14.5, padding: 13, borderRadius: 12, cursor: "pointer", minHeight: 48 }}>{t.cta}</button>
+            <button onClick={() => void onTier(t)} style={{ background: t.featured ? c.green : "#fff", color: t.featured ? "#fff" : c.greenDark, border: t.featured ? "none" : `1px solid ${c.greenTintBorder}`, fontWeight: 600, fontSize: 14.5, padding: 13, borderRadius: 12, cursor: "pointer", minHeight: 48 }}>{!t.plan && authed ? "Open mytuta" : t.cta}</button>
           </div>
         ))}
       </div>

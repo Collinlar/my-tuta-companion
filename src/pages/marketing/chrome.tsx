@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, font } from "@/mytuta/theme";
+import { useAuthState } from "@/hooks/useAuthState";
 
 /** The mytuta progress-ring mark, used across the marketing pages. */
 export function Ring({ size, dash, track, fill, style }: { size: number | string; dash: string; track: string; fill: string; style?: React.CSSProperties }) {
@@ -37,6 +38,7 @@ const marketingStyle = `
 /** Green sticky header shared by the home and every marketing page. */
 export function SiteHeader() {
   const nav = useNavigate();
+  const { authed, homePath } = useAuthState();
   const [open, setOpen] = useState(false);
   const go = (to: string) => { setOpen(false); nav(to); };
 
@@ -63,14 +65,20 @@ export function SiteHeader() {
             ))}
           </nav>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <button type="button" onClick={() => go("/signin")} className="mk-ghost" style={{ background: "transparent", color: "#fff", border: "1.5px solid #fff", fontFamily: "inherit", fontWeight: 600, fontSize: 15, padding: "10px 18px", borderRadius: 999, cursor: "pointer" }}>Sign in</button>
-            <button type="button" onClick={() => go("/signup?type=student")} style={{ background: "#fff", color: c.greenDark, border: "none", fontFamily: "inherit", fontWeight: 700, fontSize: 15, padding: "11px 20px", borderRadius: 999, cursor: "pointer" }}>Start free</button>
+            {authed ? (
+              <button type="button" onClick={() => go(homePath)} style={{ background: "#fff", color: c.greenDark, border: "none", fontFamily: "inherit", fontWeight: 700, fontSize: 15, padding: "11px 20px", borderRadius: 999, cursor: "pointer" }}>Go to mytuta</button>
+            ) : (
+              <>
+                <button type="button" onClick={() => go("/signin")} className="mk-ghost" style={{ background: "transparent", color: "#fff", border: "1.5px solid #fff", fontFamily: "inherit", fontWeight: 600, fontSize: 15, padding: "10px 18px", borderRadius: 999, cursor: "pointer" }}>Sign in</button>
+                <button type="button" onClick={() => go("/signup?type=student")} style={{ background: "#fff", color: c.greenDark, border: "none", fontFamily: "inherit", fontWeight: 700, fontSize: 15, padding: "11px 20px", borderRadius: 999, cursor: "pointer" }}>Start free</button>
+              </>
+            )}
           </div>
         </div>
 
         {/* Mobile: one CTA + menu toggle */}
         <div className="mk-burger">
-          <button type="button" onClick={() => go("/signup?type=student")} style={{ background: "#fff", color: c.greenDark, border: "none", fontFamily: "inherit", fontWeight: 700, fontSize: 14.5, padding: "9px 16px", borderRadius: 999, cursor: "pointer" }}>Start free</button>
+          <button type="button" onClick={() => go(authed ? homePath : "/signup?type=student")} style={{ background: "#fff", color: c.greenDark, border: "none", fontFamily: "inherit", fontWeight: 700, fontSize: 14.5, padding: "9px 16px", borderRadius: 999, cursor: "pointer" }}>{authed ? "Go to mytuta" : "Start free"}</button>
           <button type="button" onClick={() => setOpen((o) => !o)} aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} style={{ width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "1.5px solid #fff", borderRadius: 12, cursor: "pointer", flex: "none" }}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">
               {open ? (
@@ -96,7 +104,7 @@ export function SiteHeader() {
           {links.map((l) => (
             <a key={l.name} onClick={() => go(l.to)} style={{ color: "#fff", fontSize: 16.5, fontWeight: 600, padding: "13px 0", borderBottom: "1px solid #28905f", cursor: "pointer" }}>{l.name}</a>
           ))}
-          <button type="button" onClick={() => go("/signin")} style={{ marginTop: 14, background: "transparent", color: "#fff", border: "1.5px solid #fff", fontFamily: "inherit", fontWeight: 600, fontSize: 16, padding: "13px 18px", borderRadius: 999, cursor: "pointer", textAlign: "center" }}>Sign in</button>
+          <button type="button" onClick={() => go(authed ? homePath : "/signin")} style={{ marginTop: 14, background: "transparent", color: "#fff", border: "1.5px solid #fff", fontFamily: "inherit", fontWeight: 600, fontSize: 16, padding: "13px 18px", borderRadius: 999, cursor: "pointer", textAlign: "center" }}>{authed ? "Go to mytuta" : "Sign in"}</button>
         </div>
       )}
     </header>
