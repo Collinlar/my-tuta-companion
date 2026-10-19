@@ -4,7 +4,7 @@ import { c, font, chip } from "../theme";
 import { useLayout, pageBox } from "../layout";
 import { MathText } from "../MathText";
 import { helpModes, solveInputs, type HelpModeKind } from "../data/constants";
-import { generateSimilarQuestion } from "../data/ai";
+import { evaluateGuidedStep, generateSimilarQuestion } from "../data/ai";
 import { trackSolveCompleted } from "@/lib/analytics";
 import { groqApiService } from "@/services/groqApiService";
 import { useToast } from "@/hooks/use-toast";
@@ -537,6 +537,7 @@ Write 3 NEW questions that practise the same skill as the given one, with differ
     return (
       <CoachingView
         question={question}
+        topic={topic}
         steps={steps}
         step={step}
         done={done}
@@ -653,9 +654,10 @@ Write 3 NEW questions that practise the same skill as the given one, with differ
 }
 
 function CoachingView({
-  question, steps, step, done, cur, last, onBack, onNext, L,
+  question, topic, steps, step, done, cur, last, onBack, onNext, L,
 }: {
   question: string;
+  topic: string;
   steps: CoachStep[];
   step: number;
   done: CoachStep[];
@@ -666,8 +668,45 @@ function CoachingView({
   L: ReturnType<typeof import("../layout").useLayout>;
 }) {
   const [hintVisible, setHintVisible] = useState(false);
+  const [attempt, setAttempt] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [verdict, setVerdict] = useState<"correct" | "partial" | "wrong" | null>(null);
 
-  useEffect(() => { setHintVisible(false); }, [step]);
+  // Reset the per-step attempt/feedback whenever the student moves on.
+  useEffect(() => {
+    setHintVisible(false);
+    setAttempt("");
+    setChecking(false);
+    setFeedback(null);
+    setVerdict(null);
+  }, [step]);
+
+  const check = async () => {
+    if (!attempt.trim() || checking) return;
+    setChecking(true);
+    try {
+      const judged = await evaluateGuidedStep({
+        conceptName: topic || "this problem",
+        question,
+        stepPrompt: String(cur.q || ""),
+        expected: String(cur.answer || ""),
+        studentStep: attempt.trim(),
+      });
+      setVerdict(judged.verdict);
+      setFeedback(
+        judged.feedback ||
+          (judged.verdict === "correct"
+            ? "That's right. Reveal the step to confirm, then carry on."
+            : "Not quite. Adjust your step and try again, or reveal it."),
+      );
+    } catch {
+      setVerdict(null);
+      setFeedback("We could not check that just now. Reveal the step to keep going.");
+    } finally {
+      setChecking(false);
+    }
+  };
 
   return (
     <div style={pageBox(L.pad, 720)}>
@@ -690,6 +729,27 @@ function CoachingView({
       <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 22, marginBottom: 22 }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Step {step + 1} of {steps.length}</div>
         <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 14 }}><MathText text={cur.q} /></div>
+
+        {/* Optional: try the step yourself and let mytuta read it */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <input
+              value={attempt}
+              onChange={(e) => setAttempt(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && !checking) void check(); }}
+              disabled={checking}
+              placeholder="Try this step yourself first"
+              style={{ flex: 1, minHeight: 44, boxSizing: "border-box", background: "#fff", border: `1px solid ${c.border}`, borderRadius: 10, padding: "12px 14px", color: c.ink, fontSize: 14, outline: "none", fontFamily: font.body, opacity: checking ? 0.7 : 1 }}
+            />
+            <button type="button" onClick={() => void check()} disabled={checking || !attempt.trim()} style={{ flex: "none", background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 16px", borderRadius: 10, cursor: checking || !attempt.trim() ? "default" : "pointer", opacity: checking || !attempt.trim() ? 0.6 : 1, whiteSpace: "nowrap" }}>{checking ? "Reading your step…" : "Check my step"}</button>
+          </div>
+          {feedback && (
+            <div style={{ marginTop: 10, fontSize: 13.5, lineHeight: 1.55, color: verdict === "correct" ? c.greenDark : verdict === "partial" ? c.amber : verdict === "wrong" ? c.red : c.soft, background: verdict === "correct" ? c.greenTint : verdict === "partial" ? c.amberTint : c.divider, border: `1px solid ${verdict === "correct" ? c.greenTintBorder : verdict === "partial" ? c.amberBorder : c.border2}`, borderRadius: 10, padding: "11px 13px" }}>
+              <MathText text={feedback} />
+            </div>
+          )}
+        </div>
+
         {hintVisible ? (
           <div style={{ fontSize: 14, color: c.soft, lineHeight: 1.6, background: c.amberTint, border: `1px solid ${c.amberBorder}`, borderRadius: 10, padding: "12px 14px", marginBottom: 16 }}>
             <MathText text={cur.hint} />

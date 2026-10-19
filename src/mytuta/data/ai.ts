@@ -555,7 +555,7 @@ export type GuidedStepVerdict = {
  */
 export async function evaluateGuidedStep(input: {
   conceptName: string;
-  subject: string;
+  subject?: string;
   question: string;
   stepPrompt: string;
   expected: string;
@@ -566,7 +566,7 @@ export async function evaluateGuidedStep(input: {
       { role: "system", content: SYSTEM },
       {
         role: "user",
-        content: `A student is working through "${input.conceptName}" (${input.subject}) one reasoning step at a time.
+        content: `A student is working through "${input.conceptName}"${input.subject ? ` (${input.subject})` : ""} one reasoning step at a time.
 
 Problem: ${input.question}
 This step asks: ${input.stepPrompt}
