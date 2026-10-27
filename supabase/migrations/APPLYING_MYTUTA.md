@@ -948,6 +948,42 @@ deterministic, so it's verifiable on seeded `attempts`/`mastery_profiles` rows;
 full signal richness accrues with real usage. No external setup — runs under the
 existing anon key + RLS; apply migration `20260720430000`.
 
+## Mastery Depth (Phase 0: schema spine)
+
+First slice of `mytuta_Mastery_Depth_PRD.md` — the multi-level progression
+Foundation → Applied → Advanced + a Retention layer. **Design decision:** depth is
+a DIMENSION of the existing mastery objects, not a parallel system. Migration
+`20270000000001`.
+
+**Reuse over rebuild:** `mastery_paths` gains a `depth` column so one path row =
+one (user, concept, depth) — the whole stage runner (`Learn.tsx`,
+`path_stage_progress`, `concept_stages`, `recall_cards`) is reused per depth.
+`mastery_profiles` stays the cross-depth dimensional rollup (already powers NBA
+decay). `content_units.adaptation_rules` (variant support/core/extension) is the
+mechanism to assemble a different stage set per depth. `learner_profile.support_level`
+maps to the per-depth scaffolding ladder.
+
+**New in this migration:** `concepts` += `max_depth` / `default_depth_sequence` /
+`retention_enabled` (academic team owns these; default conservative `foundation`,
+so nothing auto-progresses yet); `concept_depth_mastery` (headline state +
+readiness + next_review per depth); `depth_evidence` (append-only, feeds the
+readiness engine); `retention_reviews` (spaced-review scheduler). All own-row RLS.
+
+**No behaviour change:** nothing reads the new columns/tables yet (Phase 1 does).
+Existing mastery is **backfilled** as Foundation depth — every `mastery_profiles`
+row seeds a `concept_depth_mastery` foundation row (Secure/Mastered → `secure`,
+else `in_progress`), and every `mastery_paths` row is `depth = 'foundation'`.
+
+**Not built (later phases):** depth-aware pathBuilder + completion screens +
+readiness/save RPCs (Phase 1); NBA depth candidates + retention scheduler +
+remediation + Mastery Map + teacher depth view (Phase 2); Lab/Challenge evidence +
+clusters + admin depth config (Phase 3). The real long pole is CONTENT (per-depth
+items + `max_depth`/prerequisite graph), which is academic-team work.
+
+Verified: `tsc` + `npm run build` clean (types.ts catch-up for the new tables +
+columns). Apply migration `20270000000001` after `20269000000002`; no external
+setup — runs under the existing anon key + RLS.
+
 ## PRD coverage status
 
 A full audit against `mytuta_STEM_Mastery_PRD.md` drove a 16-phase

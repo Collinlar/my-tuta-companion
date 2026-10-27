@@ -15,9 +15,9 @@ export type Database = {
   public: {
     Tables: {
       concepts: {
-        Row: { id: string; slug: string; subject: string; name: string; description: string | null; learning_stage: string | null; difficulty: string | null; related_areas: string[] | null; status: string; reviewer: string | null; last_reviewed_at: string | null; created_at: string | null }
-        Insert: { id?: string; slug: string; subject: string; name: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; status?: string; reviewer?: string | null; last_reviewed_at?: string | null; created_at?: string | null }
-        Update: { id?: string; slug?: string; subject?: string; name?: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; status?: string; reviewer?: string | null; last_reviewed_at?: string | null; created_at?: string | null }
+        Row: { id: string; slug: string; subject: string; name: string; description: string | null; learning_stage: string | null; difficulty: string | null; related_areas: string[] | null; status: string; reviewer: string | null; last_reviewed_at: string | null; max_depth: string; default_depth_sequence: string[]; retention_enabled: boolean; created_at: string | null }
+        Insert: { id?: string; slug: string; subject: string; name: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; status?: string; reviewer?: string | null; last_reviewed_at?: string | null; max_depth?: string; default_depth_sequence?: string[]; retention_enabled?: boolean; created_at?: string | null }
+        Update: { id?: string; slug?: string; subject?: string; name?: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; status?: string; reviewer?: string | null; last_reviewed_at?: string | null; max_depth?: string; default_depth_sequence?: string[]; retention_enabled?: boolean; created_at?: string | null }
         Relationships: []
       }
       content_units: {
@@ -69,9 +69,9 @@ export type Database = {
         Relationships: []
       }
       mastery_paths: {
-        Row: { id: string; user_id: string; concept_id: string | null; concept_name: string; subject: string | null; current_stage: number | null; stage_label: string | null; pct: number | null; level: string | null; status: string | null; color: string | null; next_action: string | null; created_at: string | null; updated_at: string | null }
-        Insert: { id?: string; user_id: string; concept_id?: string | null; concept_name: string; subject?: string | null; current_stage?: number | null; stage_label?: string | null; pct?: number | null; level?: string | null; status?: string | null; color?: string | null; next_action?: string | null; created_at?: string | null; updated_at?: string | null }
-        Update: { id?: string; user_id?: string; concept_id?: string | null; concept_name?: string; subject?: string | null; current_stage?: number | null; stage_label?: string | null; pct?: number | null; level?: string | null; status?: string | null; color?: string | null; next_action?: string | null; created_at?: string | null; updated_at?: string | null }
+        Row: { id: string; user_id: string; concept_id: string | null; concept_name: string; subject: string | null; depth: string; current_stage: number | null; stage_label: string | null; pct: number | null; level: string | null; status: string | null; color: string | null; next_action: string | null; created_at: string | null; updated_at: string | null }
+        Insert: { id?: string; user_id: string; concept_id?: string | null; concept_name: string; subject?: string | null; depth?: string; current_stage?: number | null; stage_label?: string | null; pct?: number | null; level?: string | null; status?: string | null; color?: string | null; next_action?: string | null; created_at?: string | null; updated_at?: string | null }
+        Update: { id?: string; user_id?: string; concept_id?: string | null; concept_name?: string; subject?: string | null; depth?: string; current_stage?: number | null; stage_label?: string | null; pct?: number | null; level?: string | null; status?: string | null; color?: string | null; next_action?: string | null; created_at?: string | null; updated_at?: string | null }
         Relationships: []
       }
       path_stage_progress: {
@@ -84,6 +84,24 @@ export type Database = {
         Row: { id: string; user_id: string; concept_id: string | null; concept_name: string | null; subject: string | null; concept_knowledge: number | null; procedural_fluency: number | null; recall: number | null; reasoning: number | null; application: number | null; overall_state: string | null; updated_at: string | null }
         Insert: { id?: string; user_id: string; concept_id?: string | null; concept_name?: string | null; subject?: string | null; concept_knowledge?: number | null; procedural_fluency?: number | null; recall?: number | null; reasoning?: number | null; application?: number | null; overall_state?: string | null; updated_at?: string | null }
         Update: { id?: string; user_id?: string; concept_id?: string | null; concept_name?: string | null; subject?: string | null; concept_knowledge?: number | null; procedural_fluency?: number | null; recall?: number | null; reasoning?: number | null; application?: number | null; overall_state?: string | null; updated_at?: string | null }
+        Relationships: []
+      }
+      concept_depth_mastery: {
+        Row: { id: string; user_id: string; concept_id: string | null; depth: string; state: string; readiness_state: string | null; support_level: string; started_at: string | null; completed_at: string | null; last_verified_at: string | null; next_review_at: string | null; evidence_summary: Json; created_at: string; updated_at: string }
+        Insert: { id?: string; user_id: string; concept_id?: string | null; depth: string; state?: string; readiness_state?: string | null; support_level?: string; started_at?: string | null; completed_at?: string | null; last_verified_at?: string | null; next_review_at?: string | null; evidence_summary?: Json; created_at?: string; updated_at?: string }
+        Update: { id?: string; user_id?: string; concept_id?: string | null; depth?: string; state?: string; readiness_state?: string | null; support_level?: string; started_at?: string | null; completed_at?: string | null; last_verified_at?: string | null; next_review_at?: string | null; evidence_summary?: Json; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      depth_evidence: {
+        Row: { id: string; user_id: string; concept_id: string | null; depth: string; source_type: string; source_id: string | null; skill: string | null; score: number | null; support_used: string | null; mistake_category: string | null; confidence: number | null; created_at: string }
+        Insert: { id?: string; user_id: string; concept_id?: string | null; depth: string; source_type: string; source_id?: string | null; skill?: string | null; score?: number | null; support_used?: string | null; mistake_category?: string | null; confidence?: number | null; created_at?: string }
+        Update: { id?: string; user_id?: string; concept_id?: string | null; depth?: string; source_type?: string; source_id?: string | null; skill?: string | null; score?: number | null; support_used?: string | null; mistake_category?: string | null; confidence?: number | null; created_at?: string }
+        Relationships: []
+      }
+      retention_reviews: {
+        Row: { id: string; user_id: string; concept_id: string | null; depth: string; review_due_at: string; review_type: string; status: string; last_result: string | null; interval_days: number; created_at: string; updated_at: string }
+        Insert: { id?: string; user_id: string; concept_id?: string | null; depth: string; review_due_at: string; review_type?: string; status?: string; last_result?: string | null; interval_days?: number; created_at?: string; updated_at?: string }
+        Update: { id?: string; user_id?: string; concept_id?: string | null; depth?: string; review_due_at?: string; review_type?: string; status?: string; last_result?: string | null; interval_days?: number; created_at?: string; updated_at?: string }
         Relationships: []
       }
       student_assignments: {
