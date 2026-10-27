@@ -60,6 +60,7 @@ CREATE INDEX IF NOT EXISTS concept_depth_mastery_user_idx
   ON public.concept_depth_mastery (user_id, concept_id);
 CREATE INDEX IF NOT EXISTS concept_depth_mastery_review_idx
   ON public.concept_depth_mastery (user_id, next_review_at);
+DROP TRIGGER IF EXISTS concept_depth_mastery_updated_at ON public.concept_depth_mastery;
 CREATE TRIGGER concept_depth_mastery_updated_at BEFORE UPDATE ON public.concept_depth_mastery
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
@@ -112,6 +113,7 @@ CREATE POLICY "own retention reviews" ON public.retention_reviews
   FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 CREATE INDEX IF NOT EXISTS retention_reviews_due_idx
   ON public.retention_reviews (user_id, status, review_due_at);
+DROP TRIGGER IF EXISTS retention_reviews_updated_at ON public.retention_reviews;
 CREATE TRIGGER retention_reviews_updated_at BEFORE UPDATE ON public.retention_reviews
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
