@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { a, card, sectionLabel, badgeTone, ghostBtn, primaryBtn, input, td, th } from "./theme";
 import { useAdminConceptDetail } from "./data/queries";
-import { useSetConceptStatus, useUpsertConcept, useUpsertMisconception, usePromoteConceptTierB } from "./data/mutations";
+import { useSetConceptStatus, useSetConceptDepth, useUpsertConcept, useUpsertMisconception, usePromoteConceptTierB } from "./data/mutations";
 import { useConceptDemand } from "./data/queries";
 import { useConceptContentUnits, useSetContentUnitStatus } from "./data/contentUnitQueries";
 import { useConceptRelationships, useUpsertRelationship, useDeleteRelationship } from "./data/relationshipQueries";
@@ -49,6 +49,7 @@ export default function ConceptDetail() {
   const nav = useNavigate();
   const { data, isLoading, error } = useAdminConceptDetail(conceptId);
   const setStatus = useSetConceptStatus();
+  const setDepth = useSetConceptDepth();
   const editConcept = useUpsertConcept();
   const addMis = useUpsertMisconception();
   const setUnitStatus = useSetContentUnitStatus();
@@ -67,6 +68,9 @@ export default function ConceptDetail() {
   const [misDetail, setMisDetail] = useState("");
   const [editOpen, setEditOpen] = useState(false);
   const [ef, setEf] = useState<Rec>({});
+  const [depthOpen, setDepthOpen] = useState(false);
+  const [pickMaxDepth, setPickMaxDepth] = useState("foundation");
+  const [pickRetention, setPickRetention] = useState(false);
   const [relOpen, setRelOpen] = useState(false);
   const [relForm, setRelForm] = useState({ target_concept_id: "", relationship_type: "prerequisite_of", strength: "strong" });
   const [unitFilter, setUnitFilter] = useState("");
@@ -146,6 +150,13 @@ export default function ConceptDetail() {
                 <Row k="Reviewer" v={str(c.reviewer) || "—"} />
                 <Row k="Last reviewed" v={c.last_reviewed_at ? new Date(str(c.last_reviewed_at)).toLocaleDateString() : "—"} />
                 <div style={{ fontSize: 13.5, color: a.body, lineHeight: 1.55, marginTop: 10 }}>{str(c.description)}</div>
+              </Panel>
+              <Panel title="Mastery depth" right={
+                <button type="button" onClick={() => { setPickMaxDepth(str(c.max_depth) || "foundation"); setPickRetention(!!c.retention_enabled); setDepthOpen(true); }} style={ghostBtn()}>Set depth</button>
+              }>
+                <Row k="Max depth" v={<span style={{ textTransform: "capitalize" }}>{str(c.max_depth) || "foundation"}</span>} />
+                <Row k="Retention" v={c.retention_enabled ? "Enabled" : "Off"} />
+                <Row k="Depth sequence" v={arr(c.default_depth_sequence).length ? arr(c.default_depth_sequence).map(String).join(" → ") : "foundation"} />
               </Panel>
               <Panel title="Content summary">
                 <Row k="Total content units" v={unitRows.length} />
@@ -443,6 +454,30 @@ export default function ConceptDetail() {
               <div><label style={{ fontSize: 12, fontWeight: 600, color: a.muted, display: "block", marginBottom: 6 }}>Name</label><input value={str(ef.name)} onChange={(e) => es("name", e.target.value)} style={input} /></div>
               <div><label style={{ fontSize: 12, fontWeight: 600, color: a.muted, display: "block", marginBottom: 6 }}>Subject</label><input value={str(ef.subject)} onChange={(e) => es("subject", e.target.value)} style={input} /></div>
               <div style={{ gridColumn: "1 / -1" }}><label style={{ fontSize: 12, fontWeight: 600, color: a.muted, display: "block", marginBottom: 6 }}>Description</label><input value={str(ef.description)} onChange={(e) => es("description", e.target.value)} style={input} /></div>
+            </div>
+          } />
+      )}
+
+      {depthOpen && (
+        <ActionModal title="Set mastery depth" confirmLabel="Save depth" busy={setDepth.isPending}
+          onClose={() => setDepthOpen(false)}
+          onConfirm={(reason) => {
+            if (conceptId) void setDepth.mutateAsync({ conceptId, maxDepth: pickMaxDepth, retentionEnabled: pickRetention, reason })
+              .then(() => setDepthOpen(false));
+          }}
+          extra={
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: a.muted, display: "block", marginBottom: 6 }}>Max depth</label>
+                <select value={pickMaxDepth} onChange={(e) => setPickMaxDepth(e.target.value)} style={input}>
+                  {["foundation", "applied", "advanced"].map((d) => <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>)}
+                </select>
+                <div style={{ fontSize: 11.5, color: a.faint, marginTop: 5 }}>How deep this concept goes. Learners progress Foundation → Applied → Advanced up to this level.</div>
+              </div>
+              <label style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 13, color: a.ink, cursor: "pointer" }}>
+                <input type="checkbox" checked={pickRetention} onChange={(e) => setPickRetention(e.target.checked)} />
+                Enable spaced retention reviews
+              </label>
             </div>
           } />
       )}

@@ -990,6 +990,10 @@ export type Database = {
         Args: { p_concept_id: string; p_status: string; p_reviewer: string; p_reason: string }
         Returns: undefined
       }
+      admin_set_concept_depth: {
+        Args: { p_concept_id: string; p_max_depth: string; p_retention_enabled: boolean; p_reason: string }
+        Returns: undefined
+      }
       admin_upsert_misconception: {
         Args: { p_id: string | null; p_concept_id: string; p_label: string; p_detail: string; p_reason: string }
         Returns: string

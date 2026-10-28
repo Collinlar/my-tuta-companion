@@ -167,6 +167,13 @@ export function useSetConceptStatus() {
   });
 }
 
+export function useSetConceptDepth() {
+  return useContentAction(async (a: { conceptId: string; maxDepth: string; retentionEnabled: boolean; reason: string }) => {
+    const { error } = await supabase.rpc("admin_set_concept_depth", { p_concept_id: a.conceptId, p_max_depth: a.maxDepth, p_retention_enabled: a.retentionEnabled, p_reason: a.reason });
+    if (error) throw error;
+  });
+}
+
 export function useUpsertMisconception() {
   return useContentAction(async (a: { id: string | null; conceptId: string; label: string; detail: string; reason: string }) => {
     const { error } = await supabase.rpc("admin_upsert_misconception", { p_id: a.id, p_concept_id: a.conceptId, p_label: a.label, p_detail: a.detail, p_reason: a.reason });
