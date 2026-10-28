@@ -12,6 +12,7 @@ interface Props {
   foundationPath?: { pct: number; currentStage: number; level: string } | null;
   loading?: boolean;
   onEnterDepth: (depth: Depth) => void;
+  onReview?: (depth: Depth) => void;
   onBack: () => void;
 }
 
@@ -26,7 +27,7 @@ const STATE_STYLE: Record<DepthState, { fg: string; bg: string; label: string }>
 };
 
 export default function ConceptOverview({
-  conceptId, conceptName, subject, maxDepth, retentionEnabled, foundationPath, loading, onEnterDepth, onBack,
+  conceptId, conceptName, subject, maxDepth, retentionEnabled, foundationPath, loading, onEnterDepth, onReview, onBack,
 }: Props) {
   const L = useLayout();
   const { data: ladder } = useConceptDepthMastery(conceptId);
@@ -43,8 +44,14 @@ export default function ConceptOverview({
 
   const cap = DEPTH_ORDER[(["foundation", "applied", "advanced"].includes(maxDepth) ? maxDepth : "foundation") as Depth];
   const overall = [...DEPTHS].reverse().find((d) => stateFor(d) === "secure");
-  const nextReview = ladder?.foundation?.nextReviewAt || null;
-  const reviewDue = nextReview ? new Date(nextReview).getTime() <= Date.now() : false;
+  // Earliest-due retention review across the secured depths.
+  const reviewable = DEPTHS
+    .map((d) => ({ d, nr: ladder?.[d]?.nextReviewAt || null }))
+    .filter((e) => e.nr && stateFor(e.d) === "secure") as { d: Depth; nr: string }[];
+  reviewable.sort((a, b) => a.nr.localeCompare(b.nr));
+  const earliest = reviewable[0];
+  const nextReview = earliest?.nr || null;
+  const dueDepth: Depth | null = earliest && new Date(earliest.nr).getTime() <= Date.now() ? earliest.d : null;
 
   return (
     <div style={pageBox(L.padTall, 680)}>
@@ -58,9 +65,14 @@ export default function ConceptOverview({
         <span style={{ fontSize: 13.5, fontWeight: 600, color: c.ink, background: c.surface, border: `1px solid ${c.border2}`, padding: "7px 13px", borderRadius: 20 }}>
           Overall depth: {overall ? DEPTH_LABEL[overall] : "Getting started"}
         </span>
-        {retentionEnabled && nextReview && (
-          <span style={{ fontSize: 13, fontWeight: 600, color: reviewDue ? c.amber : c.greenDark, background: reviewDue ? c.amberTint : c.greenTint, border: `1px solid ${reviewDue ? c.amberBorder : c.greenTintBorder}`, padding: "7px 13px", borderRadius: 20 }}>
-            {reviewDue ? "Retention review due" : `Retention on track · next ${new Date(nextReview).toLocaleDateString(undefined, { day: "numeric", month: "short" })}`}
+        {retentionEnabled && dueDepth && onReview && (
+          <button type="button" onClick={() => onReview(dueDepth)} style={{ fontSize: 13, fontWeight: 600, color: "#fff", background: c.amber, border: "none", fontFamily: "inherit", padding: "8px 14px", borderRadius: 20, cursor: "pointer" }}>
+            Retention review due · start check
+          </button>
+        )}
+        {retentionEnabled && !dueDepth && nextReview && (
+          <span style={{ fontSize: 13, fontWeight: 600, color: c.greenDark, background: c.greenTint, border: `1px solid ${c.greenTintBorder}`, padding: "7px 13px", borderRadius: 20 }}>
+            Retention on track · next {new Date(nextReview).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
           </span>
         )}
       </div>

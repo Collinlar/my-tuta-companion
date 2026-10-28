@@ -23,6 +23,7 @@ import { useAdvanceStage, useAnswerConfirmation, useEnsureConceptStages, useEnsu
 import { useCreditGate } from "../credits/CreditGate";
 import { recordEvent } from "../intelligence/data";
 import ConceptOverview from "./ConceptOverview";
+import RetentionCheck from "./RetentionCheck";
 import { DEPTH_LABEL, type Depth, type DepthReadiness } from "../data/depth";
 
 export type PathEvidence = {
@@ -38,7 +39,7 @@ export type PathEvidence = {
   applyWords: number;
 };
 
-type View = "begin" | "enter" | "pick" | "confirm" | "diagnostic" | "result" | "preview" | "workspace" | "overview";
+type View = "begin" | "enter" | "pick" | "confirm" | "diagnostic" | "result" | "preview" | "workspace" | "overview" | "retention";
 type EnterMode = "enter" | "upload" | "photo";
 
 export default function Learn() {
@@ -483,7 +484,19 @@ export default function Learn() {
         foundationPath={activePath ? { pct: activePath.pct, currentStage: activePath.currentStage, level: activePath.level } : null}
         loading={conceptLoading}
         onEnterDepth={enterDepth}
+        onReview={(depth) => { setCurrentDepth(depth); setView("retention"); }}
         onBack={() => setView("begin")}
+      />
+    );
+  }
+  if (view === "retention") {
+    return (
+      <RetentionCheck
+        conceptId={conceptMeta?.id || ""}
+        conceptName={conceptMeta?.name || "Concept"}
+        subject={conceptMeta?.subject || ""}
+        depth={currentDepth}
+        onDone={() => setView("overview")}
       />
     );
   }

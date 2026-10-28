@@ -1348,6 +1348,23 @@ export function useSaveDepthResult() {
         score: input.overall,
       });
 
+      // Schedule the first retention review (3 days) when a depth secures and the
+      // concept opts into retention. Replace any existing schedule so a re-secure
+      // does not leave duplicate pending reviews.
+      if (nextReviewAt) {
+        await supabase.from("retention_reviews").delete()
+          .eq("concept_id", input.conceptId).eq("depth", input.depth).eq("status", "scheduled");
+        await supabase.from("retention_reviews").insert({
+          user_id,
+          concept_id: input.conceptId,
+          depth: input.depth,
+          review_due_at: nextReviewAt,
+          review_type: "retrieval",
+          status: "scheduled",
+          interval_days: 3,
+        });
+      }
+
       // The cross-depth rollup (mastery_profiles) stays owned by
       // useSaveMasteryResult, which also runs the Gate-2 confirmation. This hook
       // only writes the new depth tables, so the two never fight over state.
@@ -1355,6 +1372,64 @@ export function useSaveDepthResult() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["concept_depth_mastery"] });
+    },
+  });
+}
+
+/** Completes a due retention review for one (concept, depth): records the result,
+ * advances the 3/10/30/90-day interval (restart to 3 on a weak review), and
+ * reschedules. A weak review never removes mastery (PRD 12.3), it just reviews
+ * sooner. Client-side under RLS. */
+export function useCompleteRetentionReview() {
+  const qc = useQueryClient();
+  const LADDER = [3, 10, 30, 90];
+  return useMutation({
+    mutationFn: async (input: { conceptId: string; depth: Depth; passed: boolean }) => {
+      const user_id = await uid();
+      if (!user_id) throw new Error("Not signed in");
+
+      const { data: latest } = await supabase
+        .from("retention_reviews")
+        .select("interval_days")
+        .eq("concept_id", input.conceptId)
+        .eq("depth", input.depth)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const current = latest?.interval_days ?? 3;
+
+      let nextInterval: number;
+      if (input.passed) {
+        const idx = LADDER.indexOf(current);
+        nextInterval = idx < 0 ? 10 : LADDER[Math.min(idx + 1, LADDER.length - 1)];
+      } else {
+        nextInterval = 3;
+      }
+      const nextDue = new Date(Date.now() + nextInterval * 24 * 60 * 60 * 1000).toISOString();
+
+      await supabase.from("retention_reviews")
+        .update({ status: "completed", last_result: input.passed ? "on_track" : "weakening" })
+        .eq("concept_id", input.conceptId).eq("depth", input.depth).eq("status", "scheduled");
+
+      await supabase.from("retention_reviews").insert({
+        user_id,
+        concept_id: input.conceptId,
+        depth: input.depth,
+        review_due_at: nextDue,
+        review_type: "retrieval",
+        status: "scheduled",
+        interval_days: nextInterval,
+      });
+
+      await supabase.from("concept_depth_mastery")
+        .update({ next_review_at: nextDue, last_verified_at: new Date().toISOString() })
+        .eq("concept_id", input.conceptId).eq("depth", input.depth);
+
+      return { nextDue, nextInterval, passed: input.passed };
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["concept_depth_mastery"] });
+      qc.invalidateQueries({ queryKey: ["depth_map"] });
     },
   });
 }
