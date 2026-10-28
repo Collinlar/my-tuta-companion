@@ -22,6 +22,8 @@ import { useMasteryPaths, useConcept, useConceptsCatalog, usePendingConfirmation
 import { useAdvanceStage, useAnswerConfirmation, useEnsureConceptStages, useEnsureRecallCards, useLogIndependentAttempt, useRateRecallCard, useSaveMasteryResult, useStartMasteryPath, useUploadIntakeFile, type RecallCardState, type UploadedIntakeFile } from "../data/mutations";
 import { useCreditGate } from "../credits/CreditGate";
 import { recordEvent } from "../intelligence/data";
+import ConceptOverview from "./ConceptOverview";
+import { DEPTH_LABEL, type Depth } from "../data/depth";
 
 export type PathEvidence = {
   recallRated: number;
@@ -36,7 +38,7 @@ export type PathEvidence = {
   applyWords: number;
 };
 
-type View = "begin" | "enter" | "pick" | "confirm" | "diagnostic" | "result" | "preview" | "workspace";
+type View = "begin" | "enter" | "pick" | "confirm" | "diagnostic" | "result" | "preview" | "workspace" | "overview";
 type EnterMode = "enter" | "upload" | "photo";
 
 export default function Learn() {
@@ -45,6 +47,7 @@ export default function Learn() {
   const { masteryPathId } = useParams();
   const qc = useQueryClient();
   const gate = useCreditGate();
+  const { toast } = useToast();
   const [view, setView] = useState<View>("begin");
   const [slug, setSlug] = useState("photosynthesis");
   const [enterMode, setEnterMode] = useState<EnterMode>("enter");
@@ -171,6 +174,15 @@ export default function Learn() {
     if (match) setSlug(match.slug);
     setStage(path.currentStage ?? 0);
     setView("workspace");
+  };
+
+  // The Concept Overview (depth ladder) is the home base for a concept you have
+  // already started. Deep links (Home "Continue", Next-Best-Action) still open
+  // the path directly; only the Learn picker routes here first.
+  const openOverview = (path: PathVM) => {
+    const match = (catalog || []).find((c) => c.name.toLowerCase() === path.concept.toLowerCase());
+    if (match) setSlug(match.slug);
+    setView("overview");
   };
 
   // When workspace opens on a concept with no stages, generate them.
@@ -329,7 +341,7 @@ export default function Learn() {
         paths={paths || []}
         loading={pathsLoading}
         onOption={onBeginOption}
-        onOpenPath={(p) => { void openPath(p); }}
+        onOpenPath={(p) => { openOverview(p); }}
       />
     );
   }
@@ -414,6 +426,28 @@ export default function Learn() {
         error={buildError}
         onRetry={() => { void ensurePathStages().catch(() => undefined); }}
         onStart={openWorkspace}
+      />
+    );
+  }
+  if (view === "overview") {
+    return (
+      <ConceptOverview
+        conceptId={conceptMeta?.id || ""}
+        conceptName={conceptMeta?.name || "Concept"}
+        subject={conceptMeta?.subject || ""}
+        maxDepth={(conceptMeta?.max_depth as string) || "foundation"}
+        retentionEnabled={!!conceptMeta?.retention_enabled}
+        foundationPath={activePath ? { pct: activePath.pct, currentStage: activePath.currentStage, level: activePath.level } : null}
+        loading={conceptLoading}
+        onEnterDepth={(depth: Depth) => {
+          if (depth === "foundation") {
+            setStage(activePath?.currentStage ?? 0);
+            setView("workspace");
+          } else {
+            toast({ title: `${DEPTH_LABEL[depth]} is coming soon`, description: "This depth opens once its content is ready for this concept." });
+          }
+        }}
+        onBack={() => setView("begin")}
       />
     );
   }
