@@ -1346,29 +1346,13 @@ export function useSaveDepthResult() {
         score: input.overall,
       });
 
-      // Cross-depth rollup (powers NBA decay, Progress, teacher views).
-      await supabase.from("mastery_profiles").upsert(
-        {
-          user_id,
-          concept_id: input.conceptId,
-          concept_name: input.conceptName,
-          subject: input.subject || null,
-          overall_state: input.level,
-          concept_knowledge: input.knowledge,
-          application: input.application,
-          reasoning: input.analysis,
-          procedural_fluency: Math.round((input.knowledge + input.application) / 2),
-          recall: Math.round((input.knowledge + input.analysis) / 2),
-        },
-        { onConflict: "user_id,concept_id" },
-      );
-
+      // The cross-depth rollup (mastery_profiles) stays owned by
+      // useSaveMasteryResult, which also runs the Gate-2 confirmation. This hook
+      // only writes the new depth tables, so the two never fight over state.
       return readiness;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["concept_depth_mastery"] });
-      qc.invalidateQueries({ queryKey: ["mastery_profiles"] });
-      qc.invalidateQueries({ queryKey: ["mastery_paths"] });
     },
   });
 }

@@ -19,11 +19,11 @@ import {
   type MasteryQuestion,
 } from "../data/ai";
 import { useMasteryPaths, useConcept, useConceptsCatalog, usePendingConfirmation, type ConceptStageVM, type PathVM } from "../data/queries";
-import { useAdvanceStage, useAnswerConfirmation, useEnsureConceptStages, useEnsureRecallCards, useLogIndependentAttempt, useRateRecallCard, useSaveMasteryResult, useStartMasteryPath, useUploadIntakeFile, type RecallCardState, type UploadedIntakeFile } from "../data/mutations";
+import { useAdvanceStage, useAnswerConfirmation, useEnsureConceptStages, useEnsureRecallCards, useLogIndependentAttempt, useRateRecallCard, useSaveDepthResult, useSaveMasteryResult, useStartMasteryPath, useUploadIntakeFile, type RecallCardState, type UploadedIntakeFile } from "../data/mutations";
 import { useCreditGate } from "../credits/CreditGate";
 import { recordEvent } from "../intelligence/data";
 import ConceptOverview from "./ConceptOverview";
-import { DEPTH_LABEL, type Depth } from "../data/depth";
+import { DEPTH_LABEL, type Depth, type DepthReadiness } from "../data/depth";
 
 export type PathEvidence = {
   recallRated: number;
@@ -73,6 +73,8 @@ export default function Learn() {
   const startPath = useStartMasteryPath();
   const ensureStages = useEnsureConceptStages();
   const saveMastery = useSaveMasteryResult();
+  const saveDepth = useSaveDepthResult();
+  const [currentDepth, setCurrentDepth] = useState<Depth>("foundation");
   const answerConfirmation = useAnswerConfirmation();
   const [confirmPicked, setConfirmPicked] = useState<number | null>(null);
   const [confirmRevealed, setConfirmRevealed] = useState(false);
@@ -183,6 +185,19 @@ export default function Learn() {
     const match = (catalog || []).find((c) => c.name.toLowerCase() === path.concept.toLowerCase());
     if (match) setSlug(match.slug);
     setView("overview");
+  };
+
+  // Enter a depth's workspace. Foundation runs the existing path; deeper depths
+  // open once their content and the depth-aware stage set exist (gated on
+  // content, so until then they report "coming soon").
+  const enterDepth = (depth: Depth) => {
+    setCurrentDepth(depth);
+    if (depth === "foundation") {
+      setStage(activePath?.currentStage ?? 0);
+      setView("workspace");
+    } else {
+      toast({ title: `${DEPTH_LABEL[depth]} is coming soon`, description: "This depth opens once its content is ready for this concept." });
+    }
   };
 
   // When workspace opens on a concept with no stages, generate them.
@@ -439,14 +454,7 @@ export default function Learn() {
         retentionEnabled={!!conceptMeta?.retention_enabled}
         foundationPath={activePath ? { pct: activePath.pct, currentStage: activePath.currentStage, level: activePath.level } : null}
         loading={conceptLoading}
-        onEnterDepth={(depth: Depth) => {
-          if (depth === "foundation") {
-            setStage(activePath?.currentStage ?? 0);
-            setView("workspace");
-          } else {
-            toast({ title: `${DEPTH_LABEL[depth]} is coming soon`, description: "This depth opens once its content is ready for this concept." });
-          }
-        }}
+        onEnterDepth={enterDepth}
         onBack={() => setView("begin")}
       />
     );
@@ -468,6 +476,8 @@ export default function Learn() {
       setSupportLevel={setSupportLevel}
       evidence={evidence}
       setEvidence={setEvidence}
+      depth={currentDepth}
+      onGoDeeper={enterDepth}
       onSaveMastery={async (result) => {
         if (!activePath) return;
         await saveMastery.mutateAsync({
@@ -477,6 +487,23 @@ export default function Learn() {
           subject: conceptMeta?.subject || undefined,
           ...result,
         });
+        // Record the depth result and get the readiness for the next depth,
+        // which drives the completion screen. Non-blocking: the path save above
+        // is the source of truth for the headline mastery.
+        if (!conceptMeta?.id) return;
+        try {
+          return await saveDepth.mutateAsync({
+            conceptId: conceptMeta.id,
+            conceptName: conceptMeta.name,
+            subject: conceptMeta.subject || undefined,
+            depth: currentDepth,
+            maxDepth: (conceptMeta.max_depth as string) || "foundation",
+            retentionEnabled: !!conceptMeta.retention_enabled,
+            ...result,
+          });
+        } catch {
+          return undefined;
+        }
       }}
       onBack={() => setView("begin")}
     />
@@ -959,13 +986,14 @@ function Preview({
 
 function Workspace({
   conceptName, subject, conceptId, pathId, stages, loading, stage, setStage, nextStage,
-  explainMode, setExplainMode, supportLevel, setSupportLevel, evidence, setEvidence, onSaveMastery, onBack,
+  explainMode, setExplainMode, supportLevel, setSupportLevel, evidence, setEvidence, depth, onGoDeeper, onSaveMastery, onBack,
 }: {
   conceptName: string; subject: string; conceptId?: string; pathId?: string;
   stages: ConceptStageVM[]; loading: boolean; stage: number; setStage: (n: number) => void; nextStage: () => void;
   explainMode: number; setExplainMode: (n: number) => void; supportLevel: number; setSupportLevel: (n: number) => void;
   evidence: PathEvidence; setEvidence: Dispatch<SetStateAction<PathEvidence>>;
-  onSaveMastery: (r: { knowledge: number; application: number; analysis: number; overall: number; level: string; note: string }) => Promise<void>;
+  depth: Depth; onGoDeeper: (d: Depth) => void;
+  onSaveMastery: (r: { knowledge: number; application: number; analysis: number; overall: number; level: string; note: string }) => Promise<DepthReadiness | void>;
   onBack: () => void;
 }) {
   const L = useLayout();
@@ -1098,6 +1126,8 @@ function Workspace({
               subject={subject}
               evidence={evidence}
               pathId={pathId}
+              depth={depth}
+              onGoDeeper={onGoDeeper}
               onSave={onSaveMastery}
             />
           )}
@@ -1813,14 +1843,16 @@ function scoreLabel(n: number): string {
 }
 
 function Mastery({
-  content, conceptName, subject, evidence, pathId, onSave,
+  content, conceptName, subject, evidence, pathId, depth, onGoDeeper, onSave,
 }: {
   content: Record<string, any>;
   conceptName: string;
   subject: string;
   evidence: PathEvidence;
   pathId?: string;
-  onSave: (r: { knowledge: number; application: number; analysis: number; overall: number; level: string; note: string }) => Promise<void>;
+  depth: Depth;
+  onGoDeeper: (d: Depth) => void;
+  onSave: (r: { knowledge: number; application: number; analysis: number; overall: number; level: string; note: string }) => Promise<DepthReadiness | void>;
 }) {
   const L = useLayout();
   const nav = useNavigate();
@@ -1835,6 +1867,7 @@ function Mastery({
   const [result, setResult] = useState<{
     knowledge: number; application: number; analysis: number; overall: number; level: string; note: string; how: string[];
   } | null>(null);
+  const [depthNext, setDepthNext] = useState<DepthReadiness | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -1927,7 +1960,8 @@ function Mastery({
     if (pathId) {
       setSaving(true);
       try {
-        await onSave(payload);
+        const readiness = await onSave(payload);
+        if (readiness) setDepthNext(readiness);
       } finally {
         setSaving(false);
       }
@@ -1973,6 +2007,26 @@ function Mastery({
           </div>
           <button type="button" onClick={() => nav("/student/progress")} style={{ flex: "none", background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 20px", borderRadius: 11, cursor: "pointer" }}>See progress</button>
         </div>
+
+        {depthNext && (
+          <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 22, marginTop: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>
+              {result.overall >= 3 ? `${DEPTH_LABEL[depth]} Mastery achieved` : `Keep going on ${DEPTH_LABEL[depth]}`}
+            </div>
+            <div style={{ fontSize: 15, color: c.ink, lineHeight: 1.6, marginBottom: depthNext.blockers.length ? 8 : 14 }}>{depthNext.reason}</div>
+            {depthNext.blockers.length > 0 && (
+              <div style={{ fontSize: 13.5, color: c.amber, marginBottom: 14 }}>Worth strengthening: {depthNext.blockers.join(", ")}.</div>
+            )}
+            {depthNext.outcome === "progress_now" && depthNext.targetDepth && (
+              <button type="button" onClick={() => onGoDeeper(depthNext.targetDepth as Depth)} style={{ background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 20px", borderRadius: 11, cursor: "pointer" }}>
+                Go to {DEPTH_LABEL[depthNext.targetDepth]} Mastery{depthNext.estMinutes ? ` · ${depthNext.estMinutes} min` : ""}
+              </button>
+            )}
+            {depthNext.outcome === "progress_later" && depthNext.targetDepth && (
+              <div style={{ fontSize: 13, color: c.faint }}>Come back tomorrow for {DEPTH_LABEL[depthNext.targetDepth]} Mastery.</div>
+            )}
+          </div>
+        )}
       </>
     );
   }
