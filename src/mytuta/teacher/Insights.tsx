@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { c, font } from "../theme";
 import { Bar, Loading } from "../ui";
 import { useLayout, pageBox } from "../layout";
-import { useTeacherDashboard } from "../data/queries";
+import { useTeacherDashboard, useTeacherDepthSummary } from "../data/queries";
+import { DEPTHS, DEPTH_ORDER, DEPTH_LABEL, type Depth } from "../data/depth";
 import { useClassMisconceptionSummary, type MisconceptionPattern } from "./data/interventionQueries";
 
 function progressColor(status: string): [string, string] {
@@ -22,6 +23,7 @@ export default function Insights() {
   const [expandedQ, setExpandedQ] = useState<number | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const { data: classMisconceptions, isLoading: cmLoading } = useClassMisconceptionSummary(selectedClassId);
+  const { data: depthSummary } = useTeacherDepthSummary(selectedClassId);
 
   // Use class-level grouping when a class is selected; fall back to dashboard data.
   const misconceptions = selectedClassId && classMisconceptions
@@ -67,6 +69,47 @@ export default function Insights() {
           </div>
         ))}
       </div>
+
+      {(depthSummary?.length ?? 0) > 0 && (
+        <div style={{ marginBottom: 26 }}>
+          <div style={sec}>Mastery depth across your classes</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {(depthSummary || []).map((d) => {
+              const maxOrder = DEPTH_ORDER[(["foundation", "applied", "advanced"].includes(d.maxDepth) ? d.maxDepth : "foundation") as Depth];
+              const available = DEPTHS.filter((dep) => DEPTH_ORDER[dep] <= maxOrder);
+              const pctFor = (dep: Depth) => dep === "foundation" ? d.foundationPct : dep === "applied" ? d.appliedPct : d.advancedPct;
+              const deeper = available.filter((dep) => dep !== "foundation");
+              const weak = deeper.length ? deeper.reduce((lo, dep) => pctFor(dep) < pctFor(lo) ? dep : lo, deeper[0]) : null;
+              const barColor = (dep: Depth) => dep === "foundation" ? c.green : dep === "applied" ? c.amber : c.red;
+              return (
+                <div key={d.conceptId} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: "16px 18px" }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
+                    <span style={{ fontWeight: 600, fontSize: 14 }}>{d.conceptName} <span style={{ fontWeight: 400, color: c.faint, fontSize: 12.5 }}>· {d.subject}</span></span>
+                    <span style={{ fontSize: 12, color: c.faint }}>{d.students} student{d.students === 1 ? "" : "s"}</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: `repeat(${available.length}, 1fr)`, gap: 14, marginBottom: weak ? 14 : 0 }}>
+                    {available.map((dep) => (
+                      <div key={dep}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 5 }}>
+                          <span style={{ fontWeight: 500, color: c.soft }}>{DEPTH_LABEL[dep]}</span>
+                          <span style={{ color: c.faint }}>{pctFor(dep)}%</span>
+                        </div>
+                        <Bar pct={pctFor(dep)} color={barColor(dep)} height={6} />
+                        <div style={{ fontSize: 10.5, color: c.faint, marginTop: 4 }}>secure</div>
+                      </div>
+                    ))}
+                  </div>
+                  {weak && (
+                    <button type="button" onClick={() => nav(`/teacher/intervention/new?concept=${encodeURIComponent(d.conceptName)}&depth=${weak}`)} style={{ ...actionBtn, background: "#E8A020", color: "#fff", fontWeight: 600 }}>
+                      Create {DEPTH_LABEL[weak]} intervention
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div style={{ display: "grid", gridTemplateColumns: L.g2, gap: 22, marginBottom: 26 }}>
         <div>

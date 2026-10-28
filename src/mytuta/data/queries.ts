@@ -1000,3 +1000,42 @@ export function useDepthMap() {
     },
   });
 }
+
+export interface TeacherDepthVM {
+  conceptId: string;
+  conceptName: string;
+  subject: string;
+  maxDepth: string;
+  students: number;
+  foundationPct: number;
+  appliedPct: number;
+  advancedPct: number;
+}
+
+interface TeacherDepthRow {
+  concept_id: string; concept_name: string; subject: string | null; max_depth: string | null;
+  students: number; foundation_secure_pct: number; applied_secure_pct: number; advanced_secure_pct: number;
+}
+
+/** Per-concept depth mastery across a teacher's students (Foundation/Applied/
+ * Advanced secure %). Scoped to the caller's classes by the SECURITY DEFINER RPC. */
+export function useTeacherDepthSummary(classId?: string | null) {
+  return useQuery({
+    queryKey: ["teacher_depth_summary", classId || null],
+    queryFn: async (): Promise<TeacherDepthVM[]> => {
+      const { data, error } = await supabase.rpc("teacher_depth_summary", classId ? { p_class_id: classId } : {});
+      if (error) throw error;
+      const rows = (data as unknown as TeacherDepthRow[]) || [];
+      return rows.map((r) => ({
+        conceptId: r.concept_id,
+        conceptName: r.concept_name,
+        subject: r.subject || "",
+        maxDepth: r.max_depth || "foundation",
+        students: Number(r.students || 0),
+        foundationPct: Number(r.foundation_secure_pct || 0),
+        appliedPct: Number(r.applied_secure_pct || 0),
+        advancedPct: Number(r.advanced_secure_pct || 0),
+      }));
+    },
+  });
+}

@@ -846,6 +846,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      teacher_depth_summary: {
+        Args: { p_class_id?: string }
+        Returns: Json
+      }
       assign_assessment: {
         Args: { p_assessment_id: string; p_class_id: string }
         Returns: undefined
