@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
+import { computeDepthReadiness, depthStateFromResult, DEPTH_DEFAULT_SUPPORT, type Depth } from "./depth";
 import { generateAssessmentQuestions, generateClassChallenge } from "./ai";
 import { CHALLENGE_TYPE_COLORS } from "./constants";
 import {
@@ -1212,6 +1213,162 @@ export function useDeleteAccount() {
       if (error) throw error;
       localStorage.clear();
       await supabase.auth.signOut();
+    },
+  });
+}
+
+// ---------- Mastery Depth (Phase 1) ----------
+
+/** Ensures a mastery_paths row exists for one (learner, concept, depth) and
+ * marks that depth as started, without downgrading a depth already secured. */
+export function useEnsureDepthPath() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { conceptId: string; conceptName: string; subject?: string; depth: Depth }) => {
+      const user_id = await uid();
+      if (!user_id) throw new Error("Not signed in");
+
+      const { data: existing } = await supabase
+        .from("mastery_paths")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("concept_id", input.conceptId)
+        .eq("depth", input.depth)
+        .maybeSingle();
+
+      let path = existing;
+      if (!path) {
+        const { data, error } = await supabase
+          .from("mastery_paths")
+          .insert({
+            user_id,
+            concept_id: input.conceptId,
+            concept_name: input.conceptName,
+            subject: input.subject || null,
+            depth: input.depth,
+            current_stage: 0,
+            pct: 0,
+            level: "Beginning",
+            status: "active",
+          })
+          .select()
+          .single();
+        if (error) throw error;
+        path = data;
+      }
+
+      // Create the depth record only if missing, so we never downgrade a secured depth.
+      const { data: cdm } = await supabase
+        .from("concept_depth_mastery")
+        .select("id")
+        .eq("user_id", user_id)
+        .eq("concept_id", input.conceptId)
+        .eq("depth", input.depth)
+        .maybeSingle();
+      if (!cdm) {
+        await supabase.from("concept_depth_mastery").insert({
+          user_id,
+          concept_id: input.conceptId,
+          depth: input.depth,
+          state: "in_progress",
+          support_level: DEPTH_DEFAULT_SUPPORT[input.depth],
+          started_at: new Date().toISOString(),
+        });
+      }
+      return path;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["mastery_paths"] });
+      qc.invalidateQueries({ queryKey: ["concept_depth_mastery"] });
+    },
+  });
+}
+
+/** Saves the outcome of a depth's mastery check: records the depth state and
+ * evidence, keeps the cross-depth rollup current, and returns the readiness for
+ * the next depth (which drives the completion screen). Client-side under RLS,
+ * matching useSaveMasteryResult. */
+export function useSaveDepthResult() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      conceptId: string;
+      conceptName: string;
+      subject?: string;
+      depth: Depth;
+      maxDepth?: string | null;
+      retentionEnabled?: boolean;
+      knowledge: number;
+      application: number;
+      analysis: number;
+      overall: number;
+      level: string;
+    }) => {
+      const user_id = await uid();
+      if (!user_id) throw new Error("Not signed in");
+
+      const result = {
+        knowledge: input.knowledge,
+        application: input.application,
+        analysis: input.analysis,
+        overall: input.overall,
+        level: input.level,
+      };
+      const state = depthStateFromResult(input.overall, input.level);
+      const readiness = computeDepthReadiness(input.depth, result, input.maxDepth);
+      const now = new Date().toISOString();
+      const nextReviewAt =
+        input.retentionEnabled && state === "secure"
+          ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+          : null;
+
+      await supabase.from("concept_depth_mastery").upsert(
+        {
+          user_id,
+          concept_id: input.conceptId,
+          depth: input.depth,
+          state,
+          readiness_state: readiness.readiness,
+          support_level: DEPTH_DEFAULT_SUPPORT[input.depth],
+          completed_at: state === "secure" ? now : null,
+          last_verified_at: now,
+          next_review_at: nextReviewAt,
+          evidence_summary: result as unknown as Json,
+        },
+        { onConflict: "user_id,concept_id,depth" },
+      );
+
+      await supabase.from("depth_evidence").insert({
+        user_id,
+        concept_id: input.conceptId,
+        depth: input.depth,
+        source_type: "mastery_check",
+        score: input.overall,
+      });
+
+      // Cross-depth rollup (powers NBA decay, Progress, teacher views).
+      await supabase.from("mastery_profiles").upsert(
+        {
+          user_id,
+          concept_id: input.conceptId,
+          concept_name: input.conceptName,
+          subject: input.subject || null,
+          overall_state: input.level,
+          concept_knowledge: input.knowledge,
+          application: input.application,
+          reasoning: input.analysis,
+          procedural_fluency: Math.round((input.knowledge + input.application) / 2),
+          recall: Math.round((input.knowledge + input.analysis) / 2),
+        },
+        { onConflict: "user_id,concept_id" },
+      );
+
+      return readiness;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["concept_depth_mastery"] });
+      qc.invalidateQueries({ queryKey: ["mastery_profiles"] });
+      qc.invalidateQueries({ queryKey: ["mastery_paths"] });
     },
   });
 }

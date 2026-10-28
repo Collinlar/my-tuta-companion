@@ -907,3 +907,45 @@ export function useDisplayName() {
     },
   });
 }
+
+// ---------- Mastery Depth (Phase 1) ----------
+
+export interface ConceptDepthVM {
+  depth: string;
+  state: string;
+  readinessState: string | null;
+  supportLevel: string;
+  nextReviewAt: string | null;
+  lastVerifiedAt: string | null;
+  evidenceSummary: Record<string, unknown>;
+}
+
+/** The learner's depth ladder for one concept (Foundation/Applied/Advanced
+ * rows from concept_depth_mastery). RLS scopes to the caller. */
+export function useConceptDepthMastery(conceptId?: string | null) {
+  return useQuery({
+    queryKey: ["concept_depth_mastery", conceptId],
+    enabled: !!conceptId,
+    queryFn: async (): Promise<Record<string, ConceptDepthVM>> => {
+      if (!conceptId) return {};
+      const { data, error } = await supabase
+        .from("concept_depth_mastery")
+        .select("depth, state, readiness_state, support_level, next_review_at, last_verified_at, evidence_summary")
+        .eq("concept_id", conceptId);
+      if (error) throw error;
+      const byDepth: Record<string, ConceptDepthVM> = {};
+      for (const r of data || []) {
+        byDepth[r.depth] = {
+          depth: r.depth,
+          state: r.state,
+          readinessState: r.readiness_state,
+          supportLevel: r.support_level,
+          nextReviewAt: r.next_review_at,
+          lastVerifiedAt: r.last_verified_at,
+          evidenceSummary: (r.evidence_summary as Record<string, unknown>) || {},
+        };
+      }
+      return byDepth;
+    },
+  });
+}
