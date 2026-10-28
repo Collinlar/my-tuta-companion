@@ -190,6 +190,7 @@ export function useEnsureConceptStages() {
   return useMutation({
     mutationFn: async (input: {
       conceptId: string;
+      depth?: string;
       stages: {
         ord: number;
         name: string;
@@ -201,6 +202,7 @@ export function useEnsureConceptStages() {
     }) => {
       const { error } = await supabase.rpc("ensure_concept_stages", {
         p_concept_id: input.conceptId,
+        p_depth: input.depth || "foundation",
         p_stages: input.stages as unknown as Json,
       });
       if (error) throw error;

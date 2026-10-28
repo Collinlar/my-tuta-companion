@@ -19,7 +19,7 @@ import {
   type MasteryQuestion,
 } from "../data/ai";
 import { useMasteryPaths, useConcept, useConceptsCatalog, usePendingConfirmation, type ConceptStageVM, type PathVM } from "../data/queries";
-import { useAdvanceStage, useAnswerConfirmation, useEnsureConceptStages, useEnsureRecallCards, useLogIndependentAttempt, useRateRecallCard, useSaveDepthResult, useSaveMasteryResult, useStartMasteryPath, useUploadIntakeFile, type RecallCardState, type UploadedIntakeFile } from "../data/mutations";
+import { useAdvanceStage, useAnswerConfirmation, useEnsureConceptStages, useEnsureDepthPath, useEnsureRecallCards, useLogIndependentAttempt, useRateRecallCard, useSaveDepthResult, useSaveMasteryResult, useStartMasteryPath, useUploadIntakeFile, type RecallCardState, type UploadedIntakeFile } from "../data/mutations";
 import { useCreditGate } from "../credits/CreditGate";
 import { recordEvent } from "../intelligence/data";
 import ConceptOverview from "./ConceptOverview";
@@ -47,9 +47,9 @@ export default function Learn() {
   const { masteryPathId } = useParams();
   const qc = useQueryClient();
   const gate = useCreditGate();
-  const { toast } = useToast();
   const [view, setView] = useState<View>("begin");
   const [slug, setSlug] = useState("photosynthesis");
+  const [currentDepth, setCurrentDepth] = useState<Depth>("foundation");
   const [enterMode, setEnterMode] = useState<EnterMode>("enter");
   const [skipToCheck, setSkipToCheck] = useState(false);
   const [diagResult, setDiagResult] = useState<DiagnosticResult | null>(null);
@@ -67,22 +67,22 @@ export default function Learn() {
 
   const { data: paths, isLoading: pathsLoading } = useMasteryPaths();
   const { data: catalog } = useConceptsCatalog();
-  const { data: concept, isLoading: conceptLoading, refetch: refetchConcept } = useConcept(slug);
+  const { data: concept, isLoading: conceptLoading, refetch: refetchConcept } = useConcept(slug, currentDepth);
   const { data: pendingConfirmation } = usePendingConfirmation();
   const advance = useAdvanceStage();
   const startPath = useStartMasteryPath();
   const ensureStages = useEnsureConceptStages();
   const saveMastery = useSaveMasteryResult();
   const saveDepth = useSaveDepthResult();
-  const [currentDepth, setCurrentDepth] = useState<Depth>("foundation");
+  const ensureDepth = useEnsureDepthPath();
   const answerConfirmation = useAnswerConfirmation();
   const [confirmPicked, setConfirmPicked] = useState<number | null>(null);
   const [confirmRevealed, setConfirmRevealed] = useState(false);
 
   const stages = concept?.stages || [];
   const activePath = useMemo(
-    () => (paths || []).find((p) => p.concept.toLowerCase() === (concept?.concept.name || "").toLowerCase()),
-    [paths, concept],
+    () => (paths || []).find((p) => p.concept.toLowerCase() === (concept?.concept.name || "").toLowerCase() && p.depth === currentDepth),
+    [paths, concept, currentDepth],
   );
   const conceptMeta = concept?.concept;
   const related = (conceptMeta?.related_areas as string[] | null) || [];
@@ -117,6 +117,7 @@ export default function Learn() {
     const existing = paths.find((p) => p.concept.toLowerCase() === match.name.toLowerCase());
     if (existing) {
       // Already have a path for this concept — resume it instead of re-creating.
+      setCurrentDepth((existing.depth as Depth) || "foundation");
       setStage(existing.currentStage ?? 0);
       setView("workspace");
       return;
@@ -140,6 +141,7 @@ export default function Learn() {
     setSlug(match.slug);
     const existing = paths.find((p) => p.concept.toLowerCase() === match.name.toLowerCase());
     if (existing) {
+      setCurrentDepth((existing.depth as Depth) || "foundation");
       if (new URLSearchParams(location.search).get("mode") === "alternative") {
         setStage(1);        // Understand is stage index 1 in every path
         setExplainMode(1);  // show a different explanation straight away
@@ -159,8 +161,8 @@ export default function Learn() {
     setBuildingPath(true);
     setBuildError(null);
     try {
-      const generated = await generateConceptStages(conceptMeta.name, conceptMeta.subject || "Science");
-      await ensureStages.mutateAsync({ conceptId: conceptMeta.id, stages: generated });
+      const generated = await generateConceptStages(conceptMeta.name, conceptMeta.subject || "Science", currentDepth);
+      await ensureStages.mutateAsync({ conceptId: conceptMeta.id, depth: currentDepth, stages: generated });
       await qc.invalidateQueries({ queryKey: ["concept", slug] });
       await refetchConcept();
     } catch (e) {
@@ -174,6 +176,7 @@ export default function Learn() {
   const openPath = async (path: PathVM) => {
     const match = (catalog || []).find((c) => c.name.toLowerCase() === path.concept.toLowerCase());
     if (match) setSlug(match.slug);
+    setCurrentDepth((path.depth as Depth) || "foundation");
     setStage(path.currentStage ?? 0);
     setView("workspace");
   };
@@ -184,20 +187,36 @@ export default function Learn() {
   const openOverview = (path: PathVM) => {
     const match = (catalog || []).find((c) => c.name.toLowerCase() === path.concept.toLowerCase());
     if (match) setSlug(match.slug);
+    // The overview reads the depth ladder itself; anchor at foundation so the
+    // foundation tile's fallback (activePath) resolves to the right path.
+    setCurrentDepth("foundation");
     setView("overview");
   };
 
-  // Enter a depth's workspace. Foundation runs the existing path; deeper depths
-  // open once their content and the depth-aware stage set exist (gated on
-  // content, so until then they report "coming soon").
-  const enterDepth = (depth: Depth) => {
+  // Enter a depth's workspace. Foundation runs the existing path; a deeper depth
+  // ensures its own path row, then opens the workspace, where its stage set is
+  // generated on first open (depth-aware generateConceptStages).
+  const enterDepth = async (depth: Depth) => {
     setCurrentDepth(depth);
     if (depth === "foundation") {
       setStage(activePath?.currentStage ?? 0);
       setView("workspace");
-    } else {
-      toast({ title: `${DEPTH_LABEL[depth]} is coming soon`, description: "This depth opens once its content is ready for this concept." });
+      return;
     }
+    if (!conceptMeta?.id) return;
+    try {
+      const path = await ensureDepth.mutateAsync({
+        conceptId: conceptMeta.id,
+        conceptName: conceptMeta.name,
+        subject: conceptMeta.subject || undefined,
+        depth,
+      });
+      await qc.invalidateQueries({ queryKey: ["mastery_paths"] });
+      setStage((path as { current_stage?: number } | null)?.current_stage ?? 0);
+    } catch {
+      setStage(0);
+    }
+    setView("workspace");
   };
 
   // When workspace opens on a concept with no stages, generate them.
@@ -232,6 +251,8 @@ export default function Learn() {
 
   const confirmStart = async () => {
     if (!conceptMeta) return;
+    // A brand-new concept always starts at Foundation.
+    setCurrentDepth("foundation");
     await startPath.mutateAsync({
       conceptId: conceptMeta.id,
       conceptName: conceptMeta.name,

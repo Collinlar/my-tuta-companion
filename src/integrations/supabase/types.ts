@@ -45,9 +45,9 @@ export type Database = {
         Relationships: []
       }
       concept_stages: {
-        Row: { id: string; concept_id: string; ord: number; name: string; loop_phase: string | null; description: string | null; est_time: string | null; content: Json | null }
-        Insert: { id?: string; concept_id: string; ord: number; name: string; loop_phase?: string | null; description?: string | null; est_time?: string | null; content?: Json | null }
-        Update: { id?: string; concept_id?: string; ord?: number; name?: string; loop_phase?: string | null; description?: string | null; est_time?: string | null; content?: Json | null }
+        Row: { id: string; concept_id: string; depth: string; ord: number; name: string; loop_phase: string | null; description: string | null; est_time: string | null; content: Json | null }
+        Insert: { id?: string; concept_id: string; depth?: string; ord: number; name: string; loop_phase?: string | null; description?: string | null; est_time?: string | null; content?: Json | null }
+        Update: { id?: string; concept_id?: string; depth?: string; ord?: number; name?: string; loop_phase?: string | null; description?: string | null; est_time?: string | null; content?: Json | null }
         Relationships: []
       }
       lab_activities: {
@@ -831,7 +831,7 @@ export type Database = {
         Returns: undefined
       }
       ensure_concept_stages: {
-        Args: { p_concept_id: string; p_stages: Json }
+        Args: { p_concept_id: string; p_depth: string; p_stages: Json }
         Returns: undefined
       }
       generate_class_code: {

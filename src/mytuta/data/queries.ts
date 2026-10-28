@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
  */
 
 // ---------- view-model types ----------
-export interface PathVM { id: string; concept: string; subject: string; stage: string; pct: number; color: string; level: string; next: string; currentStage: number; conceptSlug?: string }
+export interface PathVM { id: string; concept: string; subject: string; stage: string; pct: number; color: string; level: string; next: string; currentStage: number; depth: string; conceptSlug?: string }
 export interface StudentAssignmentVM { id: string; icon: string; color: string; title: string; teacher: string; due: string; status: string; statusColor: string; assessmentId: string | null; experienceId: string | null }
 export interface LearnerStatsVM { mastered: number; developing: number; accuracy: number; streak: number; skills: { name: string; pct: number }[] }
 export interface LabStep { phase: string; title: string; body: string; record?: boolean; watchFor?: string; thinkingPrompt?: string; rubric?: { criterion: string; description: string; max: number } | null }
@@ -66,6 +66,7 @@ export function useMasteryPaths() {
         return {
           id: p.id, concept: p.concept_name, subject: p.subject || "", stage: p.stage_label || "", pct,
           color: p.color || "#2e9e6b", level, next: p.next_action || "Continue", currentStage,
+          depth: (p as { depth?: string }).depth || "foundation",
         };
       });
     },
@@ -206,14 +207,14 @@ export function useMasteryMap() {
   });
 }
 
-export function useConcept(slug: string) {
+export function useConcept(slug: string, depth: string = "foundation") {
   return useQuery({
-    queryKey: ["concept", slug],
+    queryKey: ["concept", slug, depth],
     queryFn: async () => {
       const { data: concept, error } = await supabase.from("concepts").select("*").eq("slug", slug).maybeSingle();
       if (error) throw error;
       if (!concept) return null;
-      const { data: stages } = await supabase.from("concept_stages").select("*").eq("concept_id", concept.id).order("ord");
+      const { data: stages } = await supabase.from("concept_stages").select("*").eq("concept_id", concept.id).eq("depth", depth).order("ord");
       return {
         concept,
         stages: (stages || []).map((s): ConceptStageVM => ({ ord: s.ord, name: s.name, loopPhase: s.loop_phase || "", description: s.description || "", estTime: s.est_time || "", content: (s.content as Record<string, unknown>) || {} })),

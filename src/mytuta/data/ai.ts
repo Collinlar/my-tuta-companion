@@ -4,6 +4,7 @@
 import { groqApiService } from "@/services/groqApiService";
 import { studioAiText } from "./constants";
 import { sanitizeLlmJson } from "./jsonRepair";
+import type { Depth } from "./depth";
 
 const SYSTEM = `You write STEM teaching content for Ghanaian secondary learners (JHS/SHS and WASSCE).
 Use clear English. Prefer local examples from Accra, Kumasi, Takoradi, farms, markets, and household life.
@@ -221,25 +222,49 @@ export type GeneratedStage = {
   content: Record<string, unknown>;
 };
 
-export async function generateConceptStages(conceptName: string, subject: string): Promise<GeneratedStage[]> {
-  const names = [
-    "Foundations",
-    "Understand",
-    "Worked examples",
-    "Recall",
-    "Guided practice",
-    "Independent practice",
-    "Apply",
-    "Mastery check",
-  ];
-  const phases = ["Diagnose", "Understand", "Understand", "Recall", "Practise", "Practise", "Apply", "Prove"];
+// Per-depth stage sets, all using existing renderer names so the Workspace can
+// render any depth. Applied/Advanced skip the Foundation diagnostic and recall
+// (prior depth is already secure) and lean on application and transfer.
+const DEPTH_STAGE_PLAN: Record<Depth, { names: string[]; phases: string[] }> = {
+  foundation: {
+    names: ["Foundations", "Understand", "Worked examples", "Recall", "Guided practice", "Independent practice", "Apply", "Mastery check"],
+    phases: ["Diagnose", "Understand", "Understand", "Recall", "Practise", "Practise", "Apply", "Prove"],
+  },
+  applied: {
+    names: ["Understand", "Worked examples", "Guided practice", "Independent practice", "Apply", "Mastery check"],
+    phases: ["Understand", "Understand", "Practise", "Practise", "Apply", "Prove"],
+  },
+  advanced: {
+    names: ["Understand", "Guided practice", "Independent practice", "Apply", "Mastery check"],
+    phases: ["Understand", "Practise", "Practise", "Apply", "Prove"],
+  },
+};
+
+const DEPTH_BRIEF: Record<Depth, string> = {
+  foundation:
+    "DEPTH = FOUNDATION. Build a correct, stable mental model: core definitions, basic relationships, common misconceptions, basic application. High scaffolding. Tone: here is the concept, let us work through it together.",
+  applied:
+    "DEPTH = APPLIED. The learner already understands the foundation, so do NOT re-teach basics. The Understand stage briefly frames the concept in a real situation rather than defining it. Focus everything on USING the concept: scenarios, word problems, data interpretation, method selection, mixed representations, Ghanaian real-world contexts. Medium scaffolding. Tone: here is the situation, decide what matters.",
+  advanced:
+    "DEPTH = ADVANCED. The learner is applied-competent. Test TRANSFER to unfamiliar and complex problems: multi-step reasoning, cross-concept links, incomplete information, evaluation, design or investigation, independent method selection. Lowest scaffolding; the learner chooses the method, sequence, representation and justification.",
+};
+
+export async function generateConceptStages(
+  conceptName: string,
+  subject: string,
+  depth: Depth = "foundation",
+): Promise<GeneratedStage[]> {
+  const plan = DEPTH_STAGE_PLAN[depth] || DEPTH_STAGE_PLAN.foundation;
+  const names = plan.names;
+  const phases = plan.phases;
   const raw = await groqApiService.makeRequest(
     [
       { role: "system", content: SYSTEM },
       {
         role: "user",
-        content: `Build an 8-stage mastery path for "${conceptName}" (${subject}).
-Return JSON: {"stages":[{"ord":0,"name":"Foundations","loop_phase":"Diagnose","description":"...","est_time":"3 min","content":{...}}]}.
+        content: `Build a ${names.length}-stage ${depth} mastery path for "${conceptName}" (${subject}).
+${DEPTH_BRIEF[depth]}
+Return JSON: {"stages":[{"ord":0,"name":"${names[0]}","loop_phase":"${phases[0]}","description":"...","est_time":"3 min","content":{...}}]}.
 Use these stage names in order: ${JSON.stringify(names)}.
 Phases in order: ${JSON.stringify(phases)}.
 content must be rich JSON matching the stage:
@@ -272,7 +297,7 @@ Formula error, Calculation error, Unit error, Interpretation error, Incomplete r
   );
   const parsed = parseJson<{ stages: GeneratedStage[] }>(raw);
   const stages = parsed.stages || [];
-  if (stages.length < 6) throw new Error("Path build was incomplete. Try again.");
+  if (stages.length < Math.max(3, names.length - 2)) throw new Error("Path build was incomplete. Try again.");
   return names.map((name, ord) => {
     const found = stages.find((s) => s.name === name) || stages[ord];
     return {
