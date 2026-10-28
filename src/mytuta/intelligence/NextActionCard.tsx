@@ -17,7 +17,10 @@ export default function NextActionCard() {
   const isDecayReview  = primary.key === "decay_review";
   const isExplWeak     = primary.key === "explanation_weak";
   const isChallenge    = primary.key === "challenge";
-  const isWarning      = isPrereqGap || isDecayReview || isExplWeak;
+  const isGoDeeper     = primary.key === "go_deeper";
+  const isProtect      = primary.key === "protect_mastery";
+  const isStrengthen   = primary.key === "strengthen_first";
+  const isWarning      = isPrereqGap || isDecayReview || isExplWeak || isProtect || isStrengthen;
 
   return (
     <div style={{ marginBottom: 30 }}>
@@ -47,6 +50,21 @@ export default function NextActionCard() {
             You are ready for a challenge
           </div>
         )}
+        {isGoDeeper && (
+          <div style={{ fontSize: 11.5, fontWeight: 600, color: c.greenDark, background: c.greenTint, borderRadius: 6, padding: "4px 10px", display: "inline-block", marginBottom: 12 }}>
+            Ready to go deeper
+          </div>
+        )}
+        {isProtect && (
+          <div style={{ fontSize: 11.5, fontWeight: 600, color: "#633806", background: "#FEF3E2", borderRadius: 6, padding: "4px 10px", display: "inline-block", marginBottom: 12 }}>
+            Keep it sharp
+          </div>
+        )}
+        {isStrengthen && (
+          <div style={{ fontSize: 11.5, fontWeight: 600, color: "#633806", background: "#FEF3E2", borderRadius: 6, padding: "4px 10px", display: "inline-block", marginBottom: 12 }}>
+            Strengthen first
+          </div>
+        )}
         <div style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: font.display, fontSize: 19, lineHeight: 1.25, color: c.ink, marginBottom: 8 }}>{primary.action}</div>
@@ -64,6 +82,9 @@ export default function NextActionCard() {
                : isDecayReview ? "Review now"
                : isExplWeak    ? "Try another explanation"
                : isChallenge   ? "Join challenge"
+               : isGoDeeper    ? "Go deeper"
+               : isProtect     ? "Quick review"
+               : isStrengthen  ? "Strengthen it"
                : "Start now"}
             </button>
           </div>

@@ -139,6 +139,13 @@ export default function Learn() {
     if (!match) return;
     bootstrapped.current = true;
     setSlug(match.slug);
+    // Depth recommendations (go_deeper / protect_mastery / strengthen_first) deep
+    // link to the Concept Overview so the learner picks the depth to run.
+    if (new URLSearchParams(location.search).get("view") === "overview") {
+      setCurrentDepth("foundation");
+      setView("overview");
+      return;
+    }
     const existing = paths.find((p) => p.concept.toLowerCase() === match.name.toLowerCase());
     if (existing) {
       setCurrentDepth((existing.depth as Depth) || "foundation");
