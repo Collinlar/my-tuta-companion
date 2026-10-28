@@ -1,9 +1,24 @@
 import { useNavigate } from "react-router-dom";
-import { c, font, level } from "../theme";
+import { c, font } from "../theme";
 import { Bar, Loading } from "../ui";
 import { useLayout, pageBox } from "../layout";
-import { useLearnerStats, useMasteryMap, useMasteryPaths, useDueRecallCount } from "../data/queries";
+import { useLearnerStats, useMasteryMap, useMasteryPaths, useDueRecallCount, useDepthMap } from "../data/queries";
+import { DEPTHS, DEPTH_ORDER, DEPTH_LABEL, type Depth, type DepthState } from "../data/depth";
 import LearningProfile from "../intelligence/LearningProfile";
+
+const SECURE_LEVELS = ["Secure", "Secured", "Mastered"];
+
+// Dot colour per depth state, or a faint outline when the depth is not started
+// or beyond the concept's max_depth.
+function depthDot(state: DepthState | "unavailable"): { bg: string; border: string } {
+  switch (state) {
+    case "secure": return { bg: c.green, border: c.green };
+    case "in_progress": return { bg: c.blue, border: c.blue };
+    case "needs_reinforcement": return { bg: c.amber, border: c.amber };
+    case "unavailable": return { bg: "transparent", border: c.border2 };
+    default: return { bg: "transparent", border: "#cbc3b2" }; // not_started
+  }
+}
 
 export default function Progress() {
   const L = useLayout();
@@ -12,6 +27,7 @@ export default function Progress() {
   const { data: map } = useMasteryMap();
   const { data: paths } = useMasteryPaths();
   const { data: dueCount } = useDueRecallCount();
+  const { data: depthMap } = useDepthMap();
 
   if (isLoading) return <Loading label="Reading your path progress…" />;
 
@@ -27,6 +43,7 @@ export default function Progress() {
   const masteryMap = (map && map.length > 0)
     ? map
     : (paths || []).map((p) => ({ concept: p.concept, subject: p.subject, level: p.level }));
+  const depthByName = new Map((depthMap || []).map((d) => [d.name.toLowerCase(), d]));
 
   return (
     <div style={pageBox(L.pad, 1020)}>
@@ -47,20 +64,42 @@ export default function Progress() {
           <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 20, marginBottom: 22 }}>
             {masteryMap.length === 0 && <div style={{ fontSize: 13.5, color: c.muted }}>Start a mastery path to see it here.</div>}
             {masteryMap.map((m, i) => {
-              const [fg, bg] = level(m.level);
-              const path = (paths || []).find((p) => p.concept.toLowerCase() === m.concept.toLowerCase());
+              const d = depthByName.get(m.concept.toLowerCase());
+              const maxDepth = d?.maxDepth || "foundation";
+              const foundationState: DepthState = (d?.depths.foundation as DepthState) ||
+                (SECURE_LEVELS.includes(m.level) ? "secure" : "in_progress");
+              const stateOf = (dep: Depth): DepthState =>
+                dep === "foundation" ? foundationState : ((d?.depths[dep] as DepthState) || "not_started");
+              const overall = [...DEPTHS].reverse().find((dep) => stateOf(dep) === "secure");
+              const reviewDue = d?.nextReviewAt ? new Date(d.nextReviewAt).getTime() <= Date.now() : false;
               return (
                 <div key={m.concept + i} style={{ display: "flex", alignItems: "center", gap: 13, padding: "11px 0", borderBottom: i < masteryMap.length - 1 ? `1px solid ${c.divider}` : "none" }}>
-                  <span style={{ width: 9, height: 9, flex: "none", borderRadius: "50%", background: fg }} />
+                  <div style={{ display: "flex", gap: 5, flex: "none" }}>
+                    {DEPTHS.map((dep) => {
+                      const available = DEPTH_ORDER[dep] <= DEPTH_ORDER[(["foundation", "applied", "advanced"].includes(maxDepth) ? maxDepth : "foundation") as Depth];
+                      const dot = depthDot(available ? stateOf(dep) : "unavailable");
+                      return <span key={dep} title={DEPTH_LABEL[dep]} style={{ width: 11, height: 11, borderRadius: "50%", background: dot.bg, border: `1.5px solid ${dot.border}`, boxSizing: "border-box" }} />;
+                    })}
+                  </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 500 }}>{m.concept}</div>
-                    <div style={{ fontSize: 12, color: c.faint }}>{m.subject}{path ? ` · Stage ${(path.currentStage ?? 0) + 1}` : ""}</div>
+                    <div style={{ fontSize: 12, color: c.faint }}>{m.subject}</div>
                   </div>
-                  {path && <div style={{ width: 72 }}><Bar pct={path.pct} color={fg} height={6} /></div>}
-                  <span style={{ fontSize: 11.5, fontWeight: 600, color: fg, background: bg, padding: "4px 11px", borderRadius: 20, width: 88, textAlign: "center" }}>{m.level}</span>
+                  {reviewDue && <span style={{ fontSize: 10.5, fontWeight: 600, color: c.amber, background: c.amberTint, padding: "3px 8px", borderRadius: 20, flex: "none" }}>review due</span>}
+                  <span style={{ fontSize: 11.5, fontWeight: 600, color: c.greenDark, background: c.greenTint, padding: "4px 11px", borderRadius: 20, width: 92, textAlign: "center", flex: "none" }}>{overall ? DEPTH_LABEL[overall] : "Foundation"}</span>
                 </div>
               );
             })}
+            {masteryMap.length > 0 && (
+              <div style={{ display: "flex", gap: 16, marginTop: 14, paddingTop: 12, borderTop: `1px solid ${c.divider}`, fontSize: 11.5, color: c.faint, flexWrap: "wrap" }}>
+                {DEPTHS.map((dep, k) => (
+                  <span key={dep} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ width: 9, height: 9, borderRadius: "50%", background: k === 0 ? c.green : "transparent", border: `1.5px solid ${k === 0 ? c.green : "#cbc3b2"}`, boxSizing: "border-box" }} />
+                    {DEPTH_LABEL[dep]}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <div>

@@ -950,3 +950,53 @@ export function useConceptDepthMastery(conceptId?: string | null) {
     },
   });
 }
+
+export interface DepthMapVM {
+  conceptId: string;
+  name: string;
+  subject: string;
+  maxDepth: string;
+  depths: Record<string, string>;   // depth -> state
+  nextReviewAt: string | null;      // earliest upcoming retention review
+}
+
+/** Every concept the learner has a depth record for, with each depth's state.
+ * Powers the Progress Mastery Map (depth dots per concept). */
+export function useDepthMap() {
+  return useQuery({
+    queryKey: ["depth_map"],
+    queryFn: async (): Promise<DepthMapVM[]> => {
+      const { data: rows, error } = await supabase
+        .from("concept_depth_mastery")
+        .select("concept_id, depth, state, next_review_at");
+      if (error) throw error;
+      const ids = [...new Set((rows || []).map((r) => r.concept_id).filter(Boolean) as string[])];
+      if (ids.length === 0) return [];
+      const { data: cx } = await supabase
+        .from("concepts")
+        .select("id, name, subject, max_depth")
+        .in("id", ids);
+      const meta = new Map((cx || []).map((m) => [m.id, m]));
+      const byConcept = new Map<string, DepthMapVM>();
+      for (const r of rows || []) {
+        if (!r.concept_id) continue;
+        let e = byConcept.get(r.concept_id);
+        if (!e) {
+          const m = meta.get(r.concept_id);
+          e = {
+            conceptId: r.concept_id,
+            name: m?.name || "Concept",
+            subject: m?.subject || "",
+            maxDepth: (m?.max_depth as string) || "foundation",
+            depths: {},
+            nextReviewAt: null,
+          };
+          byConcept.set(r.concept_id, e);
+        }
+        e.depths[r.depth] = r.state;
+        if (r.next_review_at && (!e.nextReviewAt || r.next_review_at < e.nextReviewAt)) e.nextReviewAt = r.next_review_at;
+      }
+      return [...byConcept.values()];
+    },
+  });
+}
