@@ -22,11 +22,16 @@ export default function InterventionBuilder() {
   const misconceptionParam = params.get("misconception") ?? "";
   const studentCountParam = parseInt(params.get("count") ?? "0", 10) || 0;
   const editId = params.get("edit") ?? null;
+  const depthRaw = params.get("depth") ?? "";
+  const depth = (["foundation", "applied", "advanced"].includes(depthRaw) ? depthRaw : "") as "" | "foundation" | "applied" | "advanced";
+  const depthLabel = depth ? depth.charAt(0).toUpperCase() + depth.slice(1) : "";
 
   const [concept, setConcept] = useState(conceptParam);
   const [misconceptionPattern, setMisconceptionPattern] = useState(misconceptionParam);
   const [studentCount, setStudentCount] = useState(studentCountParam);
-  const [interventionType, setInterventionType] = useState("misconception_correction");
+  const [interventionType, setInterventionType] = useState(
+    depth === "applied" ? "practical_application" : depth === "advanced" ? "extension_version" : "misconception_correction",
+  );
   const [title, setTitle] = useState("");
   const [draft, setDraft] = useState<InterventionDraft | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -47,13 +52,18 @@ export default function InterventionBuilder() {
     })();
   }, [editId]);
 
-  const canGenerate = concept.trim().length > 0 && misconceptionPattern.trim().length > 0;
+  const canGenerate = concept.trim().length > 0 && (misconceptionPattern.trim().length > 0 || !!depth);
 
   const handleGenerate = async () => {
     if (!canGenerate) return;
     setGenerating(true);
     try {
-      const result = await generateInterventionDraft({ concept, misconceptionPattern, studentCount });
+      const result = await generateInterventionDraft({
+        concept,
+        misconceptionPattern: misconceptionPattern || undefined,
+        studentCount,
+        depth: depth || undefined,
+      });
       setDraft(result);
       if (!title) setTitle(result.title);
       setInterventionType(result.intervention_type ?? "misconception_correction");
@@ -116,6 +126,11 @@ export default function InterventionBuilder() {
         <button type="button" onClick={() => nav("/teacher/insights")} style={{ background: "none", border: "none", color: c.faint, fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 8 }}>Back to Insights</button>
         <div style={{ fontFamily: font.display, fontSize: 22, color: c.ink }}>Build an intervention</div>
         <div style={{ fontSize: 14, color: c.soft, marginTop: 4 }}>AI drafts a focused session to address a specific misconception. You review, edit, and assign.</div>
+        {depth && (
+          <div style={{ display: "inline-block", marginTop: 10, fontSize: 12.5, fontWeight: 600, color: "#633806", background: "#FEF3E2", border: "1px solid #E8A020", padding: "5px 12px", borderRadius: 20 }}>
+            {depthLabel}-level intervention{concept ? ` for ${concept}` : ""}
+          </div>
+        )}
       </div>
 
       {/* Load from template */}
@@ -157,8 +172,8 @@ export default function InterventionBuilder() {
           </div>
         </div>
         <div style={{ marginBottom: 16 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: c.faint, display: "block", marginBottom: 6 }}>What misconception or error pattern?</label>
-          <input value={misconceptionPattern} onChange={(e) => setMisconceptionPattern(e.target.value)} placeholder="Describe the error students keep making..." style={fieldStyle} />
+          <label style={{ fontSize: 12, fontWeight: 600, color: c.faint, display: "block", marginBottom: 6 }}>What misconception or error pattern?{depth ? " (optional)" : ""}</label>
+          <input value={misconceptionPattern} onChange={(e) => setMisconceptionPattern(e.target.value)} placeholder={depth ? "Optional: a specific difficulty to target..." : "Describe the error students keep making..."} style={fieldStyle} />
         </div>
         <button type="button" onClick={handleGenerate} disabled={!canGenerate || generating}
           style={{ background: canGenerate ? c.green : c.border2, color: canGenerate ? "#fff" : c.faint, border: "none", fontWeight: 600, fontSize: 14, padding: "11px 22px", borderRadius: 10, cursor: canGenerate ? "pointer" : "default" }}>

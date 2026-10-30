@@ -500,12 +500,23 @@ export type InterventionDraft = {
  * Generate a targeted intervention draft for a teacher.
  * Used by InterventionBuilder.tsx when a class misconception pattern is detected.
  */
+const INTERVENTION_DEPTH_BRIEF: Record<string, string> = {
+  foundation: "FOUNDATION-level: focus on the core idea, key definitions and the common misconceptions, with plenty of scaffolding.",
+  applied: "APPLIED-level: the class understands the basics but struggles to USE the concept. Focus on realistic scenarios, word problems, data interpretation and method selection, in Ghanaian contexts, with reduced scaffolding.",
+  advanced: "ADVANCED-level: the class can apply the concept but struggles to TRANSFER it. Focus on unfamiliar, multi-step and cross-concept problems, reasoning, evaluation and independence.",
+};
+
 export async function generateInterventionDraft(input: {
   concept:              string;
-  misconceptionPattern: string;
+  misconceptionPattern?: string;
   studentCount:         number;
   className?:           string;
+  depth?:               "foundation" | "applied" | "advanced";
 }): Promise<InterventionDraft> {
+  const problem = input.depth && INTERVENTION_DEPTH_BRIEF[input.depth]
+    ? `Goal: raise the class to ${input.depth} mastery of ${input.concept}. ${INTERVENTION_DEPTH_BRIEF[input.depth]}${input.misconceptionPattern ? ` Noted difficulty: ${input.misconceptionPattern}.` : ""}`
+    : `Misconception pattern: ${input.misconceptionPattern || "general difficulty with this concept"}`;
+
   const raw = await groqApiService.makeRequest(
     [
       { role: "system", content: SYSTEM },
@@ -514,18 +525,18 @@ export async function generateInterventionDraft(input: {
         content: `A teacher needs a targeted intervention for their class.
 
 Concept: ${input.concept}
-Misconception pattern: ${input.misconceptionPattern}
+${problem}
 Affected students: ${input.studentCount}${input.className ? ` in ${input.className}` : ""}
 
 Write a short intervention a teacher can deliver in 8-10 minutes. Return JSON:
 {
   "title": "Short title for the intervention (under 10 words)",
-  "intervention_type": one of: "misconception_correction" | "guided_practice" | "prerequisite_review",
+  "intervention_type": one of: "misconception_correction" | "guided_practice" | "prerequisite_review" | "practical_application" | "extension_version",
   "summary": "1-sentence summary of what this addresses",
   "content": {
     "opening": "How the teacher introduces the topic (1 sentence, direct, no em dash)",
-    "explanation": "The correct concept explained clearly (2-3 sentences, Ghana context where relevant)",
-    "example": "One worked example relevant to the misconception",
+    "explanation": "The idea explained clearly for this level (2-3 sentences, Ghana context where relevant)",
+    "example": "One worked example that fits the goal above",
     "follow_up": "One practice question to check understanding"
   },
   "estimated_minutes": 8
