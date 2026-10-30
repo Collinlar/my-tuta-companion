@@ -400,7 +400,7 @@ export default function Challenges() {
             disabled={submit.isPending}
             onClick={async () => {
               try {
-                await submit.mutateAsync({ challengeId: current.id, work: work as unknown as Json });
+                await submit.mutateAsync({ challengeId: current.id, work: work as unknown as Json, conceptNames: current.conceptNames || [] });
                 setView("done");
               } catch (e) {
                 const msg = e instanceof Error ? e.message : "Could not save your entry just now. Check your connection and try again.";

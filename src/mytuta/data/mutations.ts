@@ -15,6 +15,38 @@ async function uid(): Promise<string | undefined> {
   return data.user?.id;
 }
 
+/** Records depth evidence from a Lab (Applied) or Challenge (Advanced) for one
+ * concept, and nudges that depth to in_progress when the previous depth is
+ * already secure (PRD 21-22). No-op if the depth is beyond the concept's
+ * max_depth, so a foundation-only concept records nothing. */
+async function recordDepthContribution(
+  userId: string,
+  conceptId: string,
+  maxDepth: string,
+  depth: "applied" | "advanced",
+  sourceType: "lab" | "challenge",
+  sourceId: string,
+) {
+  const order: Record<string, number> = { foundation: 1, applied: 2, advanced: 3 };
+  if ((order[depth] || 3) > (order[maxDepth] || 1)) return;
+
+  await supabase.from("depth_evidence").insert({
+    user_id: userId, concept_id: conceptId, depth, source_type: sourceType, source_id: sourceId,
+  });
+
+  const prev = depth === "advanced" ? "applied" : "foundation";
+  const { data: rows } = await supabase
+    .from("concept_depth_mastery").select("depth, state").eq("concept_id", conceptId);
+  const byDepth = new Map((rows || []).map((r) => [r.depth, r.state]));
+  if (byDepth.get(prev) === "secure" && !byDepth.has(depth)) {
+    await supabase.from("concept_depth_mastery").insert({
+      user_id: userId, concept_id: conceptId, depth, state: "in_progress",
+      support_level: depth === "advanced" ? "independent" : "light",
+      started_at: new Date().toISOString(),
+    });
+  }
+}
+
 // ---------- Tuta Credits: spend / refund ----------
 
 export interface SpendResult { ok: boolean; cost: number; balanceAfter?: number; txnId?: string; balance?: number; needed?: number }
@@ -534,7 +566,7 @@ export function useSaveChallengeProgress() {
 export function useSubmitChallenge() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { challengeId: string; work?: Json }) => {
+    mutationFn: async (input: { challengeId: string; work?: Json; conceptNames?: string[] }) => {
       const user_id = await uid();
       if (!user_id) throw new Error("Not signed in");
       const { error } = await supabase.from("challenge_submissions").upsert({ challenge_id: input.challengeId, user_id, status: "submitted", work: input.work ?? {} }, { onConflict: "challenge_id,user_id" });
@@ -542,8 +574,22 @@ export function useSubmitChallenge() {
 
       // Best-effort: notify the challenge's teacher (no-op for platform-catalog challenges).
       await supabase.rpc("notify_challenge_submission", { p_challenge_id: input.challengeId }).then(undefined, () => {});
+
+      // A submitted challenge contributes Advanced-depth evidence to each concept
+      // it draws on (challenges are cross-concept, PRD 22).
+      if (input.conceptNames?.length) {
+        const { data: cpts } = await supabase.from("concepts").select("id, max_depth").in("name", input.conceptNames);
+        for (const cpt of cpts || []) {
+          await recordDepthContribution(user_id, cpt.id, (cpt.max_depth as string) || "foundation", "advanced", "challenge", input.challengeId);
+        }
+      }
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["challenge_submissions"] }); trackChallengeSubmitted(); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["challenge_submissions"] });
+      qc.invalidateQueries({ queryKey: ["concept_depth_mastery"] });
+      qc.invalidateQueries({ queryKey: ["depth_map"] });
+      trackChallengeSubmitted();
+    },
   });
 }
 
@@ -921,10 +967,18 @@ export function useCompleteLabActivity() {
         } as unknown as Json,
       });
       if (error) throw error;
+
+      // Lab completion contributes Applied-depth evidence for its concept.
+      if (input.conceptSlug) {
+        const { data: cpt } = await supabase.from("concepts").select("id, max_depth").eq("slug", input.conceptSlug).maybeSingle();
+        if (cpt?.id) await recordDepthContribution(user_id, cpt.id, (cpt.max_depth as string) || "foundation", "applied", "lab", input.labId);
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["learner_stats"] });
       qc.invalidateQueries({ queryKey: ["mastery_profiles"] });
+      qc.invalidateQueries({ queryKey: ["concept_depth_mastery"] });
+      qc.invalidateQueries({ queryKey: ["depth_map"] });
     },
   });
 }
