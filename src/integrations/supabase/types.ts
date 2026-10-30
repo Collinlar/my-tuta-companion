@@ -1006,6 +1006,10 @@ export type Database = {
         Args: { p_concept_id: string; p_max_depth: string; p_retention_enabled: boolean; p_reason: string }
         Returns: undefined
       }
+      admin_depth_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       admin_upsert_misconception: {
         Args: { p_id: string | null; p_concept_id: string; p_label: string; p_detail: string; p_reason: string }
         Returns: string

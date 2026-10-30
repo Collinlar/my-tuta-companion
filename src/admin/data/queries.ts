@@ -420,3 +420,29 @@ export function useConceptDemand(limit = 50) {
     staleTime: 60_000,
   });
 }
+
+// ---------- Mastery Depth analytics (PRD 36) ----------
+
+export interface DepthAnalyticsConcept {
+  concept_id: string; name: string; subject: string | null; max_depth: string;
+  learners: number; foundation_secure: number; applied_secure: number; advanced_secure: number; needs_reinforcement: number;
+}
+export interface DepthAnalytics {
+  overall: { learners: number; foundation_secure: number; applied_secure: number; advanced_secure: number; needs_reinforcement: number };
+  by_concept: DepthAnalyticsConcept[];
+}
+
+export function useAdminDepthAnalytics() {
+  return useQuery({
+    queryKey: ["admin", "depth_analytics"],
+    queryFn: async (): Promise<DepthAnalytics> => {
+      const { data, error } = await supabase.rpc("admin_depth_analytics");
+      if (error) throw error;
+      const d = (data as unknown as Partial<DepthAnalytics>) || {};
+      return {
+        overall: d.overall || { learners: 0, foundation_secure: 0, applied_secure: 0, advanced_secure: 0, needs_reinforcement: 0 },
+        by_concept: d.by_concept || [],
+      };
+    },
+  });
+}

@@ -1,6 +1,9 @@
 import { a, afont, card, sectionLabel, badgeTone } from "./theme";
-import { usePlatformOverview } from "./data/queries";
+import { usePlatformOverview, useAdminDepthAnalytics, type DepthAnalyticsConcept } from "./data/queries";
 import { PageHeader, Loading, ErrorNote } from "./ui";
+
+const DEPTH_LABEL: Record<string, string> = { foundation: "Foundation", applied: "Applied", advanced: "Advanced" };
+const DEPTH_RANK: Record<string, number> = { foundation: 0, applied: 1, advanced: 2 };
 
 function ghs(n: number) { return "GHS " + (n || 0).toLocaleString(); }
 function num(n: number) { return (n || 0).toLocaleString(); }
@@ -21,6 +24,78 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
       <div style={{ ...sectionLabel, marginBottom: 12 }}>{title}</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: 12 }}>{children}</div>
     </section>
+  );
+}
+
+// A concept where learners secure the Foundation but stall before Applied: the
+// signal the academic team acts on (author Applied content, or step in).
+function lagsApplied(r: DepthAnalyticsConcept): boolean {
+  return DEPTH_RANK[r.max_depth] >= DEPTH_RANK.applied && r.foundation_secure >= 3 && r.applied_secure < r.foundation_secure * 0.3;
+}
+
+function DepthSection() {
+  const { data, isLoading, error } = useAdminDepthAnalytics();
+  if (isLoading) return <section style={{ marginBottom: 26 }}><div style={{ ...sectionLabel, marginBottom: 12 }}>Mastery depth</div><Loading label="Reading depth progression across learners…" /></section>;
+  if (error || !data) return null;
+
+  const o = data.overall;
+  const rows = [...data.by_concept].sort((p, q) => (lagsApplied(q) ? 1 : 0) - (lagsApplied(p) ? 1 : 0) || q.learners - p.learners).slice(0, 20);
+  const td = { padding: "10px 12px", fontSize: 13, color: a.ink, borderBottom: `1px solid ${a.border2}` } as const;
+  const th = { padding: "9px 12px", fontSize: 11, fontWeight: 600, color: a.faint, letterSpacing: ".04em", textTransform: "uppercase", textAlign: "left", borderBottom: `1px solid ${a.border2}` } as const;
+  const numCell = { ...td, textAlign: "right" as const, fontVariantNumeric: "tabular-nums" as const };
+  const numHead = { ...th, textAlign: "right" as const };
+
+  return (
+    <>
+      <Group title="Mastery depth">
+        <Metric label="Learners with depth data" value={num(o.learners)} />
+        <Metric label="Foundation secure" value={num(o.foundation_secure)} />
+        <Metric label="Applied secure" value={num(o.applied_secure)} />
+        <Metric label="Advanced secure" value={num(o.advanced_secure)} />
+        <Metric label="Needs reinforcement" value={num(o.needs_reinforcement)} hint="across every depth" />
+      </Group>
+
+      {rows.length > 0 && (
+        <section style={{ marginBottom: 26 }}>
+          <div style={{ ...sectionLabel, marginBottom: 12 }}>Depth by concept</div>
+          <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
+                <thead>
+                  <tr>
+                    <th style={th}>Concept</th>
+                    <th style={numHead}>Learners</th>
+                    <th style={numHead}>Foundation</th>
+                    <th style={numHead}>Applied</th>
+                    <th style={numHead}>Advanced</th>
+                    <th style={numHead}>Reinforce</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r) => (
+                    <tr key={r.concept_id}>
+                      <td style={td}>
+                        <div style={{ fontWeight: 500 }}>{r.name}</div>
+                        <div style={{ fontSize: 11.5, color: a.faint, display: "flex", gap: 8, alignItems: "center", marginTop: 2, flexWrap: "wrap" }}>
+                          <span>{r.subject || "—"} · max {DEPTH_LABEL[r.max_depth] || r.max_depth}</span>
+                          {lagsApplied(r) && <span style={badgeTone("amber")}>Application lagging</span>}
+                        </div>
+                      </td>
+                      <td style={numCell}>{num(r.learners)}</td>
+                      <td style={numCell}>{num(r.foundation_secure)}</td>
+                      <td style={numCell}>{num(r.applied_secure)}</td>
+                      <td style={numCell}>{num(r.advanced_secure)}</td>
+                      <td style={{ ...numCell, color: r.needs_reinforcement > 0 ? a.amber : a.faint }}>{num(r.needs_reinforcement)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div style={{ fontSize: 11.5, color: a.faint, marginTop: 10 }}>Counts are learners secure at each depth. "Application lagging" flags concepts where learners hold the Foundation but few have reached Applied, so Applied content or an intervention is worth prioritising.</div>
+        </section>
+      )}
+    </>
   );
 }
 
@@ -84,6 +159,8 @@ export default function Overview() {
           <Metric label="Subscription outstanding" value={num(data.credits.outstanding_subscription)} />
           <Metric label="Expiring (7 days)" value={num(data.credits.expiring_7d)} />
         </Group>
+
+        <DepthSection />
       </div>
     </>
   );
