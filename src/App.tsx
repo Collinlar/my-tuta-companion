@@ -81,6 +81,7 @@ import AdminPaymentDetail from "./admin/PaymentDetail";
 import AdminReconciliation from "./admin/Reconciliation";
 import AdminConcepts from "./admin/Concepts";
 import AdminConceptDetail from "./admin/ConceptDetail";
+import AdminClusters from "./admin/Clusters";
 import AdminQuestions from "./admin/Questions";
 import AdminAssessments from "./admin/Assessments";
 import AdminAssessmentDetail from "./admin/AssessmentDetail";
@@ -194,6 +195,7 @@ const App = () => (
                 <Route path="/admin/reconciliation" element={<AdminReconciliation />} />
                 <Route path="/admin/concepts" element={<AdminConcepts />} />
                 <Route path="/admin/concepts/:conceptId" element={<AdminConceptDetail />} />
+                <Route path="/admin/clusters" element={<AdminClusters />} />
                 <Route path="/admin/questions" element={<AdminQuestions />} />
                 <Route path="/admin/assessments" element={<AdminAssessments />} />
                 <Route path="/admin/assessments/:assessmentId" element={<AdminAssessmentDetail />} />

@@ -1010,6 +1010,22 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      admin_list_clusters: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      admin_upsert_cluster: {
+        Args: { p_id: string | null; p_slug: string; p_name: string; p_subject: string; p_description: string; p_reason: string }
+        Returns: string
+      }
+      admin_delete_cluster: {
+        Args: { p_id: string; p_reason: string }
+        Returns: undefined
+      }
+      admin_set_cluster_members: {
+        Args: { p_cluster_id: string; p_concept_ids: string[]; p_reason: string }
+        Returns: undefined
+      }
       admin_upsert_misconception: {
         Args: { p_id: string | null; p_concept_id: string; p_label: string; p_detail: string; p_reason: string }
         Returns: string

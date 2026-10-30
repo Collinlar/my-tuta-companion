@@ -307,3 +307,39 @@ export function usePromoteConceptTierB() {
     },
   });
 }
+
+// ---------- Cross-concept cluster CRUD (PRD 23) ----------
+
+function useClusterAction<TArgs>(fn: (args: TArgs) => Promise<void>) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "clusters"] });
+      qc.invalidateQueries({ queryKey: ["admin", "audit"] });
+    },
+  });
+}
+
+export function useUpsertCluster() {
+  return useClusterAction(async (a: { id: string | null; slug: string; name: string; subject: string; description: string; reason: string }) => {
+    const { error } = await supabase.rpc("admin_upsert_cluster", {
+      p_id: a.id, p_slug: a.slug, p_name: a.name, p_subject: a.subject, p_description: a.description, p_reason: a.reason,
+    });
+    if (error) throw error;
+  });
+}
+
+export function useDeleteCluster() {
+  return useClusterAction(async (a: { id: string; reason: string }) => {
+    const { error } = await supabase.rpc("admin_delete_cluster", { p_id: a.id, p_reason: a.reason });
+    if (error) throw error;
+  });
+}
+
+export function useSetClusterMembers() {
+  return useClusterAction(async (a: { clusterId: string; conceptIds: string[]; reason: string }) => {
+    const { error } = await supabase.rpc("admin_set_cluster_members", { p_cluster_id: a.clusterId, p_concept_ids: a.conceptIds, p_reason: a.reason });
+    if (error) throw error;
+  });
+}

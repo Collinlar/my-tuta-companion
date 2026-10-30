@@ -16,6 +16,7 @@ const NAV: NavItem[] = [
   { label: "Payments", path: "/admin/payments", enabled: true },
   { label: "Reconciliation", path: "/admin/reconciliation", enabled: true },
   { label: "Concepts", path: "/admin/concepts", enabled: true, group: "Content" },
+  { label: "Clusters", path: "/admin/clusters", enabled: true },
   { label: "Questions", path: "/admin/questions", enabled: true },
   { label: "Assessments", path: "/admin/assessments", enabled: true },
   { label: "AI Operations", path: "/admin/ai", enabled: true, group: "Platform" },

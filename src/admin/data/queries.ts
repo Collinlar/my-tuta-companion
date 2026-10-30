@@ -446,3 +446,22 @@ export function useAdminDepthAnalytics() {
     },
   });
 }
+
+// ---------- Cross-concept clusters (PRD 23) ----------
+
+export interface ClusterMember { id: string; name: string; slug: string; subject: string | null }
+export interface AdminCluster {
+  id: string; slug: string; name: string; subject: string | null; description: string | null;
+  members: ClusterMember[];
+}
+
+export function useAdminClusters() {
+  return useQuery({
+    queryKey: ["admin", "clusters"],
+    queryFn: async (): Promise<AdminCluster[]> => {
+      const { data, error } = await supabase.rpc("admin_list_clusters");
+      if (error) throw error;
+      return (data as unknown as AdminCluster[]) || [];
+    },
+  });
+}
