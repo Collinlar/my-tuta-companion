@@ -20,6 +20,18 @@ export type Database = {
         Update: { id?: string; slug?: string; subject?: string; name?: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; status?: string; reviewer?: string | null; last_reviewed_at?: string | null; max_depth?: string; default_depth_sequence?: string[]; retention_enabled?: boolean; created_at?: string | null }
         Relationships: []
       }
+      concept_clusters: {
+        Row: { id: string; slug: string; name: string; subject: string | null; description: string | null; created_at: string | null }
+        Insert: { id?: string; slug: string; name: string; subject?: string | null; description?: string | null; created_at?: string | null }
+        Update: { id?: string; slug?: string; name?: string; subject?: string | null; description?: string | null; created_at?: string | null }
+        Relationships: []
+      }
+      concept_cluster_members: {
+        Row: { cluster_id: string; concept_id: string }
+        Insert: { cluster_id: string; concept_id: string }
+        Update: { cluster_id?: string; concept_id?: string }
+        Relationships: []
+      }
       content_units: {
         Row: { id: string; concept_id: string; skill_id: string | null; unit_type: string; learning_stage: string | null; difficulty: string | null; estimated_duration_mins: number | null; content: Json; correct_answer: string | null; explanation: string | null; common_mistakes: Json | null; hints: Json | null; adaptation_rules: Json | null; source: string | null; author: string | null; reviewer: string | null; review_status: string; version: number; ai_generated: boolean; ai_model: string | null; ai_prompt_version: string | null; usage_count: number; correct_rate: number | null; created_at: string | null; updated_at: string | null }
         Insert: { id?: string; concept_id: string; skill_id?: string | null; unit_type: string; learning_stage?: string | null; difficulty?: string | null; estimated_duration_mins?: number | null; content: Json; correct_answer?: string | null; explanation?: string | null; common_mistakes?: Json | null; hints?: Json | null; adaptation_rules?: Json | null; source?: string | null; author?: string | null; reviewer?: string | null; review_status?: string; version?: number; ai_generated?: boolean; ai_model?: string | null; ai_prompt_version?: string | null; usage_count?: number; correct_rate?: number | null; created_at?: string | null; updated_at?: string | null }

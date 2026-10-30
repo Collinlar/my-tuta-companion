@@ -1039,3 +1039,62 @@ export function useTeacherDepthSummary(classId?: string | null) {
     },
   });
 }
+
+export interface ClusterVM {
+  id: string;
+  name: string;
+  subject: string;
+  memberCount: number;
+  engaged: number;            // members the learner has any depth record for
+  depth: string | null;       // deepest depth where ALL members are secure
+  foundationSecure: number;
+  appliedSecure: number;
+  advancedSecure: number;
+}
+
+/** Cross-concept clusters with a learner's DERIVED cluster depth (PRD 23): a
+ * cluster is at depth d when every member concept is secure at d. */
+export function useClusterDepths() {
+  return useQuery({
+    queryKey: ["cluster_depths"],
+    queryFn: async (): Promise<ClusterVM[]> => {
+      const { data: clusters } = await supabase.from("concept_clusters").select("id, name, subject");
+      if (!clusters?.length) return [];
+      const { data: members } = await supabase.from("concept_cluster_members").select("cluster_id, concept_id");
+      const { data: cdm } = await supabase.from("concept_depth_mastery").select("concept_id, depth, state");
+
+      const secureByConcept = new Map<string, Set<string>>();
+      const engagedConcepts = new Set<string>();
+      for (const r of cdm || []) {
+        if (!r.concept_id) continue;
+        engagedConcepts.add(r.concept_id);
+        if (r.state === "secure") {
+          if (!secureByConcept.has(r.concept_id)) secureByConcept.set(r.concept_id, new Set());
+          secureByConcept.get(r.concept_id)!.add(r.depth);
+        }
+      }
+      const membersByCluster = new Map<string, string[]>();
+      for (const m of members || []) {
+        if (!membersByCluster.has(m.cluster_id)) membersByCluster.set(m.cluster_id, []);
+        membersByCluster.get(m.cluster_id)!.push(m.concept_id);
+      }
+
+      const DEPTH_ORDER_LOCAL = ["foundation", "applied", "advanced"];
+      return (clusters || [])
+        .map((cl) => {
+          const mem = membersByCluster.get(cl.id) || [];
+          const n = mem.length;
+          const secureAt = (d: string) => mem.filter((cid) => secureByConcept.get(cid)?.has(d)).length;
+          const fS = secureAt("foundation"), aS = secureAt("applied"), advS = secureAt("advanced");
+          let depth: string | null = null;
+          for (const d of DEPTH_ORDER_LOCAL) if (n > 0 && secureAt(d) === n) depth = d;
+          return {
+            id: cl.id, name: cl.name, subject: cl.subject || "", memberCount: n,
+            engaged: mem.filter((cid) => engagedConcepts.has(cid)).length,
+            depth, foundationSecure: fS, appliedSecure: aS, advancedSecure: advS,
+          };
+        })
+        .filter((c) => c.memberCount > 0);
+    },
+  });
+}

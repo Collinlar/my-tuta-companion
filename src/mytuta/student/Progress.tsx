@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { c, font } from "../theme";
 import { Bar, Loading } from "../ui";
 import { useLayout, pageBox } from "../layout";
-import { useLearnerStats, useMasteryMap, useMasteryPaths, useDueRecallCount, useDepthMap } from "../data/queries";
+import { useLearnerStats, useMasteryMap, useMasteryPaths, useDueRecallCount, useDepthMap, useClusterDepths } from "../data/queries";
 import { DEPTHS, DEPTH_ORDER, DEPTH_LABEL, type Depth, type DepthState } from "../data/depth";
 import LearningProfile from "../intelligence/LearningProfile";
 
@@ -28,6 +28,7 @@ export default function Progress() {
   const { data: paths } = useMasteryPaths();
   const { data: dueCount } = useDueRecallCount();
   const { data: depthMap } = useDepthMap();
+  const { data: clusters } = useClusterDepths();
 
   if (isLoading) return <Loading label="Reading your path progress…" />;
 
@@ -58,6 +59,37 @@ export default function Progress() {
           </div>
         ))}
       </div>
+      {(() => {
+        const shown = (clusters || []).filter((cl) => cl.engaged > 0);
+        if (shown.length === 0) return null;
+        return (
+          <div style={{ marginBottom: 28 }}>
+            <div style={sec}>Concept clusters</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 12 }}>
+              {shown.map((cl) => (
+                <div key={cl.id} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: "16px 18px" }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 14.5 }}>{cl.name}</div>
+                      <div style={{ fontSize: 12, color: c.faint }}>{cl.subject} · {cl.memberCount} concept{cl.memberCount === 1 ? "" : "s"}</div>
+                    </div>
+                    <span style={{ fontSize: 11.5, fontWeight: 600, color: cl.depth ? c.greenDark : c.faint, background: cl.depth ? c.greenTint : c.track, border: cl.depth ? `1px solid ${c.greenTintBorder}` : "none", padding: "4px 11px", borderRadius: 20 }}>
+                      {cl.depth ? DEPTH_LABEL[cl.depth as Depth] : "In progress"}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", gap: 16, fontSize: 12, color: c.soft, flexWrap: "wrap" }}>
+                    {DEPTHS.map((dep) => (
+                      <span key={dep}>{DEPTH_LABEL[dep]} <b style={{ color: c.ink }}>{dep === "foundation" ? cl.foundationSecure : dep === "applied" ? cl.appliedSecure : cl.advancedSecure}/{cl.memberCount}</b></span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize: 11.5, color: c.faint, marginTop: 10 }}>A cluster reaches a depth when every concept in it is secure at that depth.</div>
+          </div>
+        );
+      })()}
+
       <div style={{ display: "grid", gridTemplateColumns: L.gSide, gap: 22 }}>
         <div>
           <div style={sec}>Mastery map</div>
