@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
-import { computeDepthReadiness, depthStateFromResult, DEPTH_DEFAULT_SUPPORT, type Depth } from "./depth";
+import { computeDepthReadiness, depthStateFromResult, nextDepth, DEPTH_DEFAULT_SUPPORT, type Depth } from "./depth";
 import { generateAssessmentQuestions, generateClassChallenge } from "./ai";
 import { CHALLENGE_TYPE_COLORS } from "./constants";
 import {
@@ -1371,7 +1371,19 @@ export function useSaveDepthResult() {
         level: input.level,
       };
       const state = depthStateFromResult(input.overall, input.level);
-      const readiness = computeDepthReadiness(input.depth, result, input.maxDepth);
+
+      // Pull any Lab/Challenge evidence the learner has at the NEXT depth so it
+      // can raise readiness (PRD 13.2).
+      const target = nextDepth(input.depth, input.maxDepth);
+      let targetEvidence: { count: number; hasLab: boolean; hasChallenge: boolean } | undefined;
+      if (target) {
+        const { data: ev } = await supabase
+          .from("depth_evidence").select("source_type")
+          .eq("concept_id", input.conceptId).eq("depth", target);
+        const sources = (ev || []).map((e) => e.source_type);
+        targetEvidence = { count: sources.length, hasLab: sources.includes("lab"), hasChallenge: sources.includes("challenge") };
+      }
+      const readiness = computeDepthReadiness(input.depth, result, input.maxDepth, 20, targetEvidence);
       const now = new Date().toISOString();
       const nextReviewAt =
         input.retentionEnabled && state === "secure"

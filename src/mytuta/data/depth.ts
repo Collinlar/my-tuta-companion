@@ -98,15 +98,30 @@ const KEY_DIMENSION: Record<Depth, { label: string; pick: (r: DepthResult) => nu
   foundation: { label: "the core idea", pick: (r) => r.knowledge },
 };
 
+/** Evidence a learner has accrued at the TARGET depth (Lab for Applied,
+ * Challenge for Advanced), used as a positive readiness signal. */
+export interface DepthEvidenceSignal {
+  count: number;
+  hasLab: boolean;
+  hasChallenge: boolean;
+}
+
+const READINESS_RANK: ReadinessState[] = ["not_ready", "building", "ready", "strongly_ready"];
+function bumpReadiness(r: ReadinessState): ReadinessState {
+  return READINESS_RANK[Math.min(READINESS_RANK.indexOf(r) + 1, READINESS_RANK.length - 1)];
+}
+
 /**
  * Rules-first readiness for the next depth, given the depth the learner just
- * finished and that depth's result. Deterministic, no AI, no DB.
+ * finished and that depth's result. Deterministic, no AI. `targetEvidence` lets
+ * Lab/Challenge work at the target depth raise readiness (PRD 13.2).
  */
 export function computeDepthReadiness(
   justFinished: Depth,
   result: DepthResult,
   maxDepth: string | null | undefined,
   estMinutes = 20,
+  targetEvidence?: DepthEvidenceSignal,
 ): DepthReadiness {
   const target = nextDepth(justFinished, maxDepth);
   if (!target) {
@@ -125,53 +140,45 @@ export function computeDepthReadiness(
   const keyScore = keyDim.pick(result);
   const blockers = keyScore < 3 ? [keyDim.label] : [];
 
-  // Strong across the board: go deeper now.
+  let out: DepthReadiness;
   if (result.overall >= 4.5 && keyScore >= 4) {
-    return {
-      targetDepth: target,
-      readiness: "strongly_ready",
-      outcome: "progress_now",
-      reason: "You are ready to go deeper.",
-      blockers: [],
-      recommendedDelayHours: 0,
-      estMinutes,
-    };
-  }
-
-  // Secure but a key area is weak: strengthen before progressing.
-  if (blockers.length > 0 && result.overall >= 3) {
-    return {
-      targetDepth: target,
-      readiness: "building",
-      outcome: "reinforce_first",
+    // Strong across the board: go deeper now.
+    out = { targetDepth: target, readiness: "strongly_ready", outcome: "progress_now",
+      reason: "You are ready to go deeper.", blockers: [], recommendedDelayHours: 0, estMinutes };
+  } else if (blockers.length > 0 && result.overall >= 3) {
+    // Secure but a key area is weak: strengthen before progressing.
+    out = { targetDepth: target, readiness: "building", outcome: "reinforce_first",
       reason: `${DEPTH_LABEL[justFinished]} achieved, but ${keyDim.label} is worth strengthening before ${DEPTH_LABEL[target]}.`,
-      blockers,
-      recommendedDelayHours: 0,
-      estMinutes: 8,
-    };
-  }
-
-  // Solid result: ready, but spacing is pedagogically better.
-  if (result.overall >= 3.5) {
-    return {
-      targetDepth: target,
-      readiness: "ready",
-      outcome: "progress_later",
+      blockers, recommendedDelayHours: 0, estMinutes: 8 };
+  } else if (result.overall >= 3.5) {
+    // Solid result: ready, but spacing is pedagogically better.
+    out = { targetDepth: target, readiness: "ready", outcome: "progress_later",
       reason: `${DEPTH_LABEL[justFinished]} achieved. ${DEPTH_LABEL[target]} Mastery is recommended tomorrow.`,
-      blockers: [],
-      recommendedDelayHours: 24,
-      estMinutes,
-    };
+      blockers: [], recommendedDelayHours: 24, estMinutes };
+  } else {
+    // Passed, but thin: reinforce this depth first.
+    out = { targetDepth: target, readiness: "not_ready", outcome: "reinforce_first",
+      reason: `${DEPTH_LABEL[justFinished]} is not quite secure yet. A short reinforcement will set up ${DEPTH_LABEL[target]}.`,
+      blockers: blockers.length ? blockers : ["a secure foundation"], recommendedDelayHours: 0, estMinutes: 8 };
   }
 
-  // Passed, but thin: reinforce this depth first.
-  return {
-    targetDepth: target,
-    readiness: "not_ready",
-    outcome: "reinforce_first",
-    reason: `${DEPTH_LABEL[justFinished]} is not quite secure yet. A short reinforcement will set up ${DEPTH_LABEL[target]}.`,
-    blockers: blockers.length ? blockers : ["a secure foundation"],
-    recommendedDelayHours: 0,
-    estMinutes: 8,
-  };
+  // Evidence at the target depth (a Lab for Applied, a Challenge for Advanced)
+  // means the learner is already working at that level: raise readiness. It does
+  // not override a genuine weakness (reinforce_first keeps its blockers).
+  if (targetEvidence && targetEvidence.count > 0) {
+    const src = targetEvidence.hasChallenge ? "a challenge" : targetEvidence.hasLab ? "a lab" : "related work";
+    if (out.outcome === "progress_later") {
+      out = { ...out, outcome: "progress_now", readiness: "strongly_ready", recommendedDelayHours: 0,
+        reason: `${DEPTH_LABEL[justFinished]} achieved, and you have already practised ${DEPTH_LABEL[target]} through ${src}. You are ready to go deeper now.` };
+    } else if (out.outcome === "progress_now") {
+      out = { ...out, readiness: "strongly_ready",
+        reason: `You are ready to go deeper, and ${src} already shows you working at the ${DEPTH_LABEL[target]} level.` };
+    } else {
+      // reinforce_first: keep the guidance but acknowledge the head start.
+      out = { ...out, readiness: bumpReadiness(out.readiness),
+        reason: `${out.reason} You have started ${DEPTH_LABEL[target]} through ${src}, so this will be quick.` };
+    }
+  }
+
+  return out;
 }
