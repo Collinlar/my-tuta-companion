@@ -111,9 +111,9 @@ export type Database = {
         Relationships: []
       }
       retention_reviews: {
-        Row: { id: string; user_id: string; concept_id: string | null; depth: string; review_due_at: string; review_type: string; status: string; last_result: string | null; interval_days: number; created_at: string; updated_at: string }
-        Insert: { id?: string; user_id: string; concept_id?: string | null; depth: string; review_due_at: string; review_type?: string; status?: string; last_result?: string | null; interval_days?: number; created_at?: string; updated_at?: string }
-        Update: { id?: string; user_id?: string; concept_id?: string | null; depth?: string; review_due_at?: string; review_type?: string; status?: string; last_result?: string | null; interval_days?: number; created_at?: string; updated_at?: string }
+        Row: { id: string; user_id: string; concept_id: string | null; depth: string; review_due_at: string; review_type: string; status: string; last_result: string | null; interval_days: number; ease_factor: number; created_at: string; updated_at: string }
+        Insert: { id?: string; user_id: string; concept_id?: string | null; depth: string; review_due_at: string; review_type?: string; status?: string; last_result?: string | null; interval_days?: number; ease_factor?: number; created_at?: string; updated_at?: string }
+        Update: { id?: string; user_id?: string; concept_id?: string | null; depth?: string; review_due_at?: string; review_type?: string; status?: string; last_result?: string | null; interval_days?: number; ease_factor?: number; created_at?: string; updated_at?: string }
         Relationships: []
       }
       student_assignments: {

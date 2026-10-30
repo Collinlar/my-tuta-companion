@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
-import { computeDepthReadiness, depthStateFromResult, nextDepth, DEPTH_DEFAULT_SUPPORT, type Depth } from "./depth";
+import { computeDepthReadiness, depthStateFromResult, nextDepth, nextRetentionStep, DEPTH_DEFAULT_SUPPORT, EASE_START, type Depth, type RetentionGrade } from "./depth";
 import { generateAssessmentQuestions, generateClassChallenge } from "./ai";
 import { CHALLENGE_TYPE_COLORS } from "./constants";
 import {
@@ -1428,6 +1428,7 @@ export function useSaveDepthResult() {
           review_type: "retrieval",
           status: "scheduled",
           interval_days: 3,
+          ease_factor: EASE_START,
         });
       }
 
@@ -1442,39 +1443,32 @@ export function useSaveDepthResult() {
   });
 }
 
-/** Completes a due retention review for one (concept, depth): records the result,
- * advances the 3/10/30/90-day interval (restart to 3 on a weak review), and
- * reschedules. A weak review never removes mastery (PRD 12.3), it just reviews
- * sooner. Client-side under RLS. */
+/** Completes a due retention review for one (concept, depth): records the result
+ * and reschedules on an adaptive, SM-2-style interval (see nextRetentionStep).
+ * The grade is the learner's self-reported difficulty on a pass, or "again" on a
+ * miss. A weak review never removes mastery (PRD 12.3), it just reviews sooner
+ * and trims the ease factor. Client-side under RLS. */
 export function useCompleteRetentionReview() {
   const qc = useQueryClient();
-  const LADDER = [3, 10, 30, 90];
   return useMutation({
-    mutationFn: async (input: { conceptId: string; depth: Depth; passed: boolean }) => {
+    mutationFn: async (input: { conceptId: string; depth: Depth; grade: RetentionGrade }) => {
       const user_id = await uid();
       if (!user_id) throw new Error("Not signed in");
 
       const { data: latest } = await supabase
         .from("retention_reviews")
-        .select("interval_days")
+        .select("interval_days, ease_factor")
         .eq("concept_id", input.conceptId)
         .eq("depth", input.depth)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      const current = latest?.interval_days ?? 3;
 
-      let nextInterval: number;
-      if (input.passed) {
-        const idx = LADDER.indexOf(current);
-        nextInterval = idx < 0 ? 10 : LADDER[Math.min(idx + 1, LADDER.length - 1)];
-      } else {
-        nextInterval = 3;
-      }
-      const nextDue = new Date(Date.now() + nextInterval * 24 * 60 * 60 * 1000).toISOString();
+      const step = nextRetentionStep(latest?.interval_days ?? 3, latest?.ease_factor ?? EASE_START, input.grade);
+      const nextDue = new Date(Date.now() + step.intervalDays * 24 * 60 * 60 * 1000).toISOString();
 
       await supabase.from("retention_reviews")
-        .update({ status: "completed", last_result: input.passed ? "on_track" : "weakening" })
+        .update({ status: "completed", last_result: step.result })
         .eq("concept_id", input.conceptId).eq("depth", input.depth).eq("status", "scheduled");
 
       await supabase.from("retention_reviews").insert({
@@ -1484,14 +1478,15 @@ export function useCompleteRetentionReview() {
         review_due_at: nextDue,
         review_type: "retrieval",
         status: "scheduled",
-        interval_days: nextInterval,
+        interval_days: step.intervalDays,
+        ease_factor: step.easeFactor,
       });
 
       await supabase.from("concept_depth_mastery")
         .update({ next_review_at: nextDue, last_verified_at: new Date().toISOString() })
         .eq("concept_id", input.conceptId).eq("depth", input.depth);
 
-      return { nextDue, nextInterval, passed: input.passed };
+      return { nextDue, nextInterval: step.intervalDays, passed: input.grade !== "again" };
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["concept_depth_mastery"] });

@@ -182,3 +182,48 @@ export function computeDepthReadiness(
 
   return out;
 }
+
+// ---------- Adaptive retention scheduling ----------
+
+/** A learner's self-reported difficulty right after a retention check, plus the
+ * implicit "again" grade a wrong answer carries. Mirrors the SM-2 grade bands. */
+export type RetentionGrade = "again" | "hard" | "good" | "easy";
+
+export const EASE_START = 2.5;
+export const EASE_MIN = 1.3;
+export const EASE_MAX = 2.8;
+
+const EASE_DELTA: Record<RetentionGrade, number> = { again: -0.3, hard: -0.15, good: 0, easy: 0.15 };
+
+export interface RetentionStep {
+  intervalDays: number;
+  easeFactor: number;
+  result: "on_track" | "weakening";
+}
+
+/** Adaptive spaced-retention scheduler (SM-2 inspired). The ease factor carries
+ * the learner's durability for this (concept, depth) across reviews: consistent
+ * recall lets the gap grow faster, shaky recall slows it, so two learners on the
+ * same concept diverge to the cadence each actually needs instead of a shared
+ * fixed ladder. A failed review ("again") never removes mastery (PRD 12.3); it
+ * brings the next check close and trims ease so later growth stays cautious. */
+export function nextRetentionStep(priorIntervalDays: number, priorEase: number, grade: RetentionGrade): RetentionStep {
+  const prior = priorIntervalDays > 0 ? priorIntervalDays : 3;
+  const ease = Math.min(EASE_MAX, Math.max(EASE_MIN, (priorEase > 0 ? priorEase : EASE_START) + EASE_DELTA[grade]));
+
+  if (grade === "again") {
+    // Review again soon, but keep the mastery. Ease already took its penalty.
+    return { intervalDays: 2, easeFactor: ease, result: "weakening" };
+  }
+
+  let interval: number;
+  if (grade === "hard") {
+    // Recalled, but with effort: grow gently regardless of ease.
+    interval = Math.max(3, Math.round(prior * 1.2));
+  } else {
+    interval = Math.round(prior * ease);
+    if (grade === "easy") interval = Math.round(interval * 1.15);
+    interval = Math.max(prior + 1, interval); // a clean pass always pushes the gap out
+  }
+  return { intervalDays: Math.min(interval, 365), easeFactor: ease, result: "on_track" };
+}

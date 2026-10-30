@@ -5,7 +5,7 @@ import { Loading } from "../ui";
 import { MathText } from "../MathText";
 import { generateConfirmationQuestion, type ConfirmationQuestion } from "../data/ai";
 import { useCompleteRetentionReview } from "../data/mutations";
-import { DEPTH_LABEL, type Depth } from "../data/depth";
+import { DEPTH_LABEL, type Depth, type RetentionGrade } from "../data/depth";
 import { useToast } from "@/hooks/use-toast";
 
 interface Props {
@@ -23,10 +23,11 @@ export default function RetentionCheck({ conceptId, conceptName, subject, depth,
   const L = useLayout();
   const { toast } = useToast();
   const complete = useCompleteRetentionReview();
-  const [phase, setPhase] = useState<"load" | "quiz" | "result">("load");
+  const [phase, setPhase] = useState<"load" | "quiz" | "grade" | "result">("load");
   const [q, setQ] = useState<ConfirmationQuestion | null>(null);
   const [picked, setPicked] = useState<number | null>(null);
   const [nextDue, setNextDue] = useState<string | null>(null);
+  const [passed, setPassed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,12 +38,19 @@ export default function RetentionCheck({ conceptId, conceptName, subject, depth,
     return () => { cancelled = true; };
   }, [conceptId, depth, conceptName, subject]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const passed = q != null && picked === q.correctIndex;
+  // Reveal correctness first. A correct answer goes to a quick self-grade (how
+  // hard it felt) so the schedule can adapt; a miss grades itself "again".
+  const check = async () => {
+    if (picked === null || q === null) return;
+    const ok = picked === q.correctIndex;
+    setPassed(ok);
+    if (ok) { setPhase("grade"); return; }
+    await record("again");
+  };
 
-  const submit = async () => {
-    if (picked === null) return;
+  const record = async (grade: RetentionGrade) => {
     try {
-      const res = await complete.mutateAsync({ conceptId, depth, passed });
+      const res = await complete.mutateAsync({ conceptId, depth, grade });
       setNextDue(res.nextDue);
     } catch {
       /* non-blocking: still show the result */
@@ -72,10 +80,32 @@ export default function RetentionCheck({ conceptId, conceptName, subject, depth,
               ))}
             </div>
           </div>
-          <button type="button" disabled={picked === null || complete.isPending} onClick={() => void submit()}
+          <button type="button" disabled={picked === null || complete.isPending} onClick={() => void check()}
             style={{ width: "100%", background: c.green, color: "#fff", border: "none", fontWeight: 700, fontSize: 15, padding: 14, borderRadius: 12, cursor: picked === null ? "default" : "pointer", opacity: picked === null ? 0.5 : 1 }}>
             {complete.isPending ? "Checking…" : "Check my answer"}
           </button>
+        </>
+      )}
+
+      {phase === "grade" && (
+        <>
+          <div style={{ background: c.greenTint, border: `1px solid ${c.green}`, borderRadius: 16, padding: "22px 24px", marginBottom: 16 }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: c.greenDark, marginBottom: 8 }}>Correct.</div>
+            <p style={{ fontSize: 14, color: c.ink, lineHeight: 1.6 }}>How did that feel? Your answer sets when this comes back.</p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {([
+              { grade: "easy" as const, label: "Easy, I knew it", hint: "Comes back later" },
+              { grade: "good" as const, label: "Fine, took a second", hint: "Normal spacing" },
+              { grade: "hard" as const, label: "Hard, I nearly missed it", hint: "Comes back sooner" },
+            ]).map((o) => (
+              <button key={o.grade} type="button" disabled={complete.isPending} onClick={() => void record(o.grade)}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, textAlign: "left", background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 12, padding: "14px 18px", fontSize: 14.5, fontWeight: 500, color: c.ink, cursor: complete.isPending ? "default" : "pointer", fontFamily: "inherit", opacity: complete.isPending ? 0.6 : 1 }}>
+                <span>{o.label}</span>
+                <span style={{ fontSize: 12, color: c.faint, flex: "none" }}>{o.hint}</span>
+              </button>
+            ))}
+          </div>
         </>
       )}
 
