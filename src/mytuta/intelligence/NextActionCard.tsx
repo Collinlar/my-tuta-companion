@@ -20,6 +20,7 @@ export default function NextActionCard() {
   const isGoDeeper     = primary.key === "go_deeper";
   const isProtect      = primary.key === "protect_mastery";
   const isStrengthen   = primary.key === "strengthen_first";
+  const isLab          = primary.key === "relevant_lab";
   const isWarning      = isPrereqGap || isDecayReview || isExplWeak || isProtect || isStrengthen;
 
   return (
@@ -63,6 +64,11 @@ export default function NextActionCard() {
         {isStrengthen && (
           <div style={{ fontSize: 11.5, fontWeight: 600, color: "#633806", background: "#FEF3E2", borderRadius: 6, padding: "4px 10px", display: "inline-block", marginBottom: 12 }}>
             Strengthen first
+          </div>
+        )}
+        {isLab && (
+          <div style={{ fontSize: 11.5, fontWeight: 600, color: c.greenDark, background: c.greenTint, borderRadius: 6, padding: "4px 10px", display: "inline-block", marginBottom: 12 }}>
+            Hands-on lab
           </div>
         )}
         <div style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
