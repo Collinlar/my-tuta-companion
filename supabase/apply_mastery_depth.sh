@@ -26,6 +26,8 @@ fi
 DIR="$(cd "$(dirname "$0")/migrations" && pwd)"
 
 FILES=(
+  "20270000000005_mastery_depth_retention_fractions.sql"
+  "20270000000006_teacher_depth_summary.sql"
   "20270000000007_admin_concept_depth.sql"
   "20270000000008_mastery_depth_clusters.sql"
   "20270000000009_admin_depth_analytics.sql"
@@ -33,6 +35,7 @@ FILES=(
   "20270000000011_nba_section32_reorder.sql"
   "20270000000012_admin_cluster_crud.sql"
   "20270000000013_nba_relevant_lab.sql"
+  "20270000000014_nba_relevant_lab_fix.sql"
 )
 
 for f in "${FILES[@]}"; do
