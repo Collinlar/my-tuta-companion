@@ -26,6 +26,12 @@ export type Database = {
         Update: { id?: string; concept_id?: string; depth?: string; competency_key?: string; description?: string; required?: boolean; sequence?: number; evidence_type?: string | null; review_status?: string; version?: number; created_at?: string | null; updated_at?: string | null }
         Relationships: []
       }
+      knowledge_blocks: {
+        Row: { id: string; concept_id: string; depth: string; block_type: string; title: string; objective: string | null; required: boolean; sequence: number; content: Json | null; estimated_time: string | null; review_status: string; version: number; created_at: string | null; updated_at: string | null }
+        Insert: { id?: string; concept_id: string; depth: string; block_type: string; title: string; objective?: string | null; required?: boolean; sequence?: number; content?: Json | null; estimated_time?: string | null; review_status?: string; version?: number; created_at?: string | null; updated_at?: string | null }
+        Update: { id?: string; concept_id?: string; depth?: string; block_type?: string; title?: string; objective?: string | null; required?: boolean; sequence?: number; content?: Json | null; estimated_time?: string | null; review_status?: string; version?: number; created_at?: string | null; updated_at?: string | null }
+        Relationships: []
+      }
       concept_clusters: {
         Row: { id: string; slug: string; name: string; subject: string | null; description: string | null; created_at: string | null }
         Insert: { id?: string; slug: string; name: string; subject?: string | null; description?: string | null; created_at?: string | null }
@@ -1043,6 +1049,10 @@ export type Database = {
       admin_delete_competency: {
         Args: { p_id: string; p_reason: string }
         Returns: undefined
+      }
+      admin_set_knowledge_blocks: {
+        Args: { p_concept_id: string; p_depth: string; p_blocks: Json; p_reason: string }
+        Returns: number
       }
       admin_upsert_misconception: {
         Args: { p_id: string | null; p_concept_id: string; p_label: string; p_detail: string; p_reason: string }

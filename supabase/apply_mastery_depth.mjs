@@ -40,6 +40,8 @@ const FILES = [
   "20270000000014_nba_relevant_lab_fix.sql",
   "20270000000015_concept_competency_spine.sql",
   "20270000000016_admin_competency_crud.sql",
+  "20270000000017_knowledge_blocks.sql",
+  "20270000000018_admin_knowledge_blocks.sql",
 ];
 
 function ask(question) {

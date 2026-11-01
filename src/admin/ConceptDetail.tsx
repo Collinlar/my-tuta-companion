@@ -177,7 +177,7 @@ export default function ConceptDetail() {
         )}
 
         {activeTab === "Competencies" && conceptId && (
-          <CompetencyPanel conceptId={conceptId} />
+          <CompetencyPanel conceptId={conceptId} conceptName={str(c.name)} subject={str(c.subject)} />
         )}
 
         {activeTab === "Misconceptions" && (

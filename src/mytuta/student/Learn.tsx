@@ -18,12 +18,13 @@ import {
   type DiagnosticResult,
   type MasteryQuestion,
 } from "../data/ai";
-import { useMasteryPaths, useConcept, useConceptsCatalog, usePendingConfirmation, type ConceptStageVM, type PathVM } from "../data/queries";
+import { useMasteryPaths, useConcept, useConceptsCatalog, usePendingConfirmation, useKnowledgeBlocks, type ConceptStageVM, type PathVM } from "../data/queries";
 import { useAdvanceStage, useAnswerConfirmation, useEnsureConceptStages, useEnsureDepthPath, useEnsureRecallCards, useLogIndependentAttempt, useRateRecallCard, useSaveDepthResult, useSaveMasteryResult, useStartMasteryPath, useUploadIntakeFile, type RecallCardState, type UploadedIntakeFile } from "../data/mutations";
 import { useCreditGate } from "../credits/CreditGate";
 import { recordEvent } from "../intelligence/data";
 import ConceptOverview from "./ConceptOverview";
 import RetentionCheck from "./RetentionCheck";
+import KnowledgeBlocks from "./KnowledgeBlocks";
 import { DEPTH_LABEL, type Depth, type DepthReadiness } from "../data/depth";
 
 export type PathEvidence = {
@@ -1038,6 +1039,10 @@ function Workspace({
   onBack: () => void;
 }) {
   const L = useLayout();
+  // Concept Competency Framework (Phase 1): if this concept+depth has authored
+  // Knowledge Blocks, the Understand stage runs them instead of the single
+  // five-mode explanation. No blocks → unchanged behaviour.
+  const { data: knowledgeBlocks } = useKnowledgeBlocks(conceptId, depth);
   if (loading) return <Loading label="Opening your workspace…" />;
   if (stages.length === 0) return <EmptyState title="Content is loading" body="This concept's stages will appear here once available." actionLabel="Back to paths" onAction={onBack} />;
   const cur = stages[Math.min(stage, stages.length - 1)];
@@ -1096,7 +1101,11 @@ function Workspace({
           <h1 style={{ fontSize: L.mobile ? 22 : 26, marginBottom: 18 }}>{cur.name}</h1>
 
           {cur.name === "Foundations" && <Foundations content={content} onNext={nextStage} />}
-          {cur.name === "Understand" && <Understand content={content} conceptName={conceptName} subject={subject} explainMode={explainMode} setExplainMode={setExplainMode} onNext={nextStage} />}
+          {cur.name === "Understand" && (
+            knowledgeBlocks && knowledgeBlocks.length > 0
+              ? <KnowledgeBlocks conceptName={conceptName} blocks={knowledgeBlocks} onNext={nextStage} />
+              : <Understand content={content} conceptName={conceptName} subject={subject} explainMode={explainMode} setExplainMode={setExplainMode} onNext={nextStage} />
+          )}
           {cur.name === "Worked examples" && <Worked content={content} onNext={nextStage} />}
           {cur.name === "Recall" && (
             <Recall

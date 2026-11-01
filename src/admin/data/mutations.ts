@@ -381,3 +381,28 @@ export function useDeleteCompetency() {
     if (error) throw error;
   });
 }
+
+// ---------- Knowledge Blocks generation (Phase 1) ----------
+
+import { generateFoundationBlocks } from "@/mytuta/data/ai";
+import type { ConceptType } from "@/mytuta/data/competency";
+
+/** AI-drafts the Foundation Knowledge Blocks from the concept-type template +
+ * authored competencies, then stores the set (admin-gated, audited). Humans
+ * review the drafts afterwards. Invalidates both the admin audit feed and the
+ * student-facing block query so the new blocks appear immediately. */
+export function useGenerateFoundationBlocks() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (a: { conceptId: string; conceptName: string; subject: string; conceptType: string; competencies: { description: string; required: boolean }[]; reason: string }) => {
+      const blocks = await generateFoundationBlocks(a.conceptName, a.subject, a.conceptType as ConceptType, a.competencies);
+      const { error } = await supabase.rpc("admin_set_knowledge_blocks", { p_concept_id: a.conceptId, p_depth: "foundation", p_blocks: blocks as never, p_reason: a.reason });
+      if (error) throw error;
+      return blocks.length;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["knowledge_blocks"] });
+      qc.invalidateQueries({ queryKey: ["admin", "audit"] });
+    },
+  });
+}

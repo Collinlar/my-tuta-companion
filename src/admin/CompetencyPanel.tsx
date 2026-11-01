@@ -2,9 +2,11 @@ import { useState } from "react";
 import { a, card, badgeTone, ghostBtn, input } from "./theme";
 import { ActionModal } from "./ui";
 import { useAdminConceptCompetencies, type AdminCompetency } from "./data/queries";
-import { useSetConceptType, useUpsertCompetency, useDeleteCompetency } from "./data/mutations";
+import { useSetConceptType, useUpsertCompetency, useDeleteCompetency, useGenerateFoundationBlocks } from "./data/mutations";
 import { CONCEPT_TYPES, CONCEPT_TYPE_LABEL, CONCEPT_TYPE_HINT, EVIDENCE_TYPES, type ConceptType } from "../mytuta/data/competency";
 import { DEPTHS, DEPTH_LABEL, type Depth } from "../mytuta/data/depth";
+import { BLOCK_TYPE_LABEL, type BlockType } from "../mytuta/data/blocks";
+import { useKnowledgeBlocks } from "../mytuta/data/queries";
 
 interface CompForm {
   id: string | null; depth: Depth; key: string; description: string;
@@ -16,17 +18,20 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return <div><label style={{ fontSize: 12, fontWeight: 600, color: a.muted, display: "block", marginBottom: 6 }}>{label}</label>{children}</div>;
 }
 
-export default function CompetencyPanel({ conceptId }: { conceptId: string }) {
+export default function CompetencyPanel({ conceptId, conceptName, subject }: { conceptId: string; conceptName: string; subject: string }) {
   const { data, isLoading, error } = useAdminConceptCompetencies(conceptId);
+  const { data: blocks } = useKnowledgeBlocks(conceptId, "foundation");
   const setType = useSetConceptType();
   const upsert = useUpsertCompetency();
   const remove = useDeleteCompetency();
+  const genBlocks = useGenerateFoundationBlocks();
 
   const [typeOpen, setTypeOpen] = useState(false);
   const [primary, setPrimary] = useState<string>("");
   const [secondary, setSecondary] = useState<string[]>([]);
   const [form, setForm] = useState<CompForm | null>(null);
   const [del, setDel] = useState<AdminCompetency | null>(null);
+  const [genOpen, setGenOpen] = useState(false);
 
   if (isLoading) return <div style={{ ...card, padding: "16px 18px", fontSize: 13, color: a.faint }}>Loading competencies…</div>;
   if (error || !data) return <div style={{ ...card, padding: "16px 18px", fontSize: 13, color: a.red }}>Could not load competencies.</div>;
@@ -89,6 +94,52 @@ export default function CompetencyPanel({ conceptId }: { conceptId: string }) {
           </section>
         );
       })}
+
+      {/* Foundation Knowledge Blocks */}
+      <section style={{ ...card, padding: "16px 18px", marginBottom: 14 }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
+          <div style={{ fontSize: 14.5, fontWeight: 600, color: a.ink }}>Foundation Knowledge Blocks <span style={{ color: a.faint, fontWeight: 400 }}>({(blocks || []).length})</span></div>
+          <button type="button" disabled={!data.conceptType || genBlocks.isPending} onClick={() => setGenOpen(true)}
+            style={{ ...ghostBtn(), opacity: !data.conceptType ? 0.5 : 1, color: "#1D9E75", fontWeight: 600 }}>
+            {genBlocks.isPending ? "Generating…" : (blocks || []).length ? "Regenerate" : "Generate blocks"}
+          </button>
+        </div>
+        {!data.conceptType
+          ? <div style={{ fontSize: 13, color: a.faint }}>Set a concept type first. The type selects which blocks this concept's Foundation uses.</div>
+          : (blocks || []).length === 0
+            ? <div style={{ fontSize: 13, color: a.faint }}>No blocks yet. Generate drafts from the {CONCEPT_TYPE_LABEL[data.conceptType as ConceptType]} template, then review and approve.</div>
+            : <div>
+                {(blocks || []).map((b) => (
+                  <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 0", borderBottom: `1px solid ${a.border2}` }}>
+                    <span style={{ fontSize: 12, color: a.faint, width: 20, flex: "none" }}>{b.sequence + 1}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 500, color: a.ink }}>{b.title}</div>
+                      {b.objective && <div style={{ fontSize: 12, color: a.faint }}>{b.objective}</div>}
+                    </div>
+                    <span style={badgeTone("neutral")}>{BLOCK_TYPE_LABEL[b.block_type as BlockType] || b.block_type}</span>
+                    <span style={badgeTone(b.review_status === "published" ? "green" : b.review_status === "approved" ? "blue" : "neutral")}>{b.review_status}</span>
+                  </div>
+                ))}
+              </div>}
+      </section>
+
+      {/* Generate blocks modal */}
+      {genOpen && (
+        <ActionModal
+          title="Generate Foundation blocks"
+          description={`AI drafts the ${data.conceptType ? CONCEPT_TYPE_LABEL[data.conceptType as ConceptType] : ""} block set for ${conceptName} from the template${data.competencies.some((c) => c.depth === "foundation") ? " and your Foundation competencies" : ""}, then stores them as drafts for review. This replaces any existing Foundation blocks.`}
+          confirmLabel="Generate and save"
+          busy={genBlocks.isPending}
+          onClose={() => setGenOpen(false)}
+          onConfirm={(reason) => {
+            void genBlocks.mutateAsync({
+              conceptId, conceptName, subject, conceptType: data.conceptType!,
+              competencies: data.competencies.filter((c) => c.depth === "foundation").map((c) => ({ description: c.description, required: c.required })),
+              reason,
+            }).then(() => setGenOpen(false));
+          }}
+        />
+      )}
 
       {/* Set type modal */}
       {typeOpen && (

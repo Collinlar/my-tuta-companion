@@ -1098,3 +1098,40 @@ export function useClusterDepths() {
     },
   });
 }
+
+// ---------- Knowledge Blocks (Concept Competency Framework, Phase 1) ----------
+
+import type { KnowledgeBlock, BlockContent } from "./blocks";
+import type { Depth } from "./depth";
+
+/** The Foundation (or other depth) Knowledge Blocks for a concept, ordered.
+ * Empty when the concept has not been given blocks yet, which is the signal the
+ * Learn flow uses to fall back to the single Understand stage. */
+export function useKnowledgeBlocks(conceptId: string | undefined, depth: Depth) {
+  return useQuery({
+    queryKey: ["knowledge_blocks", conceptId, depth],
+    enabled: !!conceptId,
+    queryFn: async (): Promise<KnowledgeBlock[]> => {
+      const { data, error } = await supabase
+        .from("knowledge_blocks")
+        .select("*")
+        .eq("concept_id", conceptId!)
+        .eq("depth", depth)
+        .order("sequence");
+      if (error) throw error;
+      return ((data as unknown as Record<string, unknown>[]) || []).map((r) => ({
+        id: r.id as string,
+        concept_id: r.concept_id as string,
+        depth: r.depth as Depth,
+        block_type: r.block_type as string,
+        title: r.title as string,
+        objective: (r.objective as string | null) ?? null,
+        required: !!r.required,
+        sequence: (r.sequence as number) ?? 0,
+        content: (r.content as BlockContent | null) ?? null,
+        estimated_time: (r.estimated_time as string | null) ?? null,
+        review_status: (r.review_status as string) ?? "draft",
+      }));
+    },
+  });
+}

@@ -5,6 +5,8 @@ import { groqApiService } from "@/services/groqApiService";
 import { studioAiText } from "./constants";
 import { sanitizeLlmJson } from "./jsonRepair";
 import type { Depth } from "./depth";
+import { FOUNDATION_BLOCK_TEMPLATES, type BlockContent } from "./blocks";
+import type { ConceptType } from "./competency";
 
 const SYSTEM = `You write STEM teaching content for Ghanaian secondary learners (JHS/SHS and WASSCE).
 Use clear English. Prefer local examples from Accra, Kumasi, Takoradi, farms, markets, and household life.
@@ -698,4 +700,73 @@ Return only the nudge text, nothing else.`,
     400,
   );
   return raw.trim().replace(/^["'`]+|["'`]+$/g, "");
+}
+
+export interface GeneratedBlock {
+  block_type: string;
+  title: string;
+  objective: string;
+  required: boolean;
+  sequence: number;
+  estimated_time: string;
+  content: BlockContent;
+}
+
+/** Fills the concept-type Foundation Knowledge Block template with content for a
+ * concept (Concept Competency Framework, Phase 1). The STRUCTURE comes from the
+ * template and the authored competencies; the AI only fills each block, so it
+ * can no longer invent a shallow "five ways to read the same explanation" stage.
+ * Each block teaches only its own part of the concept; the support modalities
+ * live inside the block as "explain this block another way". */
+export async function generateFoundationBlocks(
+  conceptName: string,
+  subject: string,
+  conceptType: ConceptType,
+  competencies: { description: string; required: boolean }[] = [],
+): Promise<GeneratedBlock[]> {
+  const template = FOUNDATION_BLOCK_TEMPLATES[conceptType] || FOUNDATION_BLOCK_TEMPLATES.structural;
+  const compList = competencies.length
+    ? `Foundation competencies the learner must reach (cover these across the blocks):\n${competencies.map((c, i) => `${i + 1}. ${c.description}${c.required ? "" : " (optional)"}`).join("\n")}`
+    : "No competencies authored yet; infer the standard foundational competencies for this concept and cover them.";
+  const blockSpec = template.map((b, i) => `${i}. "${b.title}" (block_type: ${b.block_type})`).join("\n");
+
+  const raw = await groqApiService.makeRequest(
+    [
+      { role: "system", content: SYSTEM },
+      {
+        role: "user",
+        content: `Build the Foundation Knowledge Blocks for "${conceptName}" (${subject}). This is a ${conceptType} concept.
+${compList}
+
+Produce EXACTLY these blocks, in this order, keeping each exact title and block_type:
+${blockSpec}
+
+Return JSON: {"blocks":[{"title":"...","block_type":"...","objective":"one sentence: what the learner can do after this block","estimated_time":"2 min","content":{"body":"2 to 4 sentences teaching THIS block's part only, specific and Ghana-grounded","modes":[{"label":"Simpler","text":"..."},{"label":"Analogy","text":"..."},{"label":"Real-world example","text":"..."}],"quickCheck":{"prompt":"one self-contained MCQ testing this block","options":["A","B","C","D"],"correctIndex":0,"explanation":"why the correct option is right"}}}]}.
+Rules:
+- content.body teaches ONLY this block's part of the concept. Do NOT re-explain the whole concept in every block; each block adds something new.
+- modes are 2 to 3 genuinely different angles on THIS block, not the whole concept.
+- a misconception block's body states the misconception plainly, then corrects it.
+- include quickCheck ONLY where a check makes sense (definition, components, relationships, misconception, worked_example); omit it on others.
+- every quickCheck prompt must be fully self-contained; state any values it needs.
+- Ghana-grounded; no em dashes; no filler phrases.`,
+      },
+    ],
+    6000,
+  );
+
+  const parsed = parseJson<{ blocks: Partial<GeneratedBlock>[] }>(raw);
+  const blocks = parsed.blocks || [];
+  // Structure is authoritative from the template; AI only supplies content.
+  return template.map((t, i) => {
+    const found = blocks.find((b) => b.title === t.title) || blocks[i] || {};
+    return {
+      block_type: t.block_type,
+      title: t.title,
+      objective: (found.objective as string) || "",
+      required: true,
+      sequence: i,
+      estimated_time: (found.estimated_time as string) || "2 min",
+      content: (found.content as BlockContent) || { body: `${t.title} of ${conceptName}.` },
+    };
+  });
 }
