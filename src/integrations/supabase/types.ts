@@ -15,9 +15,15 @@ export type Database = {
   public: {
     Tables: {
       concepts: {
-        Row: { id: string; slug: string; subject: string; name: string; description: string | null; learning_stage: string | null; difficulty: string | null; related_areas: string[] | null; status: string; reviewer: string | null; last_reviewed_at: string | null; max_depth: string; default_depth_sequence: string[]; retention_enabled: boolean; created_at: string | null }
-        Insert: { id?: string; slug: string; subject: string; name: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; status?: string; reviewer?: string | null; last_reviewed_at?: string | null; max_depth?: string; default_depth_sequence?: string[]; retention_enabled?: boolean; created_at?: string | null }
-        Update: { id?: string; slug?: string; subject?: string; name?: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; status?: string; reviewer?: string | null; last_reviewed_at?: string | null; max_depth?: string; default_depth_sequence?: string[]; retention_enabled?: boolean; created_at?: string | null }
+        Row: { id: string; slug: string; subject: string; name: string; description: string | null; learning_stage: string | null; difficulty: string | null; related_areas: string[] | null; status: string; reviewer: string | null; last_reviewed_at: string | null; max_depth: string; default_depth_sequence: string[]; retention_enabled: boolean; concept_type: string | null; secondary_concept_types: string[]; created_at: string | null }
+        Insert: { id?: string; slug: string; subject: string; name: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; status?: string; reviewer?: string | null; last_reviewed_at?: string | null; max_depth?: string; default_depth_sequence?: string[]; retention_enabled?: boolean; concept_type?: string | null; secondary_concept_types?: string[]; created_at?: string | null }
+        Update: { id?: string; slug?: string; subject?: string; name?: string; description?: string | null; learning_stage?: string | null; difficulty?: string | null; related_areas?: string[] | null; status?: string; reviewer?: string | null; last_reviewed_at?: string | null; max_depth?: string; default_depth_sequence?: string[]; retention_enabled?: boolean; concept_type?: string | null; secondary_concept_types?: string[]; created_at?: string | null }
+        Relationships: []
+      }
+      concept_competencies: {
+        Row: { id: string; concept_id: string; depth: string; competency_key: string; description: string; required: boolean; sequence: number; evidence_type: string | null; review_status: string; version: number; created_at: string | null; updated_at: string | null }
+        Insert: { id?: string; concept_id: string; depth: string; competency_key: string; description: string; required?: boolean; sequence?: number; evidence_type?: string | null; review_status?: string; version?: number; created_at?: string | null; updated_at?: string | null }
+        Update: { id?: string; concept_id?: string; depth?: string; competency_key?: string; description?: string; required?: boolean; sequence?: number; evidence_type?: string | null; review_status?: string; version?: number; created_at?: string | null; updated_at?: string | null }
         Relationships: []
       }
       concept_clusters: {
@@ -1024,6 +1030,18 @@ export type Database = {
       }
       admin_set_cluster_members: {
         Args: { p_cluster_id: string; p_concept_ids: string[]; p_reason: string }
+        Returns: undefined
+      }
+      admin_set_concept_type: {
+        Args: { p_concept_id: string; p_primary: string | null; p_secondary: string[]; p_reason: string }
+        Returns: undefined
+      }
+      admin_upsert_competency: {
+        Args: { p_id: string | null; p_concept_id: string; p_depth: string; p_competency_key: string; p_description: string; p_required: boolean; p_sequence: number; p_evidence_type: string | null; p_review_status: string | null; p_reason: string }
+        Returns: string
+      }
+      admin_delete_competency: {
+        Args: { p_id: string; p_reason: string }
         Returns: undefined
       }
       admin_upsert_misconception: {

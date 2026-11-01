@@ -343,3 +343,41 @@ export function useSetClusterMembers() {
     if (error) throw error;
   });
 }
+
+// ---------- Concept Competency Framework (Phase 0) ----------
+
+function useCompetencyAction<TArgs>(fn: (args: TArgs) => Promise<void>) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "competencies"] });
+      qc.invalidateQueries({ queryKey: ["admin", "concept"] });
+      qc.invalidateQueries({ queryKey: ["admin", "audit"] });
+    },
+  });
+}
+
+export function useSetConceptType() {
+  return useCompetencyAction(async (a: { conceptId: string; primary: string | null; secondary: string[]; reason: string }) => {
+    const { error } = await supabase.rpc("admin_set_concept_type", { p_concept_id: a.conceptId, p_primary: a.primary, p_secondary: a.secondary, p_reason: a.reason });
+    if (error) throw error;
+  });
+}
+
+export function useUpsertCompetency() {
+  return useCompetencyAction(async (a: { id: string | null; conceptId: string; depth: string; key: string; description: string; required: boolean; sequence: number; evidenceType: string | null; reviewStatus: string | null; reason: string }) => {
+    const { error } = await supabase.rpc("admin_upsert_competency", {
+      p_id: a.id, p_concept_id: a.conceptId, p_depth: a.depth, p_competency_key: a.key, p_description: a.description,
+      p_required: a.required, p_sequence: a.sequence, p_evidence_type: a.evidenceType, p_review_status: a.reviewStatus, p_reason: a.reason,
+    });
+    if (error) throw error;
+  });
+}
+
+export function useDeleteCompetency() {
+  return useCompetencyAction(async (a: { id: string; reason: string }) => {
+    const { error } = await supabase.rpc("admin_delete_competency", { p_id: a.id, p_reason: a.reason });
+    if (error) throw error;
+  });
+}

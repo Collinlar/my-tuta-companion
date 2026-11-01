@@ -36,6 +36,8 @@ FILES=(
   "20270000000012_admin_cluster_crud.sql"
   "20270000000013_nba_relevant_lab.sql"
   "20270000000014_nba_relevant_lab_fix.sql"
+  "20270000000015_concept_competency_spine.sql"
+  "20270000000016_admin_competency_crud.sql"
 )
 
 for f in "${FILES[@]}"; do

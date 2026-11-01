@@ -7,6 +7,7 @@ import { useConceptDemand } from "./data/queries";
 import { useConceptContentUnits, useSetContentUnitStatus } from "./data/contentUnitQueries";
 import { useConceptRelationships, useUpsertRelationship, useDeleteRelationship } from "./data/relationshipQueries";
 import { PageHeader, Loading, ErrorNote, ActionModal } from "./ui";
+import CompetencyPanel from "./CompetencyPanel";
 
 type Rec = Record<string, unknown>;
 function obj(v: unknown): Rec { return (v && typeof v === "object" && !Array.isArray(v) ? v : {}) as Rec; }
@@ -41,7 +42,7 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
   </div>;
 }
 
-const TABS = ["Overview", "Misconceptions", "Stages", "Graph", "Content", "Examples", "Practice", "Assessment", "Analytics"] as const;
+const TABS = ["Overview", "Competencies", "Misconceptions", "Stages", "Graph", "Content", "Examples", "Practice", "Assessment", "Analytics"] as const;
 type Tab = typeof TABS[number];
 
 export default function ConceptDetail() {
@@ -173,6 +174,10 @@ export default function ConceptDetail() {
               </Panel>
             </div>
           </div>
+        )}
+
+        {activeTab === "Competencies" && conceptId && (
+          <CompetencyPanel conceptId={conceptId} />
         )}
 
         {activeTab === "Misconceptions" && (

@@ -465,3 +465,35 @@ export function useAdminClusters() {
     },
   });
 }
+
+// ---------- Concept Competency Framework (Phase 0) ----------
+
+export interface AdminCompetency {
+  id: string; concept_id: string; depth: string; competency_key: string; description: string;
+  required: boolean; sequence: number; evidence_type: string | null; review_status: string; version: number;
+}
+export interface ConceptCompetencyData {
+  conceptType: string | null;
+  secondaryTypes: string[];
+  competencies: AdminCompetency[];
+}
+
+export function useAdminConceptCompetencies(conceptId: string | undefined) {
+  return useQuery({
+    queryKey: ["admin", "competencies", conceptId],
+    enabled: !!conceptId,
+    queryFn: async (): Promise<ConceptCompetencyData> => {
+      const [{ data: c, error: ce }, { data: comps, error: qe }] = await Promise.all([
+        supabase.from("concepts").select("concept_type, secondary_concept_types").eq("id", conceptId!).maybeSingle(),
+        supabase.from("concept_competencies").select("*").eq("concept_id", conceptId!).order("depth").order("sequence"),
+      ]);
+      if (ce) throw ce;
+      if (qe) throw qe;
+      return {
+        conceptType: (c?.concept_type as string | null) ?? null,
+        secondaryTypes: (c?.secondary_concept_types as string[] | null) ?? [],
+        competencies: (comps as unknown as AdminCompetency[]) || [],
+      };
+    },
+  });
+}
