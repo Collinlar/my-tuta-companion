@@ -227,3 +227,45 @@ export function nextRetentionStep(priorIntervalDays: number, priorEase: number, 
   }
   return { intervalDays: Math.min(interval, 365), easeFactor: ease, result: "on_track" };
 }
+
+// ---------- Foundation Completeness (Concept Competency Framework, Phase 2) ----------
+
+export type FoundationOutcome = "secure" | "secure_with_reinforcement" | "developing";
+
+export interface FoundationCompleteness {
+  outcome: FoundationOutcome;
+  state: DepthState;       // the depth state after the coverage gate
+  requiredBlocks: number;
+  coveredBlocks: number;
+  uncovered: string[];     // ids of required blocks with no coverage evidence
+}
+
+/** Gates Foundation "Secure" on actual coverage of the required Knowledge Blocks
+ * (PRD 37), not the mastery-check score alone. It only ever downgrades a secure
+ * score, never upgrades: a learner who aced the check but skipped the learning
+ * does not get Mastery. Pure; the caller supplies the required block ids and the
+ * set of blocks the learner has evidence for. When there are no required blocks
+ * the score stands unchanged, so block-less concepts are unaffected. */
+export function computeFoundationCompleteness(
+  scoreState: DepthState,
+  requiredBlockIds: string[],
+  covered: Set<string>,
+): FoundationCompleteness {
+  const uncovered = requiredBlockIds.filter((id) => !covered.has(id));
+  const coveredBlocks = requiredBlockIds.length - uncovered.length;
+  const ratio = requiredBlockIds.length ? coveredBlocks / requiredBlockIds.length : 1;
+
+  // A non-secure score is already its own answer; coverage never rescues it.
+  if (scoreState !== "secure") {
+    return { outcome: "developing", state: scoreState, requiredBlocks: requiredBlockIds.length, coveredBlocks, uncovered };
+  }
+  if (uncovered.length === 0) {
+    return { outcome: "secure", state: "secure", requiredBlocks: requiredBlockIds.length, coveredBlocks, uncovered };
+  }
+  if (ratio >= 0.7) {
+    // Essentially there, a few blocks to shore up: secure with reinforcement.
+    return { outcome: "secure_with_reinforcement", state: "needs_reinforcement", requiredBlocks: requiredBlockIds.length, coveredBlocks, uncovered };
+  }
+  // Passed the check but skipped most of the concept: not yet Foundation.
+  return { outcome: "developing", state: "in_progress", requiredBlocks: requiredBlockIds.length, coveredBlocks, uncovered };
+}

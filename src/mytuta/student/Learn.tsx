@@ -18,14 +18,14 @@ import {
   type DiagnosticResult,
   type MasteryQuestion,
 } from "../data/ai";
-import { useMasteryPaths, useConcept, useConceptsCatalog, usePendingConfirmation, useKnowledgeBlocks, type ConceptStageVM, type PathVM } from "../data/queries";
-import { useAdvanceStage, useAnswerConfirmation, useEnsureConceptStages, useEnsureDepthPath, useEnsureRecallCards, useLogIndependentAttempt, useRateRecallCard, useSaveDepthResult, useSaveMasteryResult, useStartMasteryPath, useUploadIntakeFile, type RecallCardState, type UploadedIntakeFile } from "../data/mutations";
+import { useMasteryPaths, useConcept, useConceptsCatalog, usePendingConfirmation, useKnowledgeBlocks, useBlockEvidence, type ConceptStageVM, type PathVM } from "../data/queries";
+import { useAdvanceStage, useAnswerConfirmation, useEnsureConceptStages, useEnsureDepthPath, useEnsureRecallCards, useLogIndependentAttempt, useRateRecallCard, useRecordBlockEvidence, useSaveDepthResult, useSaveMasteryResult, useStartMasteryPath, useUploadIntakeFile, type RecallCardState, type UploadedIntakeFile } from "../data/mutations";
 import { useCreditGate } from "../credits/CreditGate";
 import { recordEvent } from "../intelligence/data";
 import ConceptOverview from "./ConceptOverview";
 import RetentionCheck from "./RetentionCheck";
 import KnowledgeBlocks from "./KnowledgeBlocks";
-import { DEPTH_LABEL, type Depth, type DepthReadiness } from "../data/depth";
+import { DEPTH_LABEL, type Depth, type DepthReadiness, type FoundationCompleteness } from "../data/depth";
 
 export type PathEvidence = {
   recallRated: number;
@@ -1035,7 +1035,7 @@ function Workspace({
   explainMode: number; setExplainMode: (n: number) => void; supportLevel: number; setSupportLevel: (n: number) => void;
   evidence: PathEvidence; setEvidence: Dispatch<SetStateAction<PathEvidence>>;
   depth: Depth; onGoDeeper: (d: Depth) => void;
-  onSaveMastery: (r: { knowledge: number; application: number; analysis: number; overall: number; level: string; note: string }) => Promise<DepthReadiness | void>;
+  onSaveMastery: (r: { knowledge: number; application: number; analysis: number; overall: number; level: string; note: string }) => Promise<(DepthReadiness & { completeness?: FoundationCompleteness | null }) | void>;
   onBack: () => void;
 }) {
   const L = useLayout();
@@ -1043,6 +1043,8 @@ function Workspace({
   // Knowledge Blocks, the Understand stage runs them instead of the single
   // five-mode explanation. No blocks → unchanged behaviour.
   const { data: knowledgeBlocks } = useKnowledgeBlocks(conceptId, depth);
+  const { data: coveredBlocks } = useBlockEvidence(conceptId, depth);
+  const recordBlock = useRecordBlockEvidence();
   if (loading) return <Loading label="Opening your workspace…" />;
   if (stages.length === 0) return <EmptyState title="Content is loading" body="This concept's stages will appear here once available." actionLabel="Back to paths" onAction={onBack} />;
   const cur = stages[Math.min(stage, stages.length - 1)];
@@ -1103,7 +1105,7 @@ function Workspace({
           {cur.name === "Foundations" && <Foundations content={content} onNext={nextStage} />}
           {cur.name === "Understand" && (
             knowledgeBlocks && knowledgeBlocks.length > 0
-              ? <KnowledgeBlocks conceptName={conceptName} blocks={knowledgeBlocks} onNext={nextStage} />
+              ? <KnowledgeBlocks conceptName={conceptName} blocks={knowledgeBlocks} covered={coveredBlocks} onBlockUnderstood={(blockId, passed) => { if (conceptId) recordBlock.mutate({ conceptId, depth, blockId, passed }); }} onNext={nextStage} />
               : <Understand content={content} conceptName={conceptName} subject={subject} explainMode={explainMode} setExplainMode={setExplainMode} onNext={nextStage} />
           )}
           {cur.name === "Worked examples" && <Worked content={content} onNext={nextStage} />}
@@ -1918,6 +1920,7 @@ function Mastery({
     knowledge: number; application: number; analysis: number; overall: number; level: string; note: string; how: string[];
   } | null>(null);
   const [depthNext, setDepthNext] = useState<DepthReadiness | null>(null);
+  const [completeness, setCompleteness] = useState<FoundationCompleteness | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -2011,7 +2014,7 @@ function Mastery({
       setSaving(true);
       try {
         const readiness = await onSave(payload);
-        if (readiness) setDepthNext(readiness);
+        if (readiness) { setDepthNext(readiness); setCompleteness(readiness.completeness ?? null); }
       } finally {
         setSaving(false);
       }
@@ -2058,7 +2061,20 @@ function Mastery({
           <button type="button" onClick={() => nav("/student/progress")} style={{ flex: "none", background: c.green, color: "#fff", border: "none", fontWeight: 600, fontSize: 14, padding: "12px 20px", borderRadius: 11, cursor: "pointer" }}>See progress</button>
         </div>
 
-        {depthNext && (
+        {/* Foundation Completeness (Phase 2): a secure score but incomplete block
+            coverage holds Mastery back until the gaps are closed. This takes
+            precedence over the score-based next-depth prompt. */}
+        {completeness && completeness.outcome !== "secure" ? (
+          <div style={{ background: c.amberTint, border: `1px solid ${c.amber}`, borderRadius: 16, padding: 22, marginTop: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: c.amber, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>
+              {completeness.outcome === "secure_with_reinforcement" ? `${DEPTH_LABEL[depth]} almost secure` : `Keep building ${DEPTH_LABEL[depth]}`}
+            </div>
+            <div style={{ fontSize: 15, color: c.ink, lineHeight: 1.6, marginBottom: 12 }}>
+              You scored well, but Foundation Mastery needs the whole concept, not just the check. You have understood {completeness.coveredBlocks} of {completeness.requiredBlocks} Foundation blocks.
+            </div>
+            <div style={{ fontSize: 13.5, color: c.soft }}>Revisit the {completeness.uncovered.length} block{completeness.uncovered.length === 1 ? "" : "s"} you have not worked through, then take the check again.</div>
+          </div>
+        ) : depthNext && (
           <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 22, marginTop: 16 }}>
             <div style={{ fontSize: 11, fontWeight: 600, color: c.green, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>
               {result.overall >= 3 ? `${DEPTH_LABEL[depth]} Mastery achieved` : `Keep going on ${DEPTH_LABEL[depth]}`}

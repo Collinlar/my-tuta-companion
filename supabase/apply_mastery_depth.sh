@@ -40,6 +40,7 @@ FILES=(
   "20270000000016_admin_competency_crud.sql"
   "20270000000017_knowledge_blocks.sql"
   "20270000000018_admin_knowledge_blocks.sql"
+  "20270000000019_depth_evidence_block_source.sql"
 )
 
 for f in "${FILES[@]}"; do

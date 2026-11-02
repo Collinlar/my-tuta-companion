@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
-import { computeDepthReadiness, depthStateFromResult, nextDepth, nextRetentionStep, DEPTH_DEFAULT_SUPPORT, EASE_START, type Depth, type RetentionGrade } from "./depth";
+import { computeDepthReadiness, depthStateFromResult, nextDepth, nextRetentionStep, computeFoundationCompleteness, DEPTH_DEFAULT_SUPPORT, EASE_START, type Depth, type RetentionGrade, type FoundationCompleteness } from "./depth";
 import { generateAssessmentQuestions, generateClassChallenge } from "./ai";
 import { CHALLENGE_TYPE_COLORS } from "./constants";
 import {
@@ -1372,6 +1372,28 @@ export function useSaveDepthResult() {
       };
       const state = depthStateFromResult(input.overall, input.level);
 
+      // Foundation Completeness gate (Concept Competency Framework, Phase 2):
+      // when the concept has required Knowledge Blocks, a secure score alone is
+      // not Mastery; the learner must also have covered the required blocks. Only
+      // applies to Foundation and only when blocks exist, so block-less concepts
+      // behave exactly as before.
+      let finalState = state;
+      let completeness: FoundationCompleteness | null = null;
+      if (input.depth === "foundation") {
+        const { data: reqBlocks } = await supabase
+          .from("knowledge_blocks").select("id")
+          .eq("concept_id", input.conceptId).eq("depth", "foundation").eq("required", true);
+        if (reqBlocks && reqBlocks.length > 0) {
+          const { data: cov } = await supabase
+            .from("depth_evidence").select("source_id")
+            .eq("user_id", user_id).eq("concept_id", input.conceptId)
+            .eq("depth", "foundation").eq("source_type", "block");
+          const covered = new Set(((cov || []).map((r) => r.source_id).filter(Boolean)) as string[]);
+          completeness = computeFoundationCompleteness(state, reqBlocks.map((b) => b.id as string), covered);
+          finalState = completeness.state;
+        }
+      }
+
       // Pull any Lab/Challenge evidence the learner has at the NEXT depth so it
       // can raise readiness (PRD 13.2).
       const target = nextDepth(input.depth, input.maxDepth);
@@ -1386,7 +1408,7 @@ export function useSaveDepthResult() {
       const readiness = computeDepthReadiness(input.depth, result, input.maxDepth, 20, targetEvidence);
       const now = new Date().toISOString();
       const nextReviewAt =
-        input.retentionEnabled && state === "secure"
+        input.retentionEnabled && finalState === "secure"
           ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
           : null;
 
@@ -1395,10 +1417,10 @@ export function useSaveDepthResult() {
           user_id,
           concept_id: input.conceptId,
           depth: input.depth,
-          state,
+          state: finalState,
           readiness_state: readiness.readiness,
           support_level: DEPTH_DEFAULT_SUPPORT[input.depth],
-          completed_at: state === "secure" ? now : null,
+          completed_at: finalState === "secure" ? now : null,
           last_verified_at: now,
           next_review_at: nextReviewAt,
           evidence_summary: result as unknown as Json,
@@ -1435,10 +1457,30 @@ export function useSaveDepthResult() {
       // The cross-depth rollup (mastery_profiles) stays owned by
       // useSaveMasteryResult, which also runs the Gate-2 confirmation. This hook
       // only writes the new depth tables, so the two never fight over state.
-      return readiness;
+      return { ...readiness, completeness };
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["concept_depth_mastery"] });
+    },
+  });
+}
+
+/** Records that a learner has covered one Knowledge Block (Phase 2). Appends a
+ * 'block' depth_evidence row the Foundation Completeness gate reads. Append-only;
+ * duplicate rows for the same block are harmless (coverage is a distinct set). */
+export function useRecordBlockEvidence() {
+  return useMutation({
+    mutationFn: async (input: { conceptId: string; depth: Depth; blockId: string; passed: boolean }) => {
+      const user_id = await uid();
+      if (!user_id) return;
+      await supabase.from("depth_evidence").insert({
+        user_id,
+        concept_id: input.conceptId,
+        depth: input.depth,
+        source_type: "block",
+        source_id: input.blockId,
+        score: input.passed ? 1 : 0,
+      });
     },
   });
 }

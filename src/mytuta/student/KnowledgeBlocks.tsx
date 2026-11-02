@@ -9,9 +9,11 @@ import { BLOCK_TYPE_LABEL, type KnowledgeBlock, type BlockType, type BlockState 
  * support modalities now live INSIDE each block as "explain this block another
  * way". Block state is local to the session in Phase 1; Phase 2 persists it and
  * feeds coverage to the completeness engine. */
-export default function KnowledgeBlocks({ conceptName, blocks, onNext }: { conceptName: string; blocks: KnowledgeBlock[]; onNext: () => void }) {
-  const [active, setActive] = useState(0);
-  const [state, setState] = useState<Record<string, BlockState>>(() => Object.fromEntries(blocks.map((b, i) => [b.id, i === 0 ? "in_progress" : "not_started"])));
+export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockUnderstood, onNext }: { conceptName: string; blocks: KnowledgeBlock[]; covered?: Set<string>; onBlockUnderstood?: (blockId: string, passed: boolean) => void; onNext: () => void }) {
+  // Seed from prior coverage so understanding persists across sessions (PRD 32),
+  // and open on the first block not yet understood.
+  const [state, setState] = useState<Record<string, BlockState>>(() => Object.fromEntries(blocks.map((b) => [b.id, covered?.has(b.id) ? "understood" : "not_started"])));
+  const [active, setActive] = useState(() => { const i = blocks.findIndex((b) => !covered?.has(b.id)); return i < 0 ? 0 : i; });
   const [mode, setMode] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
 
@@ -29,9 +31,15 @@ export default function KnowledgeBlocks({ conceptName, blocks, onNext }: { conce
   };
 
   const mark = (st: BlockState) => setState((s) => ({ ...s, [cur.id]: st }));
+  // Mark the active block understood and record coverage once (on the first
+  // transition), which feeds the Foundation Completeness gate.
+  const markUnderstood = (passed: boolean) => {
+    if (state[cur.id] !== "understood") onBlockUnderstood?.(cur.id, passed);
+    setState((s) => ({ ...s, [cur.id]: "understood" }));
+  };
 
   const understood = () => {
-    mark("understood");
+    markUnderstood(true);
     const nextNotDone = blocks.findIndex((b, i) => i > active && state[b.id] !== "understood");
     if (nextNotDone >= 0) go(nextNotDone);
     else {
@@ -102,7 +110,7 @@ export default function KnowledgeBlocks({ conceptName, blocks, onNext }: { conce
               const bg = reveal && correct ? c.greenTint : reveal && chosen ? c.amberTint : c.surface;
               const bd = reveal && correct ? c.green : reveal && chosen ? c.amber : chosen ? c.green : c.border2;
               return (
-                <button key={j} type="button" disabled={picked !== null} onClick={() => { setPicked(j); mark(j === qc.correctIndex ? "understood" : "needs_review"); }}
+                <button key={j} type="button" disabled={picked !== null} onClick={() => { setPicked(j); if (j === qc.correctIndex) markUnderstood(true); else mark("needs_review"); }}
                   style={{ textAlign: "left", background: bg, border: `1px solid ${bd}`, borderRadius: 11, padding: "11px 14px", fontSize: 14.5, color: c.ink, cursor: picked === null ? "pointer" : "default", fontFamily: "inherit" }}>
                   <MathText text={`${["A", "B", "C", "D"][j]}. ${opt}`} />
                 </button>

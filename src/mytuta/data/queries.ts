@@ -1135,3 +1135,23 @@ export function useKnowledgeBlocks(conceptId: string | undefined, depth: Depth) 
     },
   });
 }
+
+/** The set of Knowledge Block ids the learner has already covered for a concept
+ * at a depth (Phase 2). Seeds the block-runner so prior understanding persists
+ * across sessions, and backs the Foundation Completeness gate. Own-row RLS. */
+export function useBlockEvidence(conceptId: string | undefined, depth: Depth) {
+  return useQuery({
+    queryKey: ["block_evidence", conceptId, depth],
+    enabled: !!conceptId,
+    queryFn: async (): Promise<Set<string>> => {
+      const { data, error } = await supabase
+        .from("depth_evidence")
+        .select("source_id")
+        .eq("concept_id", conceptId!)
+        .eq("depth", depth)
+        .eq("source_type", "block");
+      if (error) throw error;
+      return new Set(((data || []).map((r) => r.source_id).filter(Boolean)) as string[]);
+    },
+  });
+}
