@@ -1,0 +1,133 @@
+{
+  "repository": "Collinlar/my-tuta-companion",
+  "visibility": "public",
+  "base_commit": "96360de9fa966252ce13cb27a4bf17e0eb1bc79e",
+  "file_count": 25,
+  "files": [
+    {
+      "path": "CONCEPT_COMPETENCY_STATUS_AND_PLAN.md",
+      "bytes": 16990,
+      "sha256": "9a2be5f7e68be73c48ed6ed0ee1a89cc342172d035cbf2a12335c0760fe02d4f"
+    },
+    {
+      "path": "PILOT_RELEASE_REVIEW.md",
+      "bytes": 4261,
+      "sha256": "373b1ffb092b769df833548acecce19a1d4da71b87aa8e1acfc16a0a441ac681"
+    },
+    {
+      "path": "src/__tests__/knowledgeBlocks.test.tsx",
+      "bytes": 5318,
+      "sha256": "4151fbfc871e6665f620ecba53ec2329d47a5d0c4177670bcfffbae365d15405"
+    },
+    {
+      "path": "src/admin/CompetencyPanel.tsx",
+      "bytes": 16580,
+      "sha256": "95bfa668f8b0bc3196c28f838c848a0bcd8dd19c7982c593c590d49d5b18cff4"
+    },
+    {
+      "path": "src/admin/KnowledgeBlockEditor.tsx",
+      "bytes": 4475,
+      "sha256": "1d3b2f9ed13ccb2c8083949b415c9339b4bbfb5193463f3b574e2629977a7d74"
+    },
+    {
+      "path": "src/admin/data/mutations.ts",
+      "bytes": 17576,
+      "sha256": "09a1a4e30e5a1fa077bd489bbc6b0ff5535f2f4018696408df0433063ab1a9bd"
+    },
+    {
+      "path": "src/integrations/supabase/types.ts",
+      "bytes": 72075,
+      "sha256": "7f8922cefc774defaa6679c7a725869f365d95c1b8287a4b5d13c74be57d28db"
+    },
+    {
+      "path": "src/mytuta/data/ai.ts",
+      "bytes": 35896,
+      "sha256": "0754e59635da4cbae1f00418d31c1a9437c5a07ef4dbdcbb56f55e72a4f32355"
+    },
+    {
+      "path": "src/mytuta/data/blockValidation.ts",
+      "bytes": 1011,
+      "sha256": "8bd1dfce609eac02ee6cf366edf595725d33d21ac9521122bf6150c16aaf6ba7"
+    },
+    {
+      "path": "src/mytuta/data/blocks.ts",
+      "bytes": 7981,
+      "sha256": "1332a43d1a5b3324d6b36abf62a7f8fa31e16aac69ba78f21e5d340842c2dff4"
+    },
+    {
+      "path": "src/mytuta/data/depth.ts",
+      "bytes": 12922,
+      "sha256": "0cfdac737cfc5b157eafc7231de303d5d3776099c3edcde6dc494d6dcfbec1b4"
+    },
+    {
+      "path": "src/mytuta/data/mutations.ts",
+      "bytes": 62228,
+      "sha256": "d31ab7c8114468692118c6bd1a3a4f950b24b596f074c0611f5c709b5373c404"
+    },
+    {
+      "path": "src/mytuta/data/queries.ts",
+      "bytes": 52315,
+      "sha256": "a4a97e071eb6499d116d06207164c9eaf6604e6d97201e66eb73bb86094e5cdc"
+    },
+    {
+      "path": "src/mytuta/student/KnowledgeBlockVisual.tsx",
+      "bytes": 3193,
+      "sha256": "cef1a17b3340de60b34b86b2f7c95ee09bc6b40ed1f0d009b5344b9d774b14ed"
+    },
+    {
+      "path": "src/mytuta/student/KnowledgeBlocks.tsx",
+      "bytes": 11049,
+      "sha256": "bd22f7b70192455e8a6e76294549101e2c688378b675578e2bccdbef8f2cff97"
+    },
+    {
+      "path": "src/mytuta/student/Learn.tsx",
+      "bytes": 108104,
+      "sha256": "00d00fb50283c58499c390eb6407b771b68ee862cc78aec3e2b37274a1276626"
+    },
+    {
+      "path": "supabase/apply_mastery_depth.mjs",
+      "bytes": 3346,
+      "sha256": "0c7a6330ca9b52387c33848f134ac96c2a33f1bec1cbcd2a75177692af0e87dd"
+    },
+    {
+      "path": "supabase/apply_mastery_depth.sh",
+      "bytes": 2417,
+      "sha256": "d731e5e5f003ff925f3747d9af9ddcbea933926bfbed74cb90eb27ede7c38251"
+    },
+    {
+      "path": "supabase/build_competency_pilot_seed.py",
+      "bytes": 35366,
+      "sha256": "32d42c058f19ee345e8d304846561c89e53a590a5fd3d2a9d9e6ed1a1f7ed6dd"
+    },
+    {
+      "path": "supabase/competency_pilot_drafts.json",
+      "bytes": 127622,
+      "sha256": "38ba5775fa47d8c0bf03d7e8b037c3e326051f2f49f515f83e7b368d8bbdaade"
+    },
+    {
+      "path": "supabase/migrations/20270000000020_knowledge_block_review.sql",
+      "bytes": 6530,
+      "sha256": "25f8ddfd3aef6ea0b51677504cbc9622e0e39f81da348199f4de4fbb50de54ed"
+    },
+    {
+      "path": "supabase/migrations/20270000000021_foundation_evidence.sql",
+      "bytes": 10238,
+      "sha256": "28f747c5124f4319cedc92f0e69d1df4cf6ec0b2fe832704693654565b7318f8"
+    },
+    {
+      "path": "supabase/migrations/20270000000022_competency_pilot_drafts.sql",
+      "bytes": 95791,
+      "sha256": "b5e89d1c2b6b169e94afa0a39a55bb58ea37c5387fd4f803369ed9aab2ab9d21"
+    },
+    {
+      "path": "supabase/migrations/20270000000023_block_authoring_contract.sql",
+      "bytes": 1957,
+      "sha256": "c7661b5ede5ef74e724d279caf86e8023f48e803ead6c4414b1b4af570264e8c"
+    },
+    {
+      "path": "supabase/test_foundation_evidence.sql",
+      "bytes": 5911,
+      "sha256": "43bfdbcf6d8aaab451fd55808b57eaff028266269211835605244c44611b48a7"
+    }
+  ]
+}
