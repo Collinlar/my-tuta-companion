@@ -1,0 +1,1576 @@
+[
+  {
+    "slug": "perimeter-area",
+    "concept_type": "quantitative",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-1",
+        "description": "Boundary and coverage: explain and apply the stated relationship",
+        "sequence": 0,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-2",
+        "description": "Rectangle dimensions: explain and apply the stated relationship",
+        "sequence": 1,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-3",
+        "description": "Linear and square units: explain and apply the stated relationship",
+        "sequence": 2,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-4",
+        "description": "Rectangle formulas: explain and apply the stated relationship",
+        "sequence": 3,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-5",
+        "description": "Changing one dimension: explain and apply the stated relationship",
+        "sequence": 4,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-6",
+        "description": "Choose the quantity: explain and apply the stated relationship",
+        "sequence": 5,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-7",
+        "description": "Inside squares and boundary: explain and apply the stated relationship",
+        "sequence": 6,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-8",
+        "description": "A rectangular school garden: explain and apply the stated relationship",
+        "sequence": 7,
+        "evidence_type": "worked_example"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-9",
+        "description": "Equal perimeter is not equal area: explain and apply the stated relationship",
+        "sequence": 8,
+        "evidence_type": "misconception"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-10",
+        "description": "Budget for paving: explain and apply the stated relationship",
+        "sequence": 9,
+        "evidence_type": "application"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-11",
+        "description": "Triangle area and height: explain and apply the stated relationship",
+        "sequence": 10,
+        "evidence_type": "worked_example"
+      },
+      {
+        "depth": "applied",
+        "key": "geometry-applied-1",
+        "description": "Choose area or perimeter to match each resource",
+        "sequence": 0,
+        "evidence_type": "application"
+      },
+      {
+        "depth": "applied",
+        "key": "geometry-applied-2",
+        "description": "Obtain 108 square metres and 48 metres, with a justified shared edge",
+        "sequence": 1,
+        "evidence_type": "application"
+      },
+      {
+        "depth": "applied",
+        "key": "geometry-applied-3",
+        "description": "Use correct units and state measurement or cost assumptions",
+        "sequence": 2,
+        "evidence_type": "application"
+      },
+      {
+        "depth": "advanced",
+        "key": "geometry-advanced-1",
+        "description": "Model the fixed-perimeter constraint consistently",
+        "sequence": 0,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "advanced",
+        "key": "geometry-advanced-2",
+        "description": "Justify the square's maximum using an argument beyond a finite table",
+        "sequence": 1,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "advanced",
+        "key": "geometry-advanced-3",
+        "description": "State the domain of the claim and distinguish examples from proof",
+        "sequence": 2,
+        "evidence_type": "quick_check"
+      }
+    ],
+    "blocks": [
+      {
+        "depth": "foundation",
+        "block_type": "definition",
+        "title": "Boundary and coverage",
+        "objective": "Demonstrate boundary and coverage",
+        "sequence": 0,
+        "required": true,
+        "content": {
+          "body": "Perimeter measures the total distance around a two-dimensional shape. Area measures the region it covers. A garden fence follows a boundary; paving covers a region.",
+          "competencyKeys": [
+            "geometry-foundation-1"
+          ],
+          "quickCheck": {
+            "prompt": "Which quantity measures how much ground a rectangular garden covers?",
+            "options": [
+              "Area",
+              "Perimeter"
+            ],
+            "correctIndex": 0,
+            "explanation": "Area. Use the relationship and conditions explained in this block."
+          },
+          "narration": "Perimeter measures the total distance around a two-dimensional shape. Area measures the region it covers. A garden fence follows a boundary; paving covers a region."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "components",
+        "title": "Rectangle dimensions",
+        "objective": "Demonstrate rectangle dimensions",
+        "sequence": 1,
+        "required": true,
+        "content": {
+          "body": "A rectangle has two pairs of equal opposite sides. Name its length and width, and measure both in the same unit before calculating. Both dimensions are perpendicular to one another.",
+          "competencyKeys": [
+            "geometry-foundation-2"
+          ],
+          "quickCheck": {
+            "prompt": "A rectangle has length 6 metres and width 4 metres. What is the length of the opposite side to the 6-metre side?",
+            "options": [
+              "4 metres",
+              "6 metres"
+            ],
+            "correctIndex": 1,
+            "explanation": "6 metres. Use the relationship and conditions explained in this block."
+          },
+          "narration": "A rectangle has two pairs of equal opposite sides. Name its length and width, and measure both in the same unit before calculating. Both dimensions are perpendicular to one another."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "vocabulary",
+        "title": "Linear and square units",
+        "objective": "Demonstrate linear and square units",
+        "sequence": 2,
+        "required": true,
+        "content": {
+          "body": "Perimeter uses length units such as centimetres or metres. Area uses square units: one square centimetre is a square with sides one centimetre long. Convert all lengths to a common unit before using a formula.",
+          "competencyKeys": [
+            "geometry-foundation-3"
+          ],
+          "quickCheck": {
+            "prompt": "Which is an appropriate unit for the area of a tabletop?",
+            "options": [
+              "Square centimetres",
+              "Centimetres"
+            ],
+            "correctIndex": 0,
+            "explanation": "Square centimetres. Use the relationship and conditions explained in this block."
+          },
+          "narration": "Perimeter uses length units such as centimetres or metres. Area uses square units: one square centimetre is a square with sides one centimetre long. Convert all lengths to a common unit before using a formula."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "relationships",
+        "title": "Rectangle formulas",
+        "objective": "Demonstrate rectangle formulas",
+        "sequence": 3,
+        "required": true,
+        "content": {
+          "body": "A rectangle of length l and width w has perimeter 2 times the sum of l and w. Its area is l times w. The first calculation adds boundary lengths; the second counts unit squares in rows and columns.",
+          "competencyKeys": [
+            "geometry-foundation-4"
+          ],
+          "quickCheck": {
+            "prompt": "Which expression gives a rectangle's perimeter?",
+            "options": [
+              "Length times width",
+              "2 times (length plus width)"
+            ],
+            "correctIndex": 1,
+            "explanation": "2 times (length plus width). Use the relationship and conditions explained in this block."
+          },
+          "narration": "A rectangle of length l and width w has perimeter 2 times the sum of l and w. Its area is l times w. The first calculation adds boundary lengths; the second counts unit squares in rows and columns."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "relationships",
+        "title": "Changing one dimension",
+        "objective": "Demonstrate changing one dimension",
+        "sequence": 4,
+        "required": true,
+        "content": {
+          "body": "For a rectangle with fixed width, increasing length increases both area and perimeter. Doubling only the length doubles the area, but does not generally double the perimeter because the width is unchanged.",
+          "competencyKeys": [
+            "geometry-foundation-5"
+          ],
+          "quickCheck": {
+            "prompt": "A rectangle changes from 3 by 2 metres to 6 by 2 metres. How does its area change?",
+            "options": [
+              "It doubles from 6 to 12 square metres",
+              "It stays at 6 square metres"
+            ],
+            "correctIndex": 0,
+            "explanation": "It doubles from 6 to 12 square metres. Use the relationship and conditions explained in this block."
+          },
+          "narration": "For a rectangle with fixed width, increasing length increases both area and perimeter. Doubling only the length doubles the area, but does not generally double the perimeter because the width is unchanged."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "big_picture",
+        "title": "Choose the quantity",
+        "objective": "Demonstrate choose the quantity",
+        "sequence": 5,
+        "required": true,
+        "content": {
+          "body": "Before calculating, decide what the job needs. Edging a school garden calls for perimeter; buying turf calls for area. A numerical answer is useful only when its meaning and units fit the decision.",
+          "competencyKeys": [
+            "geometry-foundation-6"
+          ],
+          "quickCheck": {
+            "prompt": "A gardener buys edging for every side of a rectangular bed. Which quantity is needed?",
+            "options": [
+              "Area",
+              "Perimeter"
+            ],
+            "correctIndex": 1,
+            "explanation": "Perimeter. Use the relationship and conditions explained in this block."
+          },
+          "narration": "Before calculating, decide what the job needs. Edging a school garden calls for perimeter; buying turf calls for area. A numerical answer is useful only when its meaning and units fit the decision."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "visual_model",
+        "title": "Inside squares and boundary",
+        "objective": "Demonstrate inside squares and boundary",
+        "sequence": 6,
+        "required": true,
+        "content": {
+          "body": "Use the rectangle model to count equal unit squares inside and trace the outside edge. Changing its dimensions changes the two measurements differently. The default model is 6 units by 4 units.",
+          "competencyKeys": [
+            "geometry-foundation-7"
+          ],
+          "quickCheck": {
+            "prompt": "For a 6-by-4 rectangle, what is the area?",
+            "options": [
+              "24 square units",
+              "20 square units"
+            ],
+            "correctIndex": 0,
+            "explanation": "24 square units. Use the relationship and conditions explained in this block."
+          },
+          "narration": "Use the rectangle model to count equal unit squares inside and trace the outside edge. Changing its dimensions changes the two measurements differently. The default model is 6 units by 4 units.",
+          "visual": "area_perimeter"
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "worked_example",
+        "title": "A rectangular school garden",
+        "objective": "Demonstrate a rectangular school garden",
+        "sequence": 7,
+        "required": true,
+        "content": {
+          "body": "A school garden is 8 metres long and 3 metres wide. Its area is 8 times 3, or 24 square metres. Its perimeter is 2 times (8 plus 3), or 22 metres. Each answer measures a different feature.",
+          "competencyKeys": [
+            "geometry-foundation-8"
+          ],
+          "quickCheck": {
+            "prompt": "How much edging covers all four sides of an 8-by-3-metre garden?",
+            "options": [
+              "24 metres",
+              "22 metres"
+            ],
+            "correctIndex": 1,
+            "explanation": "22 metres. Use the relationship and conditions explained in this block."
+          },
+          "narration": "A school garden is 8 metres long and 3 metres wide. Its area is 8 times 3, or 24 square metres. Its perimeter is 2 times (8 plus 3), or 22 metres. Each answer measures a different feature.",
+          "prerequisites": [
+            {
+              "kind": "skill",
+              "key": "geometry-multiply",
+              "label": "Multiply whole numbers",
+              "refresher": "Use repeated equal groups for multiplication.",
+              "check": {
+                "prompt": "What is 6 times 4?",
+                "options": [
+                  "24",
+                  "10"
+                ],
+                "correctIndex": 0,
+                "explanation": "24. Use the relationship and conditions explained in this block."
+              }
+            }
+          ],
+          "examples": [
+            {
+              "key": "simple-worked-method",
+              "body": "A rectangle has two sides of 4 metres and two of 1 metre. Add all four boundary lengths: 4 plus 1 plus 4 plus 1 is 10 metres.",
+              "category": "quantitative",
+              "difficulty": 1,
+              "support": "guided",
+              "quickCheck": {
+                "prompt": "A rectangle is 4 metres by 1 metre. What is its perimeter?",
+                "options": [
+                  "10 metres",
+                  "4 metres"
+                ],
+                "correctIndex": 0,
+                "explanation": "10 metres. Use the relationship and conditions explained in this block."
+              }
+            },
+            {
+              "key": "apply-worked-method",
+              "body": "A school garden is 8 metres long and 3 metres wide. Its area is 8 times 3, or 24 square metres. Its perimeter is 2 times (8 plus 3), or 22 metres. Each answer measures a different feature.",
+              "category": "quantitative",
+              "difficulty": 2,
+              "support": "independent",
+              "prerequisites": [
+                {
+                  "kind": "skill",
+                  "key": "geometry-multiply",
+                  "label": "Multiply whole numbers",
+                  "refresher": "Use repeated equal groups for multiplication.",
+                  "check": {
+                    "prompt": "What is 6 times 4?",
+                    "options": [
+                      "24",
+                      "10"
+                    ],
+                    "correctIndex": 0,
+                    "explanation": "24. Use the relationship and conditions explained in this block."
+                  }
+                }
+              ],
+              "quickCheck": {
+                "prompt": "How much edging covers all four sides of an 8-by-3-metre garden?",
+                "options": [
+                  "24 metres",
+                  "22 metres"
+                ],
+                "correctIndex": 1,
+                "explanation": "22 metres. Use the relationship and conditions explained in this block."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "misconception",
+        "title": "Equal perimeter is not equal area",
+        "objective": "Demonstrate equal perimeter is not equal area",
+        "sequence": 8,
+        "required": true,
+        "content": {
+          "body": "A 1-by-5 rectangle and a 2-by-4 rectangle both have perimeter 12 units. Their areas are 5 and 8 square units. Equal perimeter does not guarantee equal area, and area cannot be compared by boundary length alone.",
+          "competencyKeys": [
+            "geometry-foundation-9"
+          ],
+          "quickCheck": {
+            "prompt": "Must two rectangles with equal perimeter have equal area?",
+            "options": [
+              "No; their side lengths can give different areas",
+              "Yes; the boundary fixes the area"
+            ],
+            "correctIndex": 0,
+            "explanation": "No; their side lengths can give different areas. Use the relationship and conditions explained in this block."
+          },
+          "narration": "A 1-by-5 rectangle and a 2-by-4 rectangle both have perimeter 12 units. Their areas are 5 and 8 square units. Equal perimeter does not guarantee equal area, and area cannot be compared by boundary length alone."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "application",
+        "title": "Budget for paving",
+        "objective": "Demonstrate budget for paving",
+        "sequence": 9,
+        "required": true,
+        "content": {
+          "body": "A rectangular courtyard is 5 metres by 4 metres. Paving covers 20 square metres. At 30 Ghana cedis per square metre, material costs 600 Ghana cedis before any allowance for cutting, labour or wastage.",
+          "competencyKeys": [
+            "geometry-foundation-10"
+          ],
+          "quickCheck": {
+            "prompt": "At 30 Ghana cedis per square metre, what is the material cost for a 5-by-4-metre courtyard?",
+            "options": [
+              "540 Ghana cedis",
+              "600 Ghana cedis"
+            ],
+            "correctIndex": 1,
+            "explanation": "600 Ghana cedis. Use the relationship and conditions explained in this block."
+          },
+          "narration": "A rectangular courtyard is 5 metres by 4 metres. Paving covers 20 square metres. At 30 Ghana cedis per square metre, material costs 600 Ghana cedis before any allowance for cutting, labour or wastage."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "worked_example",
+        "title": "Triangle area and height",
+        "objective": "Demonstrate triangle area and height",
+        "sequence": 10,
+        "required": true,
+        "content": {
+          "body": "A triangle's area is half its base times the perpendicular height. A triangle with base 8 centimetres and perpendicular height 3 centimetres has area 12 square centimetres. A sloping side is not automatically the perpendicular height. This gives one building block for calculating composite regions later.",
+          "competencyKeys": [
+            "geometry-foundation-11"
+          ],
+          "quickCheck": {
+            "prompt": "A triangle has base 8 centimetres and perpendicular height 3 centimetres. What is its area?",
+            "options": [
+              "12 square centimetres",
+              "24 square centimetres"
+            ],
+            "correctIndex": 0,
+            "explanation": "12 square centimetres. Use the relationship and conditions explained in this block."
+          },
+          "narration": "A triangle's area is half its base times the perpendicular height. A triangle with base 8 centimetres and perpendicular height 3 centimetres has area 12 square centimetres. A sloping side is not automatically the perpendicular height. This gives one building block for calculating composite regions later."
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "quick_check",
+        "title": "Readiness check",
+        "objective": "Choose area or perimeter to match each resource",
+        "sequence": 0,
+        "required": true,
+        "content": {
+          "body": "A rectangular school garden is 12 metres by 8 metres. An attached 4-by-3-metre rectangle shares its complete 3-metre side with part of the garden's 8-metre side, without overlap. Fence only the outside boundary; pave both regions.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "A rectangle is 12 by 8 metres. What is its area?",
+            "options": [
+              "96 square metres",
+              "40 square metres"
+            ],
+            "correctIndex": 0,
+            "explanation": "96 square metres. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "big_picture",
+        "title": "Scenario",
+        "objective": "Choose area or perimeter to match each resource",
+        "sequence": 1,
+        "required": true,
+        "content": {
+          "body": "A rectangular school garden is 12 metres by 8 metres. An attached 4-by-3-metre rectangle shares its complete 3-metre side with part of the garden's 8-metre side, without overlap. Fence only the outside boundary; pave both regions.",
+          "competencyKeys": []
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "process",
+        "title": "Method selection",
+        "objective": "Choose area or perimeter to match each resource",
+        "sequence": 2,
+        "required": true,
+        "content": {
+          "body": "Add the two rectangle areas for paving. Add their perimeters and subtract the shared edge twice for the outside fence: the shared edge is internal to the combined region.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "Why subtract a shared internal edge twice when adding the two perimeters?",
+            "options": [
+              "It was counted once in each shape and is not on the outside boundary",
+              "Every composite shape has half the perimeter"
+            ],
+            "correctIndex": 0,
+            "explanation": "It was counted once in each shape and is not on the outside boundary. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "worked_example",
+        "title": "Guided application",
+        "objective": "Choose area or perimeter to match each resource",
+        "sequence": 3,
+        "required": true,
+        "content": {
+          "body": "The areas are 96 and 12 square metres, giving 108 square metres. The separate perimeters are 40 and 14 metres. Subtract twice the 3-metre shared edge: the outside boundary is 48 metres.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "What is the combined paved area in the stated scenario?",
+            "options": [
+              "48 square metres",
+              "108 square metres"
+            ],
+            "correctIndex": 1,
+            "explanation": "108 square metres. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "application",
+        "title": "Independent application",
+        "objective": "Choose area or perimeter to match each resource",
+        "sequence": 4,
+        "required": true,
+        "content": {
+          "body": "A rectangular school garden is 12 metres by 8 metres. An attached 4-by-3-metre rectangle shares its complete 3-metre side with part of the garden's 8-metre side, without overlap. Fence only the outside boundary; pave both regions.",
+          "competencyKeys": [
+            "geometry-applied-1",
+            "geometry-applied-2",
+            "geometry-applied-3"
+          ],
+          "task": {
+            "prompt": "A rectangular school garden is 12 metres by 8 metres. An attached 4-by-3-metre rectangle shares its complete 3-metre side with part of the garden's 8-metre side, without overlap. Fence only the outside boundary; pave both regions. Calculate the paved area and outside fence length for the stated garden. Explain the shared-edge correction and units. If fencing costs 15 Ghana cedis per metre, give the fence material cost, excluding gates and wastage.",
+            "rubric": [
+              "Choose area or perimeter to match each resource",
+              "Obtain 108 square metres and 48 metres, with a justified shared edge",
+              "Use correct units and state measurement or cost assumptions"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "application",
+        "title": "Lab or practical task",
+        "objective": "Choose area or perimeter to match each resource",
+        "sequence": 5,
+        "required": true,
+        "content": {
+          "body": "A rectangular school garden is 12 metres by 8 metres. An attached 4-by-3-metre rectangle shares its complete 3-metre side with part of the garden's 8-metre side, without overlap. Fence only the outside boundary; pave both regions.",
+          "competencyKeys": [
+            "geometry-applied-1",
+            "geometry-applied-2",
+            "geometry-applied-3"
+          ],
+          "task": {
+            "prompt": "A rectangular school garden is 12 metres by 8 metres. An attached 4-by-3-metre rectangle shares its complete 3-metre side with part of the garden's 8-metre side, without overlap. Fence only the outside boundary; pave both regions. Draw a scaled plan of the stated garden or model it with squared paper. Trace every external segment, measure or count lengths, and independently verify the 48-metre outside boundary. Distinguish model units from actual metres.",
+            "rubric": [
+              "Choose area or perimeter to match each resource",
+              "Obtain 108 square metres and 48 metres, with a justified shared edge",
+              "Use correct units and state measurement or cost assumptions"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "synthesis",
+        "title": "Reflection",
+        "objective": "Choose area or perimeter to match each resource",
+        "sequence": 6,
+        "required": true,
+        "content": {
+          "body": "Add the two rectangle areas for paving. Add their perimeters and subtract the shared edge twice for the outside fence: the shared edge is internal to the combined region.",
+          "competencyKeys": []
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "quick_check",
+        "title": "Applied check",
+        "objective": "Choose area or perimeter to match each resource",
+        "sequence": 7,
+        "required": true,
+        "content": {
+          "body": "A rectangular school garden is 12 metres by 8 metres. An attached 4-by-3-metre rectangle shares its complete 3-metre side with part of the garden's 8-metre side, without overlap. Fence only the outside boundary; pave both regions.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "At 20 Ghana cedis per square metre, what is the material-only cost to pave 108 square metres?",
+            "options": [
+              "960 Ghana cedis",
+              "2160 Ghana cedis"
+            ],
+            "correctIndex": 1,
+            "explanation": "2160 Ghana cedis. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "quick_check",
+        "title": "Readiness check",
+        "objective": "Model the fixed-perimeter constraint consistently",
+        "sequence": 0,
+        "required": true,
+        "content": {
+          "body": "A school has 24 metres of fencing for a rectangular garden, with no gate. Compare side lengths 1 and 11, 2 and 10, 3 and 9, 4 and 8, 5 and 7, and 6 and 6 metres. Then consider all positive real side lengths with the same perimeter.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "A rectangle has perimeter 24 metres and width 5 metres. What is its length?",
+            "options": [
+              "7 metres",
+              "19 metres"
+            ],
+            "correctIndex": 0,
+            "explanation": "7 metres. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "big_picture",
+        "title": "Complex scenario",
+        "objective": "Model the fixed-perimeter constraint consistently",
+        "sequence": 1,
+        "required": true,
+        "content": {
+          "body": "A school has 24 metres of fencing for a rectangular garden, with no gate. Compare side lengths 1 and 11, 2 and 10, 3 and 9, 4 and 8, 5 and 7, and 6 and 6 metres. Then consider all positive real side lengths with the same perimeter.",
+          "competencyKeys": []
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "relationships",
+        "title": "Cross-concept connection",
+        "objective": "Model the fixed-perimeter constraint consistently",
+        "sequence": 2,
+        "required": true,
+        "content": {
+          "body": "Each candidate has length plus width equal to 12. Area is length times (12 minus length). A table supports a conjecture; the identity area = 36 minus (length minus 6) squared proves the maximum for all positive real lengths.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "If every length of a shape doubles, what happens to its area?",
+            "options": [
+              "It becomes four times as large",
+              "It doubles"
+            ],
+            "correctIndex": 0,
+            "explanation": "It becomes four times as large. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "example",
+        "title": "Evidence evaluation",
+        "objective": "Model the fixed-perimeter constraint consistently",
+        "sequence": 3,
+        "required": true,
+        "content": {
+          "body": "The candidate areas are 11, 20, 27, 32, 35 and 36 square metres. The 6-by-6 square is best among them. Since the square of a real number is nonnegative, 36 minus (length minus 6) squared cannot exceed 36.",
+          "competencyKeys": [
+            "geometry-advanced-1",
+            "geometry-advanced-2",
+            "geometry-advanced-3"
+          ],
+          "task": {
+            "prompt": "A school has 24 metres of fencing for a rectangular garden, with no gate. Compare side lengths 1 and 11, 2 and 10, 3 and 9, 4 and 8, 5 and 7, and 6 and 6 metres. Then consider all positive real side lengths with the same perimeter. Evaluate and justify the reasoning in the stated scenario. Use the stated constraint to compare the candidate rectangles. Then justify the maximum over all positive real lengths using the supplied squared expression or another valid proof. Separate evidence from a finite table from a general argument.",
+            "rubric": [
+              "Model the fixed-perimeter constraint consistently",
+              "Justify the square's maximum using an argument beyond a finite table",
+              "State the domain of the claim and distinguish examples from proof"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "application",
+        "title": "Independent problem",
+        "objective": "Model the fixed-perimeter constraint consistently",
+        "sequence": 4,
+        "required": true,
+        "content": {
+          "body": "A school has 24 metres of fencing for a rectangular garden, with no gate. Compare side lengths 1 and 11, 2 and 10, 3 and 9, 4 and 8, 5 and 7, and 6 and 6 metres. Then consider all positive real side lengths with the same perimeter.",
+          "competencyKeys": [
+            "geometry-advanced-1",
+            "geometry-advanced-2",
+            "geometry-advanced-3"
+          ],
+          "task": {
+            "prompt": "A school has 24 metres of fencing for a rectangular garden, with no gate. Compare side lengths 1 and 11, 2 and 10, 3 and 9, 4 and 8, 5 and 7, and 6 and 6 metres. Then consider all positive real side lengths with the same perimeter. Use the stated constraint to compare the candidate rectangles. Then justify the maximum over all positive real lengths using the supplied squared expression or another valid proof. Separate evidence from a finite table from a general argument.",
+            "rubric": [
+              "Model the fixed-perimeter constraint consistently",
+              "Justify the square's maximum using an argument beyond a finite table",
+              "State the domain of the claim and distinguish examples from proof"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "application",
+        "title": "Challenge or investigation",
+        "objective": "Model the fixed-perimeter constraint consistently",
+        "sequence": 5,
+        "required": true,
+        "content": {
+          "body": "A school has 24 metres of fencing for a rectangular garden, with no gate. Compare side lengths 1 and 11, 2 and 10, 3 and 9, 4 and 8, 5 and 7, and 6 and 6 metres. Then consider all positive real side lengths with the same perimeter.",
+          "competencyKeys": [
+            "geometry-advanced-1",
+            "geometry-advanced-2",
+            "geometry-advanced-3"
+          ],
+          "task": {
+            "prompt": "A school has 24 metres of fencing for a rectangular garden, with no gate. Compare side lengths 1 and 11, 2 and 10, 3 and 9, 4 and 8, 5 and 7, and 6 and 6 metres. Then consider all positive real side lengths with the same perimeter. Investigate a different fixed perimeter, such as 20 metres. Predict and test the maximum-area rectangle, and give a general argument for the maximum over all rectangles with that perimeter. Explain how scaling a square changes length, perimeter and area. State whether the same reasoning establishes a result for non-rectangular shapes.",
+            "rubric": [
+              "Model the fixed-perimeter constraint consistently",
+              "Justify the square's maximum using an argument beyond a finite table",
+              "State the domain of the claim and distinguish examples from proof"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "synthesis",
+        "title": "Justification",
+        "objective": "Model the fixed-perimeter constraint consistently",
+        "sequence": 6,
+        "required": true,
+        "content": {
+          "body": "Each candidate has length plus width equal to 12. Area is length times (12 minus length). A table supports a conjecture; the identity area = 36 minus (length minus 6) squared proves the maximum for all positive real lengths.",
+          "competencyKeys": [
+            "geometry-advanced-1",
+            "geometry-advanced-2",
+            "geometry-advanced-3"
+          ],
+          "task": {
+            "prompt": "A school has 24 metres of fencing for a rectangular garden, with no gate. Compare side lengths 1 and 11, 2 and 10, 3 and 9, 4 and 8, 5 and 7, and 6 and 6 metres. Then consider all positive real side lengths with the same perimeter. Evaluate and justify the reasoning in the stated scenario. Use the stated constraint to compare the candidate rectangles. Then justify the maximum over all positive real lengths using the supplied squared expression or another valid proof. Separate evidence from a finite table from a general argument.",
+            "rubric": [
+              "Model the fixed-perimeter constraint consistently",
+              "Justify the square's maximum using an argument beyond a finite table",
+              "State the domain of the claim and distinguish examples from proof"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "quick_check",
+        "title": "Advanced check",
+        "objective": "Model the fixed-perimeter constraint consistently",
+        "sequence": 7,
+        "required": true,
+        "content": {
+          "body": "A school has 24 metres of fencing for a rectangular garden, with no gate. Compare side lengths 1 and 11, 2 and 10, 3 and 9, 4 and 8, 5 and 7, and 6 and 6 metres. Then consider all positive real side lengths with the same perimeter.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "What is the greatest rectangular area enclosed by 24 metres of fencing, with no gate?",
+            "options": [
+              "48 square metres",
+              "36 square metres"
+            ],
+            "correctIndex": 1,
+            "explanation": "36 square metres. Use the relationship and conditions explained in this block."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "slug": "angles",
+    "concept_type": "quantitative",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-1",
+        "description": "An angle is a turn: explain and apply the stated relationship",
+        "sequence": 0,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-2",
+        "description": "Vertex and rays: explain and apply the stated relationship",
+        "sequence": 1,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-3",
+        "description": "Degrees and a full turn: explain and apply the stated relationship",
+        "sequence": 2,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-4",
+        "description": "Classify the marked angle: explain and apply the stated relationship",
+        "sequence": 3,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-5",
+        "description": "Angles on a straight line: explain and apply the stated relationship",
+        "sequence": 4,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-6",
+        "description": "Triangle angle total: explain and apply the stated relationship",
+        "sequence": 5,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-7",
+        "description": "Direction, not arm length: explain and apply the stated relationship",
+        "sequence": 6,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-8",
+        "description": "Explore a marked turn: explain and apply the stated relationship",
+        "sequence": 7,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-9",
+        "description": "Missing angle at a point: explain and apply the stated relationship",
+        "sequence": 8,
+        "evidence_type": "worked_example"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-10",
+        "description": "Do not measure by appearance: explain and apply the stated relationship",
+        "sequence": 9,
+        "evidence_type": "misconception"
+      },
+      {
+        "depth": "foundation",
+        "key": "geometry-foundation-11",
+        "description": "A triangular roof frame: explain and apply the stated relationship",
+        "sequence": 10,
+        "evidence_type": "application"
+      },
+      {
+        "depth": "applied",
+        "key": "geometry-applied-1",
+        "description": "Identify angle positions unambiguously",
+        "sequence": 0,
+        "evidence_type": "application"
+      },
+      {
+        "depth": "applied",
+        "key": "geometry-applied-2",
+        "description": "Use corresponding and straight-angle relationships to obtain 65 and 115 degrees",
+        "sequence": 1,
+        "evidence_type": "application"
+      },
+      {
+        "depth": "applied",
+        "key": "geometry-applied-3",
+        "description": "State the conditions and limits of the reasoning",
+        "sequence": 2,
+        "evidence_type": "application"
+      },
+      {
+        "depth": "advanced",
+        "key": "geometry-advanced-1",
+        "description": "Derive the convex-polygon interior-angle sum from a triangle partition",
+        "sequence": 0,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "advanced",
+        "key": "geometry-advanced-2",
+        "description": "Distinguish interior sums from exterior turns with a valid counterexample",
+        "sequence": 1,
+        "evidence_type": "quick_check"
+      },
+      {
+        "depth": "advanced",
+        "key": "geometry-advanced-3",
+        "description": "Distinguish regularity assumptions and justify an angle calculation",
+        "sequence": 2,
+        "evidence_type": "quick_check"
+      }
+    ],
+    "blocks": [
+      {
+        "depth": "foundation",
+        "block_type": "definition",
+        "title": "An angle is a turn",
+        "objective": "Demonstrate an angle is a turn",
+        "sequence": 0,
+        "required": true,
+        "content": {
+          "body": "An angle describes a turn between two rays meeting at a point. Specify which turn is intended when the same rays bound a smaller angle and a reflex angle. The vertex is the common endpoint.",
+          "competencyKeys": [
+            "geometry-foundation-1"
+          ],
+          "quickCheck": {
+            "prompt": "What does an angle measure?",
+            "options": [
+              "The amount of turn between rays",
+              "The length of a ray"
+            ],
+            "correctIndex": 0,
+            "explanation": "The amount of turn between rays. Use the relationship and conditions explained in this block."
+          },
+          "narration": "An angle describes a turn between two rays meeting at a point. Specify which turn is intended when the same rays bound a smaller angle and a reflex angle. The vertex is the common endpoint."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "components",
+        "title": "Vertex and rays",
+        "objective": "Demonstrate vertex and rays",
+        "sequence": 1,
+        "required": true,
+        "content": {
+          "body": "Two rays start at a shared vertex and form an angle. In angle ABC, B names the vertex. Extending either ray changes its drawn length but not the turn between the directions.",
+          "competencyKeys": [
+            "geometry-foundation-2"
+          ],
+          "quickCheck": {
+            "prompt": "In angle ABC, which letter identifies the vertex?",
+            "options": [
+              "A",
+              "B"
+            ],
+            "correctIndex": 1,
+            "explanation": "B. Use the relationship and conditions explained in this block."
+          },
+          "narration": "Two rays start at a shared vertex and form an angle. In angle ABC, B names the vertex. Extending either ray changes its drawn length but not the turn between the directions."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "vocabulary",
+        "title": "Degrees and a full turn",
+        "objective": "Demonstrate degrees and a full turn",
+        "sequence": 2,
+        "required": true,
+        "content": {
+          "body": "A degree is one three-hundred-and-sixtieth of a full turn. A right angle is 90 degrees, a straight angle is 180 degrees and a full turn is 360 degrees. Degrees measure turn, not distance.",
+          "competencyKeys": [
+            "geometry-foundation-3"
+          ],
+          "quickCheck": {
+            "prompt": "How many degrees are in a full turn?",
+            "options": [
+              "360",
+              "180"
+            ],
+            "correctIndex": 0,
+            "explanation": "360. Use the relationship and conditions explained in this block."
+          },
+          "narration": "A degree is one three-hundred-and-sixtieth of a full turn. A right angle is 90 degrees, a straight angle is 180 degrees and a full turn is 360 degrees. Degrees measure turn, not distance."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "categories",
+        "title": "Classify the marked angle",
+        "objective": "Demonstrate classify the marked angle",
+        "sequence": 3,
+        "required": true,
+        "content": {
+          "body": "An acute angle is greater than zero and less than 90 degrees. A right angle is 90 degrees; an obtuse angle is greater than 90 and less than 180 degrees. A straight angle is 180 degrees; a reflex angle is greater than 180 and less than 360 degrees.",
+          "competencyKeys": [
+            "geometry-foundation-4"
+          ],
+          "quickCheck": {
+            "prompt": "How is a marked angle of 120 degrees classified?",
+            "options": [
+              "Reflex",
+              "Obtuse"
+            ],
+            "correctIndex": 1,
+            "explanation": "Obtuse. Use the relationship and conditions explained in this block."
+          },
+          "narration": "An acute angle is greater than zero and less than 90 degrees. A right angle is 90 degrees; an obtuse angle is greater than 90 and less than 180 degrees. A straight angle is 180 degrees; a reflex angle is greater than 180 and less than 360 degrees."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "relationships",
+        "title": "Angles on a straight line",
+        "objective": "Demonstrate angles on a straight line",
+        "sequence": 4,
+        "required": true,
+        "content": {
+          "body": "Adjacent angles that together form a straight angle sum to 180 degrees. Angles around a point that make one complete turn sum to 360 degrees. Apply these totals only to the indicated complete straight angle or turn.",
+          "competencyKeys": [
+            "geometry-foundation-5"
+          ],
+          "quickCheck": {
+            "prompt": "Adjacent angles make a straight angle. One is 65 degrees. What is the other?",
+            "options": [
+              "115 degrees",
+              "295 degrees"
+            ],
+            "correctIndex": 0,
+            "explanation": "115 degrees. Use the relationship and conditions explained in this block."
+          },
+          "narration": "Adjacent angles that together form a straight angle sum to 180 degrees. Angles around a point that make one complete turn sum to 360 degrees. Apply these totals only to the indicated complete straight angle or turn."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "relationships",
+        "title": "Triangle angle total",
+        "objective": "Demonstrate triangle angle total",
+        "sequence": 5,
+        "required": true,
+        "content": {
+          "body": "The three interior angles of a triangle on a flat plane sum to 180 degrees. If two interior angles are 50 and 60 degrees, the third is 70 degrees. Identify the interior angles rather than substituting a marked exterior angle.",
+          "competencyKeys": [
+            "geometry-foundation-6"
+          ],
+          "quickCheck": {
+            "prompt": "A plane triangle has interior angles 50 and 60 degrees. What is the third?",
+            "options": [
+              "110 degrees",
+              "70 degrees"
+            ],
+            "correctIndex": 1,
+            "explanation": "70 degrees. Use the relationship and conditions explained in this block."
+          },
+          "narration": "The three interior angles of a triangle on a flat plane sum to 180 degrees. If two interior angles are 50 and 60 degrees, the third is 70 degrees. Identify the interior angles rather than substituting a marked exterior angle."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "big_picture",
+        "title": "Direction, not arm length",
+        "objective": "Demonstrate direction, not arm length",
+        "sequence": 6,
+        "required": true,
+        "content": {
+          "body": "Angles compare directions. Two drawings can show the same angle with different ray lengths or different orientations on the page. A right angle remains 90 degrees when its whole drawing is rotated.",
+          "competencyKeys": [
+            "geometry-foundation-7"
+          ],
+          "quickCheck": {
+            "prompt": "Does rotating an entire right-angle drawing change its angle size?",
+            "options": [
+              "No; it remains 90 degrees",
+              "Yes; any rotation changes its size"
+            ],
+            "correctIndex": 0,
+            "explanation": "No; it remains 90 degrees. Use the relationship and conditions explained in this block."
+          },
+          "narration": "Angles compare directions. Two drawings can show the same angle with different ray lengths or different orientations on the page. A right angle remains 90 degrees when its whole drawing is rotated."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "visual_model",
+        "title": "Explore a marked turn",
+        "objective": "Demonstrate explore a marked turn",
+        "sequence": 7,
+        "required": true,
+        "content": {
+          "body": "The model measures an anticlockwise turn from a fixed horizontal ray. Move the control through 90, 180 and 360 degrees and notice the marked turn. The same final ray direction can represent zero or a full turn, so the marked turn matters.",
+          "competencyKeys": [
+            "geometry-foundation-8"
+          ],
+          "quickCheck": {
+            "prompt": "The control shows a marked turn of 270 degrees. What type is it?",
+            "options": [
+              "Acute",
+              "Reflex"
+            ],
+            "correctIndex": 1,
+            "explanation": "Reflex. Use the relationship and conditions explained in this block."
+          },
+          "narration": "The model measures an anticlockwise turn from a fixed horizontal ray. Move the control through 90, 180 and 360 degrees and notice the marked turn. The same final ray direction can represent zero or a full turn, so the marked turn matters.",
+          "visual": "angle_turn"
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "worked_example",
+        "title": "Missing angle at a point",
+        "objective": "Demonstrate missing angle at a point",
+        "sequence": 8,
+        "required": true,
+        "content": {
+          "body": "Three adjacent angles fill one complete turn at a point. If two are 120 degrees and 95 degrees, the remaining angle is 360 minus 120 minus 95, or 145 degrees. Check that all three add to 360 degrees.",
+          "competencyKeys": [
+            "geometry-foundation-9"
+          ],
+          "quickCheck": {
+            "prompt": "Three angles fill a complete turn. Two are 120 and 95 degrees. What is the third?",
+            "options": [
+              "145 degrees",
+              "35 degrees"
+            ],
+            "correctIndex": 0,
+            "explanation": "145 degrees. Use the relationship and conditions explained in this block."
+          },
+          "narration": "Three adjacent angles fill one complete turn at a point. If two are 120 degrees and 95 degrees, the remaining angle is 360 minus 120 minus 95, or 145 degrees. Check that all three add to 360 degrees.",
+          "prerequisites": [
+            {
+              "kind": "skill",
+              "key": "geometry-subtract",
+              "label": "Subtract whole numbers",
+              "refresher": "Subtract the known part from the stated total.",
+              "check": {
+                "prompt": "What is 180 minus 65?",
+                "options": [
+                  "115",
+                  "245"
+                ],
+                "correctIndex": 0,
+                "explanation": "115. Use the relationship and conditions explained in this block."
+              }
+            }
+          ],
+          "examples": [
+            {
+              "key": "simple-worked-method",
+              "body": "Two angles fill a complete 360-degree turn. One is 270 degrees. The remaining angle is 90 degrees because 270 plus 90 equals 360.",
+              "category": "quantitative",
+              "difficulty": 1,
+              "support": "guided",
+              "quickCheck": {
+                "prompt": "Two angles fill a complete turn. One is 270 degrees. What is the remaining angle?",
+                "options": [
+                  "90 degrees",
+                  "270 degrees"
+                ],
+                "correctIndex": 0,
+                "explanation": "90 degrees. Use the relationship and conditions explained in this block."
+              }
+            },
+            {
+              "key": "apply-worked-method",
+              "body": "Three adjacent angles fill one complete turn at a point. If two are 120 degrees and 95 degrees, the remaining angle is 360 minus 120 minus 95, or 145 degrees. Check that all three add to 360 degrees.",
+              "category": "quantitative",
+              "difficulty": 2,
+              "support": "independent",
+              "prerequisites": [
+                {
+                  "kind": "skill",
+                  "key": "geometry-subtract",
+                  "label": "Subtract whole numbers",
+                  "refresher": "Subtract the known part from the stated total.",
+                  "check": {
+                    "prompt": "What is 180 minus 65?",
+                    "options": [
+                      "115",
+                      "245"
+                    ],
+                    "correctIndex": 0,
+                    "explanation": "115. Use the relationship and conditions explained in this block."
+                  }
+                }
+              ],
+              "quickCheck": {
+                "prompt": "Three angles fill a complete turn. Two are 120 and 95 degrees. What is the third?",
+                "options": [
+                  "145 degrees",
+                  "35 degrees"
+                ],
+                "correctIndex": 0,
+                "explanation": "145 degrees. Use the relationship and conditions explained in this block."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "misconception",
+        "title": "Do not measure by appearance",
+        "objective": "Demonstrate do not measure by appearance",
+        "sequence": 9,
+        "required": true,
+        "content": {
+          "body": "A sketch may not be drawn to scale. Use stated measurements and justified angle relationships rather than judging by eye. Longer rays do not make a larger angle, and a tilted square corner is still a right angle.",
+          "competencyKeys": [
+            "geometry-foundation-10"
+          ],
+          "quickCheck": {
+            "prompt": "A diagram is explicitly not to scale. Which is the sound method?",
+            "options": [
+              "Trust how wide the angle looks",
+              "Use given measurements and angle relationships"
+            ],
+            "correctIndex": 1,
+            "explanation": "Use given measurements and angle relationships. Use the relationship and conditions explained in this block."
+          },
+          "narration": "A sketch may not be drawn to scale. Use stated measurements and justified angle relationships rather than judging by eye. Longer rays do not make a larger angle, and a tilted square corner is still a right angle."
+        }
+      },
+      {
+        "depth": "foundation",
+        "block_type": "application",
+        "title": "A triangular roof frame",
+        "objective": "Demonstrate a triangular roof frame",
+        "sequence": 10,
+        "required": true,
+        "content": {
+          "body": "A plane triangular roof-frame drawing has two interior angles of 45 degrees and 65 degrees. The third is 70 degrees because the three interior angles total 180 degrees. A drawing alone does not certify a real structure's safety.",
+          "competencyKeys": [
+            "geometry-foundation-11"
+          ],
+          "quickCheck": {
+            "prompt": "In a plane triangle, two interior angles are 45 and 65 degrees. What is the third?",
+            "options": [
+              "70 degrees",
+              "110 degrees"
+            ],
+            "correctIndex": 0,
+            "explanation": "70 degrees. Use the relationship and conditions explained in this block."
+          },
+          "narration": "A plane triangular roof-frame drawing has two interior angles of 45 degrees and 65 degrees. The third is 70 degrees because the three interior angles total 180 degrees. A drawing alone does not certify a real structure's safety."
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "quick_check",
+        "title": "Readiness check",
+        "objective": "Identify angle positions unambiguously",
+        "sequence": 0,
+        "required": true,
+        "content": {
+          "body": "Two parallel horizontal lines are crossed by one transversal. The upper-right angle at the top intersection is 65 degrees. At the bottom intersection, identify the upper-right corresponding angle and the upper-left adjacent angle.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "A straight angle is split into 65 degrees and x. Find x.",
+            "options": [
+              "115 degrees",
+              "65 degrees"
+            ],
+            "correctIndex": 0,
+            "explanation": "115 degrees. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "big_picture",
+        "title": "Scenario",
+        "objective": "Identify angle positions unambiguously",
+        "sequence": 1,
+        "required": true,
+        "content": {
+          "body": "Two parallel horizontal lines are crossed by one transversal. The upper-right angle at the top intersection is 65 degrees. At the bottom intersection, identify the upper-right corresponding angle and the upper-left adjacent angle.",
+          "competencyKeys": []
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "process",
+        "title": "Method selection",
+        "objective": "Identify angle positions unambiguously",
+        "sequence": 2,
+        "required": true,
+        "content": {
+          "body": "Corresponding angles are equal when the lines are parallel. Adjacent angles forming a straight angle total 180 degrees. At one intersection, vertically opposite angles are equal: they face one another and do not share a side. Name the angle positions and relationship before calculating.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "When may corresponding angles at distinct intersections be assumed equal here?",
+            "options": [
+              "When the two lines are parallel",
+              "Whenever two lines look nearly parallel"
+            ],
+            "correctIndex": 0,
+            "explanation": "When the two lines are parallel. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "worked_example",
+        "title": "Guided application",
+        "objective": "Identify angle positions unambiguously",
+        "sequence": 3,
+        "required": true,
+        "content": {
+          "body": "The bottom upper-right angle is 65 degrees by corresponding angles. The bottom upper-left angle is 115 degrees because it forms a straight angle with 65 degrees. The parallel-line condition is essential for the corresponding-angle step.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "In the scenario, what is the bottom upper-right angle?",
+            "options": [
+              "115 degrees",
+              "65 degrees"
+            ],
+            "correctIndex": 1,
+            "explanation": "65 degrees. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "application",
+        "title": "Independent application",
+        "objective": "Identify angle positions unambiguously",
+        "sequence": 4,
+        "required": true,
+        "content": {
+          "body": "Two parallel horizontal lines are crossed by one transversal. The upper-right angle at the top intersection is 65 degrees. At the bottom intersection, identify the upper-right corresponding angle and the upper-left adjacent angle.",
+          "competencyKeys": [
+            "geometry-applied-1",
+            "geometry-applied-2",
+            "geometry-applied-3"
+          ],
+          "task": {
+            "prompt": "Two parallel horizontal lines are crossed by one transversal. The upper-right angle at the top intersection is 65 degrees. At the bottom intersection, identify the upper-right corresponding angle and the upper-left adjacent angle. Draw and label the stated configuration. Find the two requested bottom angles, and explain each step with its condition. Explain which inference is no longer guaranteed if the two horizontal lines are not parallel.",
+            "rubric": [
+              "Identify angle positions unambiguously",
+              "Use corresponding and straight-angle relationships to obtain 65 and 115 degrees",
+              "State the conditions and limits of the reasoning"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "application",
+        "title": "Lab or practical task",
+        "objective": "Identify angle positions unambiguously",
+        "sequence": 5,
+        "required": true,
+        "content": {
+          "body": "Two parallel horizontal lines are crossed by one transversal. The upper-right angle at the top intersection is 65 degrees. At the bottom intersection, identify the upper-right corresponding angle and the upper-left adjacent angle.",
+          "competencyKeys": [
+            "geometry-applied-1",
+            "geometry-applied-2",
+            "geometry-applied-3"
+          ],
+          "task": {
+            "prompt": "Two parallel horizontal lines are crossed by one transversal. The upper-right angle at the top intersection is 65 degrees. At the bottom intersection, identify the upper-right corresponding angle and the upper-left adjacent angle. Draw the stated two parallel lines and the transversal with the given 65-degree angle. Label corresponding, adjacent and vertically opposite angles. Measure to check the predictions and record one source of protractor error. Explain why measurement supports rather than proves the exact relationships.",
+            "rubric": [
+              "Identify angle positions unambiguously",
+              "Use corresponding and straight-angle relationships to obtain 65 and 115 degrees",
+              "State the conditions and limits of the reasoning"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "synthesis",
+        "title": "Reflection",
+        "objective": "Identify angle positions unambiguously",
+        "sequence": 6,
+        "required": true,
+        "content": {
+          "body": "Corresponding angles are equal when the lines are parallel. Adjacent angles forming a straight angle total 180 degrees. At one intersection, vertically opposite angles are equal: they face one another and do not share a side. Name the angle positions and relationship before calculating.",
+          "competencyKeys": []
+        }
+      },
+      {
+        "depth": "applied",
+        "block_type": "quick_check",
+        "title": "Applied check",
+        "objective": "Identify angle positions unambiguously",
+        "sequence": 7,
+        "required": true,
+        "content": {
+          "body": "Two parallel horizontal lines are crossed by one transversal. The upper-right angle at the top intersection is 65 degrees. At the bottom intersection, identify the upper-right corresponding angle and the upper-left adjacent angle.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "In the scenario, what is the bottom upper-left angle?",
+            "options": [
+              "245 degrees",
+              "115 degrees"
+            ],
+            "correctIndex": 1,
+            "explanation": "115 degrees. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "quick_check",
+        "title": "Readiness check",
+        "objective": "Derive the convex-polygon interior-angle sum from a triangle partition",
+        "sequence": 0,
+        "required": true,
+        "content": {
+          "body": "A convex polygon has n sides. Diagonals from one vertex partition its interior into n minus 2 triangles without overlap. A pupil claims that every polygon has interior-angle sum 360 degrees because a full turn is 360 degrees.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "What is the interior-angle sum of a plane triangle?",
+            "options": [
+              "180 degrees",
+              "360 degrees"
+            ],
+            "correctIndex": 0,
+            "explanation": "180 degrees. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "big_picture",
+        "title": "Complex scenario",
+        "objective": "Derive the convex-polygon interior-angle sum from a triangle partition",
+        "sequence": 1,
+        "required": true,
+        "content": {
+          "body": "A convex polygon has n sides. Diagonals from one vertex partition its interior into n minus 2 triangles without overlap. A pupil claims that every polygon has interior-angle sum 360 degrees because a full turn is 360 degrees.",
+          "competencyKeys": []
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "relationships",
+        "title": "Cross-concept connection",
+        "objective": "Derive the convex-polygon interior-angle sum from a triangle partition",
+        "sequence": 2,
+        "required": true,
+        "content": {
+          "body": "For a convex n-sided polygon, the triangle partition gives interior-angle sum (n minus 2) times 180 degrees. A full exterior turn is a different quantity. For a regular polygon all interior angles are equal; equal side lengths alone do not justify equal angles in a general polygon.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "How many triangles are formed by drawing all diagonals from one vertex of a convex hexagon?",
+            "options": [
+              "4",
+              "6"
+            ],
+            "correctIndex": 0,
+            "explanation": "4. Use the relationship and conditions explained in this block."
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "example",
+        "title": "Evidence evaluation",
+        "objective": "Derive the convex-polygon interior-angle sum from a triangle partition",
+        "sequence": 3,
+        "required": true,
+        "content": {
+          "body": "A convex pentagon partitions into three triangles, so its interior-angle sum is 540 degrees. A regular pentagon has interior angles 108 degrees. Its exterior turning angles are 72 degrees each and total 360 degrees.",
+          "competencyKeys": [
+            "geometry-advanced-1",
+            "geometry-advanced-2",
+            "geometry-advanced-3"
+          ],
+          "task": {
+            "prompt": "A convex polygon has n sides. Diagonals from one vertex partition its interior into n minus 2 triangles without overlap. A pupil claims that every polygon has interior-angle sum 360 degrees because a full turn is 360 degrees. Evaluate and justify the reasoning in the stated scenario. Evaluate the pupil's claim using a convex pentagon as a counterexample. Derive the interior-angle sum formula from the stated triangle partition. Explain why a 360-degree exterior turn does not establish that interior sum.",
+            "rubric": [
+              "Derive the convex-polygon interior-angle sum from a triangle partition",
+              "Distinguish interior sums from exterior turns with a valid counterexample",
+              "Distinguish regularity assumptions and justify an angle calculation"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "application",
+        "title": "Independent problem",
+        "objective": "Derive the convex-polygon interior-angle sum from a triangle partition",
+        "sequence": 4,
+        "required": true,
+        "content": {
+          "body": "A convex polygon has n sides. Diagonals from one vertex partition its interior into n minus 2 triangles without overlap. A pupil claims that every polygon has interior-angle sum 360 degrees because a full turn is 360 degrees.",
+          "competencyKeys": [
+            "geometry-advanced-1",
+            "geometry-advanced-2",
+            "geometry-advanced-3"
+          ],
+          "task": {
+            "prompt": "A convex polygon has n sides. Diagonals from one vertex partition its interior into n minus 2 triangles without overlap. A pupil claims that every polygon has interior-angle sum 360 degrees because a full turn is 360 degrees. Evaluate the pupil's claim using a convex pentagon as a counterexample. Derive the interior-angle sum formula from the stated triangle partition. Explain why a 360-degree exterior turn does not establish that interior sum.",
+            "rubric": [
+              "Derive the convex-polygon interior-angle sum from a triangle partition",
+              "Distinguish interior sums from exterior turns with a valid counterexample",
+              "Distinguish regularity assumptions and justify an angle calculation"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "application",
+        "title": "Challenge or investigation",
+        "objective": "Derive the convex-polygon interior-angle sum from a triangle partition",
+        "sequence": 5,
+        "required": true,
+        "content": {
+          "body": "A convex polygon has n sides. Diagonals from one vertex partition its interior into n minus 2 triangles without overlap. A pupil claims that every polygon has interior-angle sum 360 degrees because a full turn is 360 degrees.",
+          "competencyKeys": [
+            "geometry-advanced-1",
+            "geometry-advanced-2",
+            "geometry-advanced-3"
+          ],
+          "task": {
+            "prompt": "A convex polygon has n sides. Diagonals from one vertex partition its interior into n minus 2 triangles without overlap. A pupil claims that every polygon has interior-angle sum 360 degrees because a full turn is 360 degrees. Investigate whether a regular polygon can have each exterior turning angle equal to 40 degrees. Determine the number of sides and each interior angle, justify the result, and explain why a non-integer side count would reject a proposed regular polygon. Connect the result to the interior-angle sum obtained from a triangle partition, and contrast interior and exterior totals.",
+            "rubric": [
+              "Derive the convex-polygon interior-angle sum from a triangle partition",
+              "Distinguish interior sums from exterior turns with a valid counterexample",
+              "Distinguish regularity assumptions and justify an angle calculation"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "synthesis",
+        "title": "Justification",
+        "objective": "Derive the convex-polygon interior-angle sum from a triangle partition",
+        "sequence": 6,
+        "required": true,
+        "content": {
+          "body": "For a convex n-sided polygon, the triangle partition gives interior-angle sum (n minus 2) times 180 degrees. A full exterior turn is a different quantity. For a regular polygon all interior angles are equal; equal side lengths alone do not justify equal angles in a general polygon.",
+          "competencyKeys": [
+            "geometry-advanced-1",
+            "geometry-advanced-2",
+            "geometry-advanced-3"
+          ],
+          "task": {
+            "prompt": "A convex polygon has n sides. Diagonals from one vertex partition its interior into n minus 2 triangles without overlap. A pupil claims that every polygon has interior-angle sum 360 degrees because a full turn is 360 degrees. Evaluate and justify the reasoning in the stated scenario. Evaluate the pupil's claim using a convex pentagon as a counterexample. Derive the interior-angle sum formula from the stated triangle partition. Explain why a 360-degree exterior turn does not establish that interior sum.",
+            "rubric": [
+              "Derive the convex-polygon interior-angle sum from a triangle partition",
+              "Distinguish interior sums from exterior turns with a valid counterexample",
+              "Distinguish regularity assumptions and justify an angle calculation"
+            ]
+          }
+        }
+      },
+      {
+        "depth": "advanced",
+        "block_type": "quick_check",
+        "title": "Advanced check",
+        "objective": "Derive the convex-polygon interior-angle sum from a triangle partition",
+        "sequence": 7,
+        "required": true,
+        "content": {
+          "body": "A convex polygon has n sides. Diagonals from one vertex partition its interior into n minus 2 triangles without overlap. A pupil claims that every polygon has interior-angle sum 360 degrees because a full turn is 360 degrees.",
+          "competencyKeys": [],
+          "quickCheck": {
+            "prompt": "What is the interior-angle sum of a convex hexagon?",
+            "options": [
+              "360 degrees",
+              "720 degrees"
+            ],
+            "correctIndex": 1,
+            "explanation": "720 degrees. Use the relationship and conditions explained in this block."
+          }
+        }
+      }
+    ]
+  }
+]

@@ -203,3 +203,17 @@ Final focused reruns passed 26 checks across runtime components, existing block/
 Migrations 0033 (curriculum mappings), 0034 (class competency analytics) and 0035 (media contract/review attribution) are targeted additions. The full JavaScript suite passed 83 tests across 14 files using one reusable worker after fixing explicit DOM cleanup between files.
 
 Remaining release work: academic approval, authored curriculum mappings against chosen source documents, authenticated student/teacher/admin acceptance and deployment/controlled publication. Additional concept packs and externally generated media assets remain future content/integration work; school analytics remains deferred by request.
+
+## Mathematics expansion: perimeter/area and angles
+
+The user selected these two catalogue concepts for the next expansion. Each now has 11 Foundation blocks and eight blocks at each higher depth, with 17 competencies per concept: 54 new draft blocks and 34 competencies in total. The combined authoring inventory is now 12 concepts, 318 blocks (126 Foundation, 96 Applied, 96 Advanced) and 195 competencies.
+
+- Perimeter/area covers boundary versus coverage, units, rectangle relationships, triangle height/area, composite boundaries, resource costs and fixed-perimeter optimisation.
+- Angles covers turns, rays/vertex, degree units, classification, straight/full-turn and triangle relationships, parallel-line conditions, polygon sums and justification.
+- Both packs include assessed skill refreshers, easier worked alternatives with their own checks, narration and teacher-reviewed independent/practical tasks. No curriculum standard alignment is invented.
+- New accessible interactive models explore rectangle area/perimeter separately and explicitly marked angle turns from zero through reflex angles to a full turn.
+- Migrations 0036–0037 extend the visual contract and insert unpublished drafts. They preserve existing frameworks, review decisions and depth ceilings. Academic review must assess the new examples, assumptions and rubrics before publication.
+
+The production build and rollback-only geometry database assertions passed. Database regression confirms 54 blocks/34 competencies, draft-only insertion and preservation of edited/reviewed content on reapplication. Worker-start timeouts affected the first JavaScript reruns; final focused results are recorded in the release review.
+
+The final focused geometry rerun passed five tests across two files. The previously passing 83-test full suite remains the baseline; no new complete-suite pass is claimed after the expansion.

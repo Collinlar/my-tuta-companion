@@ -74,3 +74,15 @@ Rollback-only database fixtures cover teacher ownership, class filtering, distin
 Generated support is a reviewable text/narration and catalogue-diagram draft. New image files and downloadable audio generation are not implemented. Live model output and full authenticated browser acceptance remain unverified. The previously recorded academic approval and release gates still apply.
 
 Final production build and whitespace checks passed. Migrations 0033–0035 are applied, and the final class-scoped rollback assertions passed. Repository-wide TypeScript diagnostics still include the existing legacy errors; the media generator's new argument-type error found during verification was corrected. A completely green repository-wide typecheck is not claimed.
+
+## Geometry expansion handoff
+
+Added unpublished Perimeter and Area (`perimeter-area`) and Angles (`angles`) packs using the user's selected expansion. Each has 27 blocks and 17 competencies across three depths. The expansion adds 54 draft blocks and 34 competencies, bringing the combined pack to 318 blocks and 195 competencies across 12 concepts.
+
+Both include independent/practical tasks requiring review, assessed prerequisite repair, aligned easier worked examples, narration and accessible interactive geometry models. Existing content and depth ceilings are preserved. These packs are academic-review drafts; no curriculum alignments or approval claims were seeded.
+
+Migrations 0036–0037 are applied to the linked database. Production build and whitespace checks passed. Rollback-only assertions verify counts, draft status, and preservation of existing/edited review content when the pack is reapplied. The first full and focused JavaScript attempts failed to start workers; these failures are infrastructure results, not passing tests. A prior full suite passed 83 tests before this expansion.
+
+The final focused geometry rerun passed all five tests across the pack-validation and interactive-model files. These verify three-depth structural/mapping readiness, reviewed independent work, sample calculations, rectangle area/perimeter updates, reflex classification and a full turn. No dependency or assertion changes were used to bypass worker-start failures.
+
+Authenticated browser acceptance, human academic approval and controlled publication remain pending. School-level analytics remains deferred by user request. No source push or frontend deployment occurred.

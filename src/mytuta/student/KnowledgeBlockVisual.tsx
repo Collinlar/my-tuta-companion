@@ -1,10 +1,12 @@
 import { useState } from "react";
 import ConceptDiagram from "./ConceptDiagram";
+import GeometryDiagram from "./GeometryDiagram";
 import type { BlockVisual } from "../data/visuals";
 export type { BlockVisual } from "../data/visuals";
 
 export default function KnowledgeBlockVisual({ visual, onInteract }: { visual?: BlockVisual; onInteract?: () => void }) {
   if (!visual) return null;
+  if (visual === "area_perimeter" || visual === "angle_turn") return <GeometryDiagram kind={visual} onInteract={onInteract} />;
   if (visual !== "density_mass_volume" && visual !== "solar_system") return <ConceptDiagram visual={visual} onInteract={onInteract} />;
   if (visual === "density_mass_volume") return <figure style={{ margin: "18px 0" }}>
     <svg viewBox="0 0 520 300" role="img" aria-label="Mass against volume: material A reaches 30 grams at 10 cubic centimetres; material B reaches 20 grams at the same volume. A is denser." style={{ width: "100%", maxWidth: 620 }}>

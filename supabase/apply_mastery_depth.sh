@@ -57,6 +57,8 @@ FILES=(
   "20270000000033_curriculum_mappings.sql"
   "20270000000034_class_competency_analytics.sql"
   "20270000000035_media_support_contract.sql"
+  "20270000000036_geometry_visuals.sql"
+  "20270000000037_geometry_drafts.sql"
 )
 
 for f in "${FILES[@]}"; do
