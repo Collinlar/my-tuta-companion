@@ -1107,17 +1107,19 @@ import type { Depth } from "./depth";
 /** The Foundation (or other depth) Knowledge Blocks for a concept, ordered.
  * Empty when the concept has not been given blocks yet, which is the signal the
  * Learn flow uses to fall back to the single Understand stage. */
-export function useKnowledgeBlocks(conceptId: string | undefined, depth: Depth) {
+export function useKnowledgeBlocks(conceptId: string | undefined, depth: Depth, includeDrafts = false) {
   return useQuery({
-    queryKey: ["knowledge_blocks", conceptId, depth],
+    queryKey: ["knowledge_blocks", conceptId, depth, includeDrafts],
     enabled: !!conceptId,
     queryFn: async (): Promise<KnowledgeBlock[]> => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("knowledge_blocks")
         .select("*")
         .eq("concept_id", conceptId!)
         .eq("depth", depth)
         .order("sequence");
+      if (!includeDrafts) query = query.eq("review_status", "published");
+      const { data, error } = await query;
       if (error) throw error;
       return ((data as unknown as Record<string, unknown>[]) || []).map((r) => ({
         id: r.id as string,
@@ -1131,6 +1133,7 @@ export function useKnowledgeBlocks(conceptId: string | undefined, depth: Depth) 
         content: (r.content as BlockContent | null) ?? null,
         estimated_time: (r.estimated_time as string | null) ?? null,
         review_status: (r.review_status as string) ?? "draft",
+        version: (r.version as number) ?? 1,
       }));
     },
   });
@@ -1139,19 +1142,25 @@ export function useKnowledgeBlocks(conceptId: string | undefined, depth: Depth) 
 /** The set of Knowledge Block ids the learner has already covered for a concept
  * at a depth (Phase 2). Seeds the block-runner so prior understanding persists
  * across sessions, and backs the Foundation Completeness gate. Own-row RLS. */
-export function useBlockEvidence(conceptId: string | undefined, depth: Depth) {
+export function useBlockEvidence(conceptId: string | undefined, depth: Depth, revision = "") {
   return useQuery({
-    queryKey: ["block_evidence", conceptId, depth],
+    queryKey: ["block_evidence", conceptId, depth, revision],
     enabled: !!conceptId,
     queryFn: async (): Promise<Set<string>> => {
-      const { data, error } = await supabase
-        .from("depth_evidence")
-        .select("source_id")
-        .eq("concept_id", conceptId!)
-        .eq("depth", depth)
-        .eq("source_type", "block");
+      const { data, error } = await supabase.rpc("knowledge_block_progress", { p_concept_id: conceptId!, p_depth: depth });
       if (error) throw error;
-      return new Set(((data || []).map((r) => r.source_id).filter(Boolean)) as string[]);
+      return new Set(((data || []) as unknown as { id: string; covered: boolean }[]).filter((r) => r.covered).map((r) => r.id));
+    },
+  });
+}
+
+export function useBlockPrerequisiteGaps(conceptId: string | undefined, depth: Depth, revision = "") {
+  return useQuery({
+    queryKey: ["block_prerequisites", conceptId, depth, revision], enabled: !!conceptId,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("knowledge_block_progress", { p_concept_id: conceptId!, p_depth: depth });
+      if (error) throw error;
+      return Object.fromEntries(((data || []) as unknown as { id: string; gaps: { kind: string; key: string; label: string; refresher?: string }[] }[]).map((r) => [r.id, r.gaps]));
     },
   });
 }

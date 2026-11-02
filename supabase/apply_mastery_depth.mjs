@@ -43,6 +43,10 @@ const FILES = [
   "20270000000017_knowledge_blocks.sql",
   "20270000000018_admin_knowledge_blocks.sql",
   "20270000000019_depth_evidence_block_source.sql",
+  "20270000000020_knowledge_block_review.sql",
+  "20270000000021_foundation_evidence.sql",
+  "20270000000022_competency_pilot_drafts.sql",
+  "20270000000023_block_authoring_contract.sql",
 ];
 
 function ask(question) {

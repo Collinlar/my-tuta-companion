@@ -6,6 +6,7 @@ import { studioAiText } from "./constants";
 import { sanitizeLlmJson } from "./jsonRepair";
 import type { Depth } from "./depth";
 import { FOUNDATION_BLOCK_TEMPLATES, type BlockContent } from "./blocks";
+import { blockContentSchema } from "./blockValidation";
 import type { ConceptType } from "./competency";
 
 const SYSTEM = `You write STEM teaching content for Ghanaian secondary learners (JHS/SHS and WASSCE).
@@ -722,11 +723,12 @@ export async function generateFoundationBlocks(
   conceptName: string,
   subject: string,
   conceptType: ConceptType,
-  competencies: { description: string; required: boolean }[] = [],
+  competencies: { key: string; description: string; required: boolean; evidenceType?: string | null }[] = [],
 ): Promise<GeneratedBlock[]> {
+  if (!competencies.some((c) => c.required && c.description.trim())) throw new Error("Author required Foundation competencies before generating blocks.");
   const template = FOUNDATION_BLOCK_TEMPLATES[conceptType] || FOUNDATION_BLOCK_TEMPLATES.structural;
   const compList = competencies.length
-    ? `Foundation competencies the learner must reach (cover these across the blocks):\n${competencies.map((c, i) => `${i + 1}. ${c.description}${c.required ? "" : " (optional)"}`).join("\n")}`
+    ? `Foundation competencies the learner must reach (cover these across the blocks):\n${competencies.map((c, i) => `${i + 1}. [${c.key}] ${c.description} (evidence: ${c.evidenceType || "quick_check"})${c.required ? "" : " (optional)"}`).join("\n")}`
     : "No competencies authored yet; infer the standard foundational competencies for this concept and cover them.";
   const blockSpec = template.map((b, i) => `${i}. "${b.title}" (block_type: ${b.block_type})`).join("\n");
 
@@ -741,12 +743,14 @@ ${compList}
 Produce EXACTLY these blocks, in this order, keeping each exact title and block_type:
 ${blockSpec}
 
-Return JSON: {"blocks":[{"title":"...","block_type":"...","objective":"one sentence: what the learner can do after this block","estimated_time":"2 min","content":{"body":"2 to 4 sentences teaching THIS block's part only, specific and Ghana-grounded","modes":[{"label":"Simpler","text":"..."},{"label":"Analogy","text":"..."},{"label":"Real-world example","text":"..."}],"quickCheck":{"prompt":"one self-contained MCQ testing this block","options":["A","B","C","D"],"correctIndex":0,"explanation":"why the correct option is right"}}}]}.
+Return JSON: {"blocks":[{"title":"...","block_type":"...","objective":"one sentence: what the learner can do after this block","estimated_time":"2 min","content":{"competencyKeys":["matching-authored-key"],"body":"2 to 4 sentences teaching THIS block's part only, specific and Ghana-grounded","modes":[{"label":"Simpler","text":"..."},{"label":"Analogy","text":"..."},{"label":"Real-world example","text":"..."}],"quickCheck":{"prompt":"one self-contained MCQ testing this block","options":["A","B","C","D"],"correctIndex":0,"explanation":"why the correct option is right"}}}]}.
 Rules:
 - content.body teaches ONLY this block's part of the concept. Do NOT re-explain the whole concept in every block; each block adds something new.
 - modes are 2 to 3 genuinely different angles on THIS block, not the whole concept.
 - a misconception block's body states the misconception plainly, then corrects it.
-- include quickCheck ONLY where a check makes sense (definition, components, relationships, misconception, worked_example); omit it on others.
+- include quickCheck on every block linked to a competency, and always on application and misconception blocks.
+- competencyKeys must contain only keys from the authored list; each linked check must actually test those competencies.
+- Analogies must map back to the concept and explicitly state where the analogy stops being accurate.
 - every quickCheck prompt must be fully self-contained; state any values it needs.
 - Ghana-grounded; no em dashes; no filler phrases.`,
       },
@@ -766,7 +770,7 @@ Rules:
       required: true,
       sequence: i,
       estimated_time: (found.estimated_time as string) || "2 min",
-      content: (found.content as BlockContent) || { body: `${t.title} of ${conceptName}.` },
+      content: blockContentSchema.parse(found.content) as BlockContent,
     };
   });
 }

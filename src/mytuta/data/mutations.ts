@@ -1284,6 +1284,14 @@ export function useEnsureDepthPath() {
       const user_id = await uid();
       if (!user_id) throw new Error("Not signed in");
 
+      if (input.depth !== "foundation") {
+        const previous = input.depth === "advanced" ? "applied" : "foundation";
+        const { data: prerequisite, error } = await supabase.from("concept_depth_mastery")
+          .select("state").eq("user_id", user_id).eq("concept_id", input.conceptId).eq("depth", previous).maybeSingle();
+        if (error) throw error;
+        if (prerequisite?.state !== "secure") throw new Error(`Complete ${previous} evidence before starting ${input.depth}.`);
+      }
+
       const { data: existing } = await supabase
         .from("mastery_paths")
         .select("*")
@@ -1372,26 +1380,13 @@ export function useSaveDepthResult() {
       };
       const state = depthStateFromResult(input.overall, input.level);
 
-      // Foundation Completeness gate (Concept Competency Framework, Phase 2):
-      // when the concept has required Knowledge Blocks, a secure score alone is
-      // not Mastery; the learner must also have covered the required blocks. Only
-      // applies to Foundation and only when blocks exist, so block-less concepts
-      // behave exactly as before.
       let finalState = state;
       let completeness: FoundationCompleteness | null = null;
       if (input.depth === "foundation") {
-        const { data: reqBlocks } = await supabase
-          .from("knowledge_blocks").select("id")
-          .eq("concept_id", input.conceptId).eq("depth", "foundation").eq("required", true);
-        if (reqBlocks && reqBlocks.length > 0) {
-          const { data: cov } = await supabase
-            .from("depth_evidence").select("source_id")
-            .eq("user_id", user_id).eq("concept_id", input.conceptId)
-            .eq("depth", "foundation").eq("source_type", "block");
-          const covered = new Set(((cov || []).map((r) => r.source_id).filter(Boolean)) as string[]);
-          completeness = computeFoundationCompleteness(state, reqBlocks.map((b) => b.id as string), covered);
-          finalState = completeness.state;
-        }
+        const { data, error } = await supabase.rpc("save_foundation_result", { p_concept_id: input.conceptId, p_result: result as unknown as Json });
+        if (error) throw error;
+        completeness = data as unknown as FoundationCompleteness;
+        finalState = completeness.state;
       }
 
       // Pull any Lab/Challenge evidence the learner has at the NEXT depth so it
@@ -1405,7 +1400,9 @@ export function useSaveDepthResult() {
         const sources = (ev || []).map((e) => e.source_type);
         targetEvidence = { count: sources.length, hasLab: sources.includes("lab"), hasChallenge: sources.includes("challenge") };
       }
-      const readiness = computeDepthReadiness(input.depth, result, input.maxDepth, 20, targetEvidence);
+      let readiness = computeDepthReadiness(input.depth, result, input.maxDepth, 20, targetEvidence);
+      if (finalState !== "secure") readiness = { ...readiness, readiness: "not_ready", outcome: "reinforce_first", reason: "Complete the required Foundation evidence before progressing.", blockers: completeness?.missingCompetencies || ["required evidence"] };
+      if (input.depth === "foundation") return { ...readiness, completeness };
       const now = new Date().toISOString();
       const nextReviewAt =
         input.retentionEnabled && finalState === "secure"
@@ -1469,19 +1466,16 @@ export function useSaveDepthResult() {
  * 'block' depth_evidence row the Foundation Completeness gate reads. Append-only;
  * duplicate rows for the same block are harmless (coverage is a distinct set). */
 export function useRecordBlockEvidence() {
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { conceptId: string; depth: Depth; blockId: string; passed: boolean }) => {
-      const user_id = await uid();
-      if (!user_id) return;
-      await supabase.from("depth_evidence").insert({
-        user_id,
-        concept_id: input.conceptId,
-        depth: input.depth,
-        source_type: "block",
-        source_id: input.blockId,
-        score: input.passed ? 1 : 0,
+    mutationFn: async (input: { conceptId: string; depth: Depth; blockId: string; passed: boolean; version?: number; answer?: number | null }) => {
+      const { data, error } = await supabase.rpc("record_knowledge_block_evidence", {
+        p_block_id: input.blockId, p_version: input.version ?? 1, p_answer: input.answer ?? null,
       });
+      if (error) throw error;
+      return data;
     },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["block_evidence"] }),
   });
 }
 

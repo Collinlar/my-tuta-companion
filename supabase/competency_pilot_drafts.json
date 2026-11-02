@@ -1,0 +1,3148 @@
+[
+  {
+    "slug": "fractions",
+    "concept_type": "quantitative",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "foundation-1",
+        "description": "Explain numerator and denominator using equal parts",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-2",
+        "description": "Recognise equivalent fractions",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-3",
+        "description": "Compare fractions using a common whole",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-4",
+        "description": "Add and subtract fractions with compatible denominators",
+        "evidence_type": "quick_check",
+        "sequence": 3
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-5",
+        "description": "Correct unequal-part and denominator misconceptions",
+        "evidence_type": "misconception",
+        "sequence": 4
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-6",
+        "description": "Use a fraction to describe a shared quantity",
+        "evidence_type": "application",
+        "sequence": 5
+      },
+      {
+        "depth": "applied",
+        "key": "applied-1",
+        "description": "Solve sharing problems using fractions",
+        "evidence_type": "application",
+        "sequence": 0
+      },
+      {
+        "depth": "applied",
+        "key": "applied-2",
+        "description": "Select suitable operations in fraction scenarios",
+        "evidence_type": "application",
+        "sequence": 1
+      },
+      {
+        "depth": "applied",
+        "key": "applied-3",
+        "description": "Explain whether a fractional answer is reasonable",
+        "evidence_type": "application",
+        "sequence": 2
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-1",
+        "description": "Analyse unfamiliar fraction problems",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-2",
+        "description": "Connect fractions, ratios and percentages",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-3",
+        "description": "Justify equivalence and comparison methods",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      }
+    ],
+    "blocks": [
+      {
+        "title": "Equal parts",
+        "block_type": "definition",
+        "sequence": 0,
+        "objective": "Explain numerator and denominator using equal parts",
+        "required": true,
+        "content": {
+          "body": "A fraction compares a number of equal parts with the whole divided into those parts. The denominator names the total equal parts and the numerator counts the selected parts.",
+          "competencyKeys": [
+            "foundation-1"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain numerator and denominator using equal parts. The denominator names the total equal parts and the numerator counts the selected parts."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "In three quarters, what does the four represent?",
+            "options": [
+              "The number of equal parts in the whole",
+              "The number of selected parts"
+            ],
+            "correctIndex": 0,
+            "explanation": "The number of equal parts in the whole. A fraction compares a number of equal parts with the whole divided into those parts. The denominator names the total equal parts and the numerator counts the selected parts."
+          }
+        }
+      },
+      {
+        "title": "Equivalent fractions",
+        "block_type": "relationships",
+        "sequence": 1,
+        "objective": "Recognise equivalent fractions",
+        "required": true,
+        "content": {
+          "body": "Multiplying or dividing both numerator and denominator by the same nonzero number keeps a fraction's value. One half and two quarters cover the same amount of the same whole.",
+          "competencyKeys": [
+            "foundation-2"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Recognise equivalent fractions. One half and two quarters cover the same amount of the same whole."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which fraction equals one half?",
+            "options": [
+              "One quarter",
+              "Two quarters"
+            ],
+            "correctIndex": 1,
+            "explanation": "Two quarters. Multiplying or dividing both numerator and denominator by the same nonzero number keeps a fraction's value. One half and two quarters cover the same amount of the same whole."
+          }
+        }
+      },
+      {
+        "title": "Compare fairly",
+        "block_type": "relationships",
+        "sequence": 2,
+        "objective": "Compare fractions using a common whole",
+        "required": true,
+        "content": {
+          "body": "Compare fractions using the same whole. With a common denominator, the fraction with the larger numerator represents more equal-sized parts.",
+          "competencyKeys": [
+            "foundation-3"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Compare fractions using a common whole. With a common denominator, the fraction with the larger numerator represents more equal-sized parts."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "For the same whole, which is larger?",
+            "options": [
+              "Three fifths",
+              "Two fifths"
+            ],
+            "correctIndex": 0,
+            "explanation": "Three fifths. Compare fractions using the same whole. With a common denominator, the fraction with the larger numerator represents more equal-sized parts."
+          }
+        }
+      },
+      {
+        "title": "Combine fractions",
+        "block_type": "relationships",
+        "sequence": 3,
+        "objective": "Add and subtract fractions with compatible denominators",
+        "required": true,
+        "content": {
+          "body": "To add fractions, first express them in equal-sized parts. One quarter plus two quarters is three quarters; keep the denominator because the parts remain quarters.",
+          "competencyKeys": [
+            "foundation-4"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Add and subtract fractions with compatible denominators. One quarter plus two quarters is three quarters; keep the denominator because the parts remain quarters."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What is one quarter plus two quarters?",
+            "options": [
+              "Three eighths",
+              "Three quarters"
+            ],
+            "correctIndex": 1,
+            "explanation": "Three quarters. To add fractions, first express them in equal-sized parts. One quarter plus two quarters is three quarters; keep the denominator because the parts remain quarters."
+          }
+        }
+      },
+      {
+        "title": "Unequal parts",
+        "block_type": "misconception",
+        "sequence": 4,
+        "objective": "Correct unequal-part and denominator misconceptions",
+        "required": true,
+        "content": {
+          "body": "A shape divided into four pieces does not automatically show quarters. Each piece must have one quarter of the whole's area for each piece to represent a quarter.",
+          "competencyKeys": [
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Correct unequal-part and denominator misconceptions. Each piece must have one quarter of the whole's area for each piece to represent a quarter."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Four unequal pieces are cut from a cake. Is each piece a quarter?",
+            "options": [
+              "No, quarters must be equal portions",
+              "Yes, there are four pieces"
+            ],
+            "correctIndex": 0,
+            "explanation": "No, quarters must be equal portions. A shape divided into four pieces does not automatically show quarters. Each piece must have one quarter of the whole's area for each piece to represent a quarter."
+          }
+        }
+      },
+      {
+        "title": "Sharing a quantity",
+        "block_type": "application",
+        "sequence": 5,
+        "objective": "Use a fraction to describe a shared quantity",
+        "required": true,
+        "content": {
+          "body": "Sharing eight oranges equally between four learners gives two oranges per learner. Each learner receives one quarter of the total, so one quarter of eight is two.",
+          "competencyKeys": [
+            "foundation-6"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Use a fraction to describe a shared quantity. Each learner receives one quarter of the total, so one quarter of eight is two."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Eight oranges are shared equally among four learners. How many does each receive?",
+            "options": [
+              "Four",
+              "Two"
+            ],
+            "correctIndex": 1,
+            "explanation": "Two. Sharing eight oranges equally between four learners gives two oranges per learner. Each learner receives one quarter of the total, so one quarter of eight is two."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "slug": "ratios-proportion",
+    "concept_type": "quantitative",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "foundation-1",
+        "description": "Interpret a ratio as a comparison of quantities",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-2",
+        "description": "Identify the order and units of a ratio",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-3",
+        "description": "Recognise and simplify equivalent ratios",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-4",
+        "description": "Distinguish part-to-part and part-to-whole comparisons",
+        "evidence_type": "quick_check",
+        "sequence": 3
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-5",
+        "description": "Correct additive scaling misconceptions",
+        "evidence_type": "misconception",
+        "sequence": 4
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-6",
+        "description": "Use a simple ratio to share a quantity",
+        "evidence_type": "application",
+        "sequence": 5
+      },
+      {
+        "depth": "applied",
+        "key": "applied-1",
+        "description": "Scale recipes and mixtures",
+        "evidence_type": "application",
+        "sequence": 0
+      },
+      {
+        "depth": "applied",
+        "key": "applied-2",
+        "description": "Solve direct proportion problems",
+        "evidence_type": "application",
+        "sequence": 1
+      },
+      {
+        "depth": "applied",
+        "key": "applied-3",
+        "description": "Interpret ratio tables",
+        "evidence_type": "application",
+        "sequence": 2
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-1",
+        "description": "Distinguish proportional and nonproportional relationships",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-2",
+        "description": "Evaluate competing proportional models",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-3",
+        "description": "Justify a scaling method in an unfamiliar problem",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      }
+    ],
+    "blocks": [
+      {
+        "title": "Compare quantities",
+        "block_type": "definition",
+        "sequence": 0,
+        "objective": "Interpret a ratio as a comparison of quantities",
+        "required": true,
+        "content": {
+          "body": "A ratio states the relative amounts of two quantities. A ratio of two red counters to three blue counters means each matching group contains two red and three blue.",
+          "competencyKeys": [
+            "foundation-1"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Interpret a ratio as a comparison of quantities. A ratio of two red counters to three blue counters means each matching group contains two red and three blue."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What does red to blue of 2:3 mean?",
+            "options": [
+              "Two red for every three blue",
+              "Three red for every two blue"
+            ],
+            "correctIndex": 0,
+            "explanation": "Two red for every three blue. A ratio states the relative amounts of two quantities. A ratio of two red counters to three blue counters means each matching group contains two red and three blue."
+          }
+        }
+      },
+      {
+        "title": "Order and units",
+        "block_type": "relationships",
+        "sequence": 1,
+        "objective": "Identify the order and units of a ratio",
+        "required": true,
+        "content": {
+          "body": "The order in a ratio matters: girls to boys is different from boys to girls. Convert measurements to the same units before simplifying a ratio of lengths.",
+          "competencyKeys": [
+            "foundation-2"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Identify the order and units of a ratio. Convert measurements to the same units before simplifying a ratio of lengths."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "A class has 12 girls and 8 boys. What is girls to boys?",
+            "options": [
+              "8:12",
+              "12:8"
+            ],
+            "correctIndex": 1,
+            "explanation": "12:8. The order in a ratio matters: girls to boys is different from boys to girls. Convert measurements to the same units before simplifying a ratio of lengths."
+          }
+        }
+      },
+      {
+        "title": "Equivalent ratios",
+        "block_type": "relationships",
+        "sequence": 2,
+        "objective": "Recognise and simplify equivalent ratios",
+        "required": true,
+        "content": {
+          "body": "Multiply or divide every part of a ratio by the same positive factor to keep the comparison. The ratio 4:6 simplifies to 2:3 by dividing both parts by two.",
+          "competencyKeys": [
+            "foundation-3"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Recognise and simplify equivalent ratios. The ratio 4:6 simplifies to 2:3 by dividing both parts by two."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which ratio is equivalent to 4:6?",
+            "options": [
+              "2:3",
+              "2:4"
+            ],
+            "correctIndex": 0,
+            "explanation": "2:3. Multiply or divide every part of a ratio by the same positive factor to keep the comparison. The ratio 4:6 simplifies to 2:3 by dividing both parts by two."
+          }
+        }
+      },
+      {
+        "title": "Parts and whole",
+        "block_type": "relationships",
+        "sequence": 3,
+        "objective": "Distinguish part-to-part and part-to-whole comparisons",
+        "required": true,
+        "content": {
+          "body": "In a red-to-blue ratio of 2:3, there are five parts altogether. Red is two parts out of five of the total, rather than two out of three.",
+          "competencyKeys": [
+            "foundation-4"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Distinguish part-to-part and part-to-whole comparisons. Red is two parts out of five of the total, rather than two out of three."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "In a red-to-blue ratio of 2:3, what fraction of all counters is red?",
+            "options": [
+              "Two thirds",
+              "Two fifths"
+            ],
+            "correctIndex": 1,
+            "explanation": "Two fifths. In a red-to-blue ratio of 2:3, there are five parts altogether. Red is two parts out of five of the total, rather than two out of three."
+          }
+        }
+      },
+      {
+        "title": "Scale both parts",
+        "block_type": "misconception",
+        "sequence": 4,
+        "objective": "Correct additive scaling misconceptions",
+        "required": true,
+        "content": {
+          "body": "Equivalent ratios use multiplication, not the same addition to each number. Doubling 2:3 gives 4:6; adding two gives 4:5 and changes the comparison.",
+          "competencyKeys": [
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Correct additive scaling misconceptions. Doubling 2:3 gives 4:6; adding two gives 4:5 and changes the comparison."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "To double the mixture described by 2:3, which ratio should be used?",
+            "options": [
+              "4:6",
+              "4:5"
+            ],
+            "correctIndex": 0,
+            "explanation": "4:6. Equivalent ratios use multiplication, not the same addition to each number. Doubling 2:3 gives 4:6; adding two gives 4:5 and changes the comparison."
+          }
+        }
+      },
+      {
+        "title": "Share in a ratio",
+        "block_type": "application",
+        "sequence": 5,
+        "objective": "Use a simple ratio to share a quantity",
+        "required": true,
+        "content": {
+          "body": "To share ten exercise books in the ratio 2:3, first count five total parts. Each part is two books, so the shares are four books and six books.",
+          "competencyKeys": [
+            "foundation-6"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Use a simple ratio to share a quantity. Each part is two books, so the shares are four books and six books."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Ten books are shared in the ratio 2:3. What is the smaller share?",
+            "options": [
+              "Two books",
+              "Four books"
+            ],
+            "correctIndex": 1,
+            "explanation": "Four books. To share ten exercise books in the ratio 2:3, first count five total parts. Each part is two books, so the shares are four books and six books."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "slug": "percentages",
+    "concept_type": "quantitative",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "foundation-1",
+        "description": "Explain percent as parts per hundred",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-2",
+        "description": "Connect percentages to fractions and decimals",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-3",
+        "description": "Find a simple percentage of a quantity",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-4",
+        "description": "Identify the whole used in a percentage",
+        "evidence_type": "quick_check",
+        "sequence": 3
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-5",
+        "description": "Correct percent and percentage-point misconceptions",
+        "evidence_type": "misconception",
+        "sequence": 4
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-6",
+        "description": "Interpret a percentage in a practical situation",
+        "evidence_type": "application",
+        "sequence": 5
+      },
+      {
+        "depth": "applied",
+        "key": "applied-1",
+        "description": "Calculate discounts and percentage change",
+        "evidence_type": "application",
+        "sequence": 0
+      },
+      {
+        "depth": "applied",
+        "key": "applied-2",
+        "description": "Compare percentage information with different bases",
+        "evidence_type": "application",
+        "sequence": 1
+      },
+      {
+        "depth": "applied",
+        "key": "applied-3",
+        "description": "Use percentages in budgets and data",
+        "evidence_type": "application",
+        "sequence": 2
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-1",
+        "description": "Analyse successive percentage changes",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-2",
+        "description": "Evaluate misleading percentage claims",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-3",
+        "description": "Justify the choice of comparison base",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      }
+    ],
+    "blocks": [
+      {
+        "title": "Parts per hundred",
+        "block_type": "definition",
+        "sequence": 0,
+        "objective": "Explain percent as parts per hundred",
+        "required": true,
+        "content": {
+          "body": "Percent means per hundred. A result of 25 percent describes 25 equal parts out of every 100 parts of the reference whole.",
+          "competencyKeys": [
+            "foundation-1"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain percent as parts per hundred. A result of 25 percent describes 25 equal parts out of every 100 parts of the reference whole."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What does 25 percent mean?",
+            "options": [
+              "25 out of 100",
+              "25 out of 10"
+            ],
+            "correctIndex": 0,
+            "explanation": "25 out of 100. Percent means per hundred. A result of 25 percent describes 25 equal parts out of every 100 parts of the reference whole."
+          }
+        }
+      },
+      {
+        "title": "Equivalent forms",
+        "block_type": "relationships",
+        "sequence": 1,
+        "objective": "Connect percentages to fractions and decimals",
+        "required": true,
+        "content": {
+          "body": "A percentage can be written as a fraction over 100 or as a decimal. Fifty percent is 50/100, which equals one half and 0.5.",
+          "competencyKeys": [
+            "foundation-2"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Connect percentages to fractions and decimals. Fifty percent is 50/100, which equals one half and 0.5."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which decimal equals 50 percent?",
+            "options": [
+              "50.0",
+              "0.5"
+            ],
+            "correctIndex": 1,
+            "explanation": "0.5. A percentage can be written as a fraction over 100 or as a decimal. Fifty percent is 50/100, which equals one half and 0.5."
+          }
+        }
+      },
+      {
+        "title": "Find a percentage",
+        "block_type": "relationships",
+        "sequence": 2,
+        "objective": "Find a simple percentage of a quantity",
+        "required": true,
+        "content": {
+          "body": "Ten percent is one tenth of a quantity. Divide the quantity by ten, so ten percent of 80 is 8.",
+          "competencyKeys": [
+            "foundation-3"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Find a simple percentage of a quantity. Divide the quantity by ten, so ten percent of 80 is 8."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What is ten percent of 80?",
+            "options": [
+              "8",
+              "10"
+            ],
+            "correctIndex": 0,
+            "explanation": "8. Ten percent is one tenth of a quantity. Divide the quantity by ten, so ten percent of 80 is 8."
+          }
+        }
+      },
+      {
+        "title": "Identify the base",
+        "block_type": "relationships",
+        "sequence": 3,
+        "objective": "Identify the whole used in a percentage",
+        "required": true,
+        "content": {
+          "body": "A percentage is always taken relative to a whole or base. If 20 of 50 learners walk to school, the whole is the 50 learners, not the 20 who walk.",
+          "competencyKeys": [
+            "foundation-4"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Identify the whole used in a percentage. If 20 of 50 learners walk to school, the whole is the 50 learners, not the 20 who walk."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Twenty of fifty learners walk to school. What is the reference whole?",
+            "options": [
+              "Twenty learners",
+              "Fifty learners"
+            ],
+            "correctIndex": 1,
+            "explanation": "Fifty learners. A percentage is always taken relative to a whole or base. If 20 of 50 learners walk to school, the whole is the 50 learners, not the 20 who walk."
+          }
+        }
+      },
+      {
+        "title": "Percentage points",
+        "block_type": "misconception",
+        "sequence": 4,
+        "objective": "Correct percent and percentage-point misconceptions",
+        "required": true,
+        "content": {
+          "body": "A change from 20 percent to 30 percent is an increase of ten percentage points. It is a 50 percent relative increase because the change of ten is half the original twenty.",
+          "competencyKeys": [
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Correct percent and percentage-point misconceptions. It is a 50 percent relative increase because the change of ten is half the original twenty."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "From 20 percent to 30 percent is an increase of how many percentage points?",
+            "options": [
+              "Ten",
+              "Fifty"
+            ],
+            "correctIndex": 0,
+            "explanation": "Ten. A change from 20 percent to 30 percent is an increase of ten percentage points. It is a 50 percent relative increase because the change of ten is half the original twenty."
+          }
+        }
+      },
+      {
+        "title": "Use in context",
+        "block_type": "application",
+        "sequence": 5,
+        "objective": "Interpret a percentage in a practical situation",
+        "required": true,
+        "content": {
+          "body": "A 50 percent discount removes half the original price. An exercise book priced at 20 cedis therefore costs 10 cedis after the discount.",
+          "competencyKeys": [
+            "foundation-6"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Interpret a percentage in a practical situation. An exercise book priced at 20 cedis therefore costs 10 cedis after the discount."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "An exercise book costs 20 cedis before a 50 percent discount. What is the discounted price?",
+            "options": [
+              "15 cedis",
+              "10 cedis"
+            ],
+            "correctIndex": 1,
+            "explanation": "10 cedis. A 50 percent discount removes half the original price. An exercise book priced at 20 cedis therefore costs 10 cedis after the discount."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "slug": "linear-equations",
+    "concept_type": "procedural",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "foundation-1",
+        "description": "Explain equality and the role of a variable",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-2",
+        "description": "Identify inverse operations",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-3",
+        "description": "Solve one-step equations",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-4",
+        "description": "Solve two-step equations",
+        "evidence_type": "quick_check",
+        "sequence": 3
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-5",
+        "description": "Explain why both sides need the same operation",
+        "evidence_type": "quick_check",
+        "sequence": 4
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-6",
+        "description": "Check a solution by substitution",
+        "evidence_type": "application",
+        "sequence": 5
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-7",
+        "description": "Correct sign and balance errors",
+        "evidence_type": "misconception",
+        "sequence": 6
+      },
+      {
+        "depth": "applied",
+        "key": "applied-1",
+        "description": "Translate word problems into equations",
+        "evidence_type": "application",
+        "sequence": 0
+      },
+      {
+        "depth": "applied",
+        "key": "applied-2",
+        "description": "Select and apply a solution method",
+        "evidence_type": "application",
+        "sequence": 1
+      },
+      {
+        "depth": "applied",
+        "key": "applied-3",
+        "description": "Interpret a solution in its context",
+        "evidence_type": "application",
+        "sequence": 2
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-1",
+        "description": "Solve unfamiliar multi-step equations",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-2",
+        "description": "Connect equations to graphs",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-3",
+        "description": "Justify equivalent transformations",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      }
+    ],
+    "blocks": [
+      {
+        "title": "Equality and variables",
+        "block_type": "definition",
+        "sequence": 0,
+        "objective": "Explain equality and the role of a variable",
+        "required": true,
+        "content": {
+          "body": "An equation states that two expressions have the same value. A variable is a symbol whose value can make the equation true.",
+          "competencyKeys": [
+            "foundation-1"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain equality and the role of a variable. A variable is a symbol whose value can make the equation true."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What does the equals sign assert?",
+            "options": [
+              "Both expressions have the same value",
+              "The answer must be written next"
+            ],
+            "correctIndex": 0,
+            "explanation": "Both expressions have the same value. An equation states that two expressions have the same value. A variable is a symbol whose value can make the equation true."
+          }
+        }
+      },
+      {
+        "title": "Inverse operations",
+        "block_type": "relationships",
+        "sequence": 1,
+        "objective": "Identify inverse operations",
+        "required": true,
+        "content": {
+          "body": "Inverse operations undo one another. Subtraction undoes addition and division by a nonzero number undoes multiplication by that number.",
+          "competencyKeys": [
+            "foundation-2"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Identify inverse operations. Subtraction undoes addition and division by a nonzero number undoes multiplication by that number."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which operation undoes adding three?",
+            "options": [
+              "Multiplying by three",
+              "Subtracting three"
+            ],
+            "correctIndex": 1,
+            "explanation": "Subtracting three. Inverse operations undo one another. Subtraction undoes addition and division by a nonzero number undoes multiplication by that number."
+          }
+        }
+      },
+      {
+        "title": "One-step equations",
+        "block_type": "relationships",
+        "sequence": 2,
+        "objective": "Solve one-step equations",
+        "required": true,
+        "content": {
+          "body": "To solve $x+3=8$, subtract three from both sides. This leaves $x=5$, which makes the original equality true.",
+          "competencyKeys": [
+            "foundation-3"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Solve one-step equations. This leaves $x=5$, which makes the original equality true."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What solves x plus 3 equals 8?",
+            "options": [
+              "x equals 5",
+              "x equals 11"
+            ],
+            "correctIndex": 0,
+            "explanation": "x equals 5. To solve $x+3=8$, subtract three from both sides. This leaves $x=5$, which makes the original equality true."
+          }
+        }
+      },
+      {
+        "title": "Two-step equations",
+        "block_type": "relationships",
+        "sequence": 3,
+        "objective": "Solve two-step equations",
+        "required": true,
+        "content": {
+          "body": "To solve $2x+3=11$, first subtract three from both sides to obtain $2x=8$. Then divide both sides by two to obtain $x=4$.",
+          "competencyKeys": [
+            "foundation-4"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Solve two-step equations. Then divide both sides by two to obtain $x=4$."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What solves 2x plus 3 equals 11?",
+            "options": [
+              "x equals 7",
+              "x equals 4"
+            ],
+            "correctIndex": 1,
+            "explanation": "x equals 4. To solve $2x+3=11$, first subtract three from both sides to obtain $2x=8$. Then divide both sides by two to obtain $x=4$."
+          }
+        }
+      },
+      {
+        "title": "Keep the balance",
+        "block_type": "relationships",
+        "sequence": 4,
+        "objective": "Explain why both sides need the same operation",
+        "required": true,
+        "content": {
+          "body": "Applying the same valid operation to both sides preserves equality. Subtracting three only from one side generally changes the equation's solutions.",
+          "competencyKeys": [
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain why both sides need the same operation. Subtracting three only from one side generally changes the equation's solutions."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "When subtracting three to solve an equation, what must you do?",
+            "options": [
+              "Subtract three from both sides",
+              "Subtract three only from the variable side"
+            ],
+            "correctIndex": 0,
+            "explanation": "Subtract three from both sides. Applying the same valid operation to both sides preserves equality. Subtracting three only from one side generally changes the equation's solutions."
+          }
+        }
+      },
+      {
+        "title": "Check a solution",
+        "block_type": "application",
+        "sequence": 5,
+        "objective": "Check a solution by substitution",
+        "required": true,
+        "content": {
+          "body": "Substitute your proposed value into the original equation. For $3x=12$, substituting four gives $3(4)=12$, so four is a solution.",
+          "competencyKeys": [
+            "foundation-6"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Check a solution by substitution. For $3x=12$, substituting four gives $3(4)=12$, so four is a solution."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which value passes substitution into 3x equals 12?",
+            "options": [
+              "Nine",
+              "Four"
+            ],
+            "correctIndex": 1,
+            "explanation": "Four. Substitute your proposed value into the original equation. For $3x=12$, substituting four gives $3(4)=12$, so four is a solution."
+          }
+        }
+      },
+      {
+        "title": "Signs and balance",
+        "block_type": "misconception",
+        "sequence": 6,
+        "objective": "Correct sign and balance errors",
+        "required": true,
+        "content": {
+          "body": "For $x-4=7$, add four to both sides to undo subtraction. The solution is eleven; subtracting four again does not undo the original operation.",
+          "competencyKeys": [
+            "foundation-7"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Correct sign and balance errors. The solution is eleven; subtracting four again does not undo the original operation."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What solves x minus 4 equals 7?",
+            "options": [
+              "Eleven",
+              "Three"
+            ],
+            "correctIndex": 0,
+            "explanation": "Eleven. For $x-4=7$, add four to both sides to undo subtraction. The solution is eleven; subtracting four again does not undo the original operation."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "slug": "graphs-interpretation",
+    "concept_type": "representational",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "foundation-1",
+        "description": "Explain what a graph represents",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-2",
+        "description": "Identify axes, variables, units and scale",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-3",
+        "description": "Read a plotted value",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-4",
+        "description": "Describe a trend using evidence",
+        "evidence_type": "quick_check",
+        "sequence": 3
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-5",
+        "description": "Distinguish a trend from a single point",
+        "evidence_type": "quick_check",
+        "sequence": 4
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-6",
+        "description": "Correct misleading-scale misconceptions",
+        "evidence_type": "misconception",
+        "sequence": 5
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-7",
+        "description": "Use a graph to answer a simple contextual question",
+        "evidence_type": "application",
+        "sequence": 6
+      },
+      {
+        "depth": "applied",
+        "key": "applied-1",
+        "description": "Compare datasets using graphs",
+        "evidence_type": "application",
+        "sequence": 0
+      },
+      {
+        "depth": "applied",
+        "key": "applied-2",
+        "description": "Choose a suitable representation",
+        "evidence_type": "application",
+        "sequence": 1
+      },
+      {
+        "depth": "applied",
+        "key": "applied-3",
+        "description": "Interpret rate and change in context",
+        "evidence_type": "application",
+        "sequence": 2
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-1",
+        "description": "Evaluate graph-based claims",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-2",
+        "description": "Explain uncertainty and limitations",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-3",
+        "description": "Connect multiple representations to justify a conclusion",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      }
+    ],
+    "blocks": [
+      {
+        "title": "What a graph shows",
+        "block_type": "definition",
+        "sequence": 0,
+        "objective": "Explain what a graph represents",
+        "required": true,
+        "content": {
+          "body": "A graph represents a relationship or a set of data visually. Its title and labels tell you what the marks mean; a rising line has no clear physical meaning until the variables are identified.",
+          "competencyKeys": [
+            "foundation-1"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain what a graph represents. Its title and labels tell you what the marks mean; a rising line has no clear physical meaning until the variables are identified."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What must you identify before interpreting a graph?",
+            "options": [
+              "The variables represented",
+              "Only the colour of its line"
+            ],
+            "correctIndex": 0,
+            "explanation": "The variables represented. A graph represents a relationship or a set of data visually. Its title and labels tell you what the marks mean; a rising line has no clear physical meaning until the variables are identified."
+          }
+        }
+      },
+      {
+        "title": "Axes and scale",
+        "block_type": "relationships",
+        "sequence": 1,
+        "objective": "Identify axes, variables, units and scale",
+        "required": true,
+        "content": {
+          "body": "Axis labels identify quantities and units. Read the spacing between numbered marks to determine the scale; one square can represent more than one unit.",
+          "competencyKeys": [
+            "foundation-2"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Identify axes, variables, units and scale. Read the spacing between numbered marks to determine the scale; one square can represent more than one unit."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Axis marks are labelled 0, 10 and 20 at equal spacing. What does each interval represent?",
+            "options": [
+              "One unit",
+              "Ten units"
+            ],
+            "correctIndex": 1,
+            "explanation": "Ten units. Axis labels identify quantities and units. Read the spacing between numbered marks to determine the scale; one square can represent more than one unit."
+          }
+        }
+      },
+      {
+        "title": "Read a point",
+        "block_type": "relationships",
+        "sequence": 2,
+        "objective": "Read a plotted value",
+        "required": true,
+        "content": {
+          "body": "To read a point, find its horizontal position and then its vertical position using the labelled scales. If a point is at day two and temperature 30 degrees Celsius, it records that temperature for day two.",
+          "competencyKeys": [
+            "foundation-3"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Read a plotted value. If a point is at day two and temperature 30 degrees Celsius, it records that temperature for day two."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "A point is at day 2 and temperature 30 degrees Celsius. What does it report?",
+            "options": [
+              "Thirty degrees Celsius on day two",
+              "Two degrees Celsius on day thirty"
+            ],
+            "correctIndex": 0,
+            "explanation": "Thirty degrees Celsius on day two. To read a point, find its horizontal position and then its vertical position using the labelled scales. If a point is at day two and temperature 30 degrees Celsius, it records that temperature for day two."
+          }
+        }
+      },
+      {
+        "title": "Describe a trend",
+        "block_type": "relationships",
+        "sequence": 3,
+        "objective": "Describe a trend using evidence",
+        "required": true,
+        "content": {
+          "body": "A trend is an overall pattern across data. If readings rise from 10 to 20 to 30, say they increase and cite the readings rather than describing just one point.",
+          "competencyKeys": [
+            "foundation-4"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Describe a trend using evidence. If readings rise from 10 to 20 to 30, say they increase and cite the readings rather than describing just one point."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Readings are 10, 20 and 30 over successive days. What is their trend?",
+            "options": [
+              "Decreasing",
+              "Increasing"
+            ],
+            "correctIndex": 1,
+            "explanation": "Increasing. A trend is an overall pattern across data. If readings rise from 10 to 20 to 30, say they increase and cite the readings rather than describing just one point."
+          }
+        }
+      },
+      {
+        "title": "Point versus pattern",
+        "block_type": "relationships",
+        "sequence": 4,
+        "objective": "Distinguish a trend from a single point",
+        "required": true,
+        "content": {
+          "body": "An individual point describes one observation. A trend uses several observations, so an unusual single point need not describe the overall pattern.",
+          "competencyKeys": [
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Distinguish a trend from a single point. A trend uses several observations, so an unusual single point need not describe the overall pattern."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Can one unusually high reading alone establish a long-term upward trend?",
+            "options": [
+              "No, several observations are needed",
+              "Yes, the highest point is the trend"
+            ],
+            "correctIndex": 0,
+            "explanation": "No, several observations are needed. An individual point describes one observation. A trend uses several observations, so an unusual single point need not describe the overall pattern."
+          }
+        }
+      },
+      {
+        "title": "Misleading scales",
+        "block_type": "misconception",
+        "sequence": 5,
+        "objective": "Correct misleading-scale misconceptions",
+        "required": true,
+        "content": {
+          "body": "A vertical axis that begins near the smallest data value can make small differences look large. Compare the labelled numbers and units before judging the size of an effect.",
+          "competencyKeys": [
+            "foundation-6"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Correct misleading-scale misconceptions. Compare the labelled numbers and units before judging the size of an effect."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Two bars look very different on an axis starting at 98. What should you inspect first?",
+            "options": [
+              "Only the bar colours",
+              "The actual values and axis scale"
+            ],
+            "correctIndex": 1,
+            "explanation": "The actual values and axis scale. A vertical axis that begins near the smallest data value can make small differences look large. Compare the labelled numbers and units before judging the size of an effect."
+          }
+        }
+      },
+      {
+        "title": "Answer with evidence",
+        "block_type": "application",
+        "sequence": 6,
+        "objective": "Use a graph to answer a simple contextual question",
+        "required": true,
+        "content": {
+          "body": "If a rainfall graph gives Monday as 5 millimetres and Tuesday as 15 millimetres, Tuesday had 10 millimetres more rain. Use the labels and subtraction to support the comparison.",
+          "competencyKeys": [
+            "foundation-7"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Use a graph to answer a simple contextual question. Use the labels and subtraction to support the comparison."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Monday had 5 millimetres of rain and Tuesday had 15. How much more fell on Tuesday?",
+            "options": [
+              "Ten millimetres",
+              "Twenty millimetres"
+            ],
+            "correctIndex": 0,
+            "explanation": "Ten millimetres. If a rainfall graph gives Monday as 5 millimetres and Tuesday as 15 millimetres, Tuesday had 10 millimetres more rain. Use the labels and subtraction to support the comparison."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "slug": "photosynthesis",
+    "concept_type": "process",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "foundation-1",
+        "description": "Explain photosynthesis as producing glucose using light energy",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-2",
+        "description": "Identify carbon dioxide and water as reactants",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-3",
+        "description": "Identify glucose and oxygen as products",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-4",
+        "description": "Describe the roles of chlorophyll and light",
+        "evidence_type": "quick_check",
+        "sequence": 3
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-5",
+        "description": "Connect photosynthesis to plant structures",
+        "evidence_type": "quick_check",
+        "sequence": 4
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-6",
+        "description": "Correct plant-food and respiration misconceptions",
+        "evidence_type": "misconception",
+        "sequence": 5
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-7",
+        "description": "Predict a simple effect of changing light availability",
+        "evidence_type": "application",
+        "sequence": 6
+      },
+      {
+        "depth": "applied",
+        "key": "applied-1",
+        "description": "Interpret a photosynthesis investigation",
+        "evidence_type": "application",
+        "sequence": 0
+      },
+      {
+        "depth": "applied",
+        "key": "applied-2",
+        "description": "Explain effects of limiting factors",
+        "evidence_type": "application",
+        "sequence": 1
+      },
+      {
+        "depth": "applied",
+        "key": "applied-3",
+        "description": "Use evidence to compare plant conditions",
+        "evidence_type": "application",
+        "sequence": 2
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-1",
+        "description": "Evaluate experimental controls and limitations",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-2",
+        "description": "Connect photosynthesis to ecosystems and respiration",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-3",
+        "description": "Analyse unfamiliar limiting-factor data",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      }
+    ],
+    "blocks": [
+      {
+        "title": "Make glucose using light",
+        "block_type": "definition",
+        "sequence": 0,
+        "objective": "Explain photosynthesis as producing glucose using light energy",
+        "required": true,
+        "content": {
+          "body": "Photosynthesis uses light energy to make glucose from carbon dioxide and water. Energy is transferred into chemical stores; light is an energy source, not a material ingredient added to the glucose.",
+          "competencyKeys": [
+            "foundation-1"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain photosynthesis as producing glucose using light energy. Energy is transferred into chemical stores; light is an energy source, not a material ingredient added to the glucose."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What does photosynthesis produce using light energy?",
+            "options": [
+              "Glucose",
+              "Soil"
+            ],
+            "correctIndex": 0,
+            "explanation": "Glucose. Photosynthesis uses light energy to make glucose from carbon dioxide and water. Energy is transferred into chemical stores; light is an energy source, not a material ingredient added to the glucose."
+          }
+        }
+      },
+      {
+        "title": "Reactants",
+        "block_type": "relationships",
+        "sequence": 1,
+        "objective": "Identify carbon dioxide and water as reactants",
+        "required": true,
+        "content": {
+          "body": "Carbon dioxide and water provide the atoms used in photosynthesis. In a typical land plant, carbon dioxide enters leaves through stomata and water reaches leaves from the roots.",
+          "competencyKeys": [
+            "foundation-2"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Identify carbon dioxide and water as reactants. In a typical land plant, carbon dioxide enters leaves through stomata and water reaches leaves from the roots."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which pair supplies the main reactants?",
+            "options": [
+              "Oxygen and soil",
+              "Carbon dioxide and water"
+            ],
+            "correctIndex": 1,
+            "explanation": "Carbon dioxide and water. Carbon dioxide and water provide the atoms used in photosynthesis. In a typical land plant, carbon dioxide enters leaves through stomata and water reaches leaves from the roots."
+          }
+        }
+      },
+      {
+        "title": "Products",
+        "block_type": "relationships",
+        "sequence": 2,
+        "objective": "Identify glucose and oxygen as products",
+        "required": true,
+        "content": {
+          "body": "Glucose and oxygen are products of photosynthesis. Plants can use glucose in respiration, store it as starch, or use it to build other substances.",
+          "competencyKeys": [
+            "foundation-3"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Identify glucose and oxygen as products. Plants can use glucose in respiration, store it as starch, or use it to build other substances."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which pair are photosynthesis products?",
+            "options": [
+              "Glucose and oxygen",
+              "Water and carbon dioxide"
+            ],
+            "correctIndex": 0,
+            "explanation": "Glucose and oxygen. Glucose and oxygen are products of photosynthesis. Plants can use glucose in respiration, store it as starch, or use it to build other substances."
+          }
+        }
+      },
+      {
+        "title": "Chlorophyll and light",
+        "block_type": "relationships",
+        "sequence": 3,
+        "objective": "Describe the roles of chlorophyll and light",
+        "required": true,
+        "content": {
+          "body": "Chlorophyll is a pigment that absorbs light for photosynthesis. It is found in chloroplasts; having water alone does not replace the need for light energy.",
+          "competencyKeys": [
+            "foundation-4"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Describe the roles of chlorophyll and light. It is found in chloroplasts; having water alone does not replace the need for light energy."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What is chlorophyll's role?",
+            "options": [
+              "Supplying soil particles as food",
+              "Absorbing light energy"
+            ],
+            "correctIndex": 1,
+            "explanation": "Absorbing light energy. Chlorophyll is a pigment that absorbs light for photosynthesis. It is found in chloroplasts; having water alone does not replace the need for light energy."
+          }
+        }
+      },
+      {
+        "title": "Plant structures",
+        "block_type": "relationships",
+        "sequence": 4,
+        "objective": "Connect photosynthesis to plant structures",
+        "required": true,
+        "content": {
+          "body": "Roots absorb water and leaf stomata allow gas exchange. Water is carried to leaves in xylem, while chloroplasts in leaf cells carry out photosynthesis.",
+          "competencyKeys": [
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Connect photosynthesis to plant structures. Water is carried to leaves in xylem, while chloroplasts in leaf cells carry out photosynthesis."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which structure allows carbon dioxide to enter a typical leaf?",
+            "options": [
+              "Stomata",
+              "Root hairs only"
+            ],
+            "correctIndex": 0,
+            "explanation": "Stomata. Roots absorb water and leaf stomata allow gas exchange. Water is carried to leaves in xylem, while chloroplasts in leaf cells carry out photosynthesis."
+          }
+        }
+      },
+      {
+        "title": "Food and respiration",
+        "block_type": "misconception",
+        "sequence": 5,
+        "objective": "Correct plant-food and respiration misconceptions",
+        "required": true,
+        "content": {
+          "body": "Plants make their own organic food by photosynthesis rather than absorbing ready-made food from soil. Plants also respire during both day and night; photosynthesis and respiration are different processes.",
+          "competencyKeys": [
+            "foundation-6"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Correct plant-food and respiration misconceptions. Plants also respire during both day and night; photosynthesis and respiration are different processes."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which statement is accurate?",
+            "options": [
+              "Plants only respire when it is dark",
+              "Plants respire during day and night"
+            ],
+            "correctIndex": 1,
+            "explanation": "Plants respire during day and night. Plants make their own organic food by photosynthesis rather than absorbing ready-made food from soil. Plants also respire during both day and night; photosynthesis and respiration are different processes."
+          }
+        }
+      },
+      {
+        "title": "Change light conditions",
+        "block_type": "application",
+        "sequence": 6,
+        "objective": "Predict a simple effect of changing light availability",
+        "required": true,
+        "content": {
+          "body": "If light is limiting, increasing light can increase the rate of photosynthesis. Other factors such as carbon dioxide supply or temperature can become limiting, so brighter light does not always increase the rate indefinitely.",
+          "competencyKeys": [
+            "foundation-7"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Predict a simple effect of changing light availability. Other factors such as carbon dioxide supply or temperature can become limiting, so brighter light does not always increase the rate indefinitely."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "When light is limiting and other conditions are suitable, what can more light do?",
+            "options": [
+              "Increase photosynthesis rate",
+              "Always stop photosynthesis"
+            ],
+            "correctIndex": 0,
+            "explanation": "Increase photosynthesis rate. If light is limiting, increasing light can increase the rate of photosynthesis. Other factors such as carbon dioxide supply or temperature can become limiting, so brighter light does not always increase the rate indefinitely."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "slug": "density",
+    "concept_type": "quantitative",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "foundation-1",
+        "description": "Define density as mass per unit volume",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-2",
+        "description": "Distinguish mass and volume",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-3",
+        "description": "Interpret density units",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-4",
+        "description": "Use the density formula",
+        "evidence_type": "quick_check",
+        "sequence": 3
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-5",
+        "description": "Explain how mass and volume affect density",
+        "evidence_type": "quick_check",
+        "sequence": 4
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-6",
+        "description": "Interpret density on a mass-volume graph",
+        "evidence_type": "quick_check",
+        "sequence": 5
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-7",
+        "description": "Correct heavier-means-denser misconceptions",
+        "evidence_type": "misconception",
+        "sequence": 6
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-8",
+        "description": "Compare materials using density",
+        "evidence_type": "application",
+        "sequence": 7
+      },
+      {
+        "depth": "applied",
+        "key": "applied-1",
+        "description": "Measure mass and volume",
+        "evidence_type": "application",
+        "sequence": 0
+      },
+      {
+        "depth": "applied",
+        "key": "applied-2",
+        "description": "Calculate and compare densities from data",
+        "evidence_type": "application",
+        "sequence": 1
+      },
+      {
+        "depth": "applied",
+        "key": "applied-3",
+        "description": "Plan a simple density investigation",
+        "evidence_type": "application",
+        "sequence": 2
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-1",
+        "description": "Evaluate measurement error",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-2",
+        "description": "Determine the volume of an irregular object",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-3",
+        "description": "Connect density to buoyancy with appropriate conditions",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      }
+    ],
+    "blocks": [
+      {
+        "title": "Definition",
+        "block_type": "definition",
+        "sequence": 0,
+        "objective": "Define density as mass per unit volume",
+        "required": true,
+        "content": {
+          "body": "Density describes the mass in each unit of volume. A material with more mass in the same volume has greater density. Density helps us compare materials even when the samples are different sizes.",
+          "competencyKeys": [
+            "foundation-1"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Define density as mass per unit volume. Density helps us compare materials even when the samples are different sizes."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Two samples have the same volume. Which is denser?",
+            "options": [
+              "The sample with greater mass",
+              "The sample with less mass"
+            ],
+            "correctIndex": 0,
+            "explanation": "The sample with greater mass. Density describes the mass in each unit of volume. A material with more mass in the same volume has greater density. Density helps us compare materials even when the samples are different sizes."
+          }
+        }
+      },
+      {
+        "title": "Mass and volume",
+        "block_type": "components",
+        "sequence": 1,
+        "objective": "Distinguish mass and volume",
+        "required": true,
+        "content": {
+          "body": "Mass measures the amount of matter in a sample and is measured with a balance. Volume measures the space occupied by the sample. Changing the amount of a uniform material changes both its mass and volume.",
+          "competencyKeys": [
+            "foundation-2"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Distinguish mass and volume. Changing the amount of a uniform material changes both its mass and volume."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which measurement gives the space occupied by a sample?",
+            "options": [
+              "Mass",
+              "Volume"
+            ],
+            "correctIndex": 1,
+            "explanation": "Volume. Mass measures the amount of matter in a sample and is measured with a balance. Volume measures the space occupied by the sample. Changing the amount of a uniform material changes both its mass and volume."
+          }
+        }
+      },
+      {
+        "title": "Units",
+        "block_type": "vocabulary",
+        "sequence": 2,
+        "objective": "Interpret density units",
+        "required": true,
+        "content": {
+          "body": "Density units combine a mass unit with a volume unit. Grams per cubic centimetre means grams in each cubic centimetre. Keep the mass and volume units compatible before comparing calculated densities.",
+          "competencyKeys": [
+            "foundation-3"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Interpret density units. Keep the mass and volume units compatible before comparing calculated densities."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What does a density of 3 grams per cubic centimetre mean?",
+            "options": [
+              "Each cubic centimetre has a mass of 3 grams",
+              "Each gram occupies 3 cubic centimetres"
+            ],
+            "correctIndex": 0,
+            "explanation": "Each cubic centimetre has a mass of 3 grams. Density units combine a mass unit with a volume unit. Grams per cubic centimetre means grams in each cubic centimetre. Keep the mass and volume units compatible before comparing calculated densities."
+          }
+        }
+      },
+      {
+        "title": "Formula",
+        "block_type": "relationships",
+        "sequence": 3,
+        "objective": "Use the density formula",
+        "required": true,
+        "content": {
+          "body": "Density equals mass divided by volume: $\\rho=m/V$. For a sample of mass 12 grams and volume 4 cubic centimetres, divide 12 by 4. Its density is 3 grams per cubic centimetre.",
+          "competencyKeys": [
+            "foundation-4"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Use the density formula. Its density is 3 grams per cubic centimetre."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "A sample has mass 12 grams and volume 4 cubic centimetres. What is its density?",
+            "options": [
+              "48 grams per cubic centimetre",
+              "3 grams per cubic centimetre"
+            ],
+            "correctIndex": 1,
+            "explanation": "3 grams per cubic centimetre. Density equals mass divided by volume: $\\rho=m/V$. For a sample of mass 12 grams and volume 4 cubic centimetres, divide 12 by 4. Its density is 3 grams per cubic centimetre."
+          }
+        }
+      },
+      {
+        "title": "Changing mass and volume",
+        "block_type": "relationships",
+        "sequence": 4,
+        "objective": "Explain how mass and volume affect density",
+        "required": true,
+        "content": {
+          "body": "At fixed volume, greater mass means greater density. At fixed mass, a greater volume means lower density. Cutting a uniform solid in half halves both mass and volume, so its density stays the same under the same conditions.",
+          "competencyKeys": [
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain how mass and volume affect density. Cutting a uniform solid in half halves both mass and volume, so its density stays the same under the same conditions."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "A uniform block is cut in half. What happens to each piece's density?",
+            "options": [
+              "It stays the same",
+              "It halves"
+            ],
+            "correctIndex": 0,
+            "explanation": "It stays the same. At fixed volume, greater mass means greater density. At fixed mass, a greater volume means lower density. Cutting a uniform solid in half halves both mass and volume, so its density stays the same under the same conditions."
+          }
+        }
+      },
+      {
+        "title": "Physical meaning",
+        "block_type": "big_picture",
+        "sequence": 5,
+        "objective": "Define density as mass per unit volume",
+        "required": true,
+        "content": {
+          "body": "Imagine two identical measuring containers filled with different materials. Their equal volumes let you compare mass directly. The heavier filled sample, after subtracting the container mass, is the denser material; container size alone cannot tell you density.",
+          "competencyKeys": [
+            "foundation-1",
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Define density as mass per unit volume. The heavier filled sample, after subtracting the container mass, is the denser material; container size alone cannot tell you density."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Why compare samples in equal-sized containers?",
+            "options": [
+              "Equal containers make every material equally dense",
+              "Equal volumes let mass reveal the density difference"
+            ],
+            "correctIndex": 1,
+            "explanation": "Equal volumes let mass reveal the density difference. Imagine two identical measuring containers filled with different materials. Their equal volumes let you compare mass directly. The heavier filled sample, after subtracting the container mass, is the denser material; container size alone cannot tell you density."
+          }
+        }
+      },
+      {
+        "title": "Mass-volume graph",
+        "block_type": "visual_model",
+        "sequence": 6,
+        "objective": "Interpret density on a mass-volume graph",
+        "required": true,
+        "content": {
+          "body": "On a graph with volume on the horizontal axis and mass on the vertical axis, a uniform material at fixed conditions gives a straight line through the origin. The slope is mass divided by volume. A steeper line indicates greater density when both graphs use the same scales.",
+          "competencyKeys": [
+            "foundation-6"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Interpret density on a mass-volume graph. A steeper line indicates greater density when both graphs use the same scales."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Two mass-volume lines use the same axes and scales. Which represents greater density?",
+            "options": [
+              "The steeper line",
+              "The flatter line"
+            ],
+            "correctIndex": 0,
+            "explanation": "The steeper line. On a graph with volume on the horizontal axis and mass on the vertical axis, a uniform material at fixed conditions gives a straight line through the origin. The slope is mass divided by volume. A steeper line indicates greater density when both graphs use the same scales."
+          },
+          "visual": "density_mass_volume"
+        }
+      },
+      {
+        "title": "Worked example",
+        "block_type": "worked_example",
+        "sequence": 7,
+        "objective": "Use the density formula",
+        "required": true,
+        "content": {
+          "body": "A small material sample has mass 20 grams and volume 10 cubic centimetres. First identify mass and volume, then divide mass by volume. $20/10=2$, so the density is 2 grams per cubic centimetre; multiplying the quantities would give the wrong meaning and units.",
+          "competencyKeys": [
+            "foundation-4"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Use the density formula. $20/10=2$, so the density is 2 grams per cubic centimetre; multiplying the quantities would give the wrong meaning and units."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "A sample has mass 20 grams and volume 10 cubic centimetres. Which operation finds density?",
+            "options": [
+              "20 multiplied by 10",
+              "20 divided by 10"
+            ],
+            "correctIndex": 1,
+            "explanation": "20 divided by 10. A small material sample has mass 20 grams and volume 10 cubic centimetres. First identify mass and volume, then divide mass by volume. $20/10=2$, so the density is 2 grams per cubic centimetre; multiplying the quantities would give the wrong meaning and units."
+          }
+        }
+      },
+      {
+        "title": "Common errors",
+        "block_type": "misconception",
+        "sequence": 8,
+        "objective": "Correct heavier-means-denser misconceptions",
+        "required": true,
+        "content": {
+          "body": "A heavier object is not always made of a denser material. A large wooden object may have more total mass than a small metal object because it has much greater volume. Compare mass per unit volume, rather than mass alone.",
+          "competencyKeys": [
+            "foundation-7"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Correct heavier-means-denser misconceptions. Compare mass per unit volume, rather than mass alone."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "A large piece of wood is heavier than a small metal piece. Is the wood necessarily denser?",
+            "options": [
+              "No, their volumes must also be considered",
+              "Yes, greater mass always means greater density"
+            ],
+            "correctIndex": 0,
+            "explanation": "No, their volumes must also be considered. A heavier object is not always made of a denser material. A large wooden object may have more total mass than a small metal object because it has much greater volume. Compare mass per unit volume, rather than mass alone."
+          }
+        }
+      },
+      {
+        "title": "Compare materials",
+        "block_type": "application",
+        "sequence": 9,
+        "objective": "Compare materials using density",
+        "required": true,
+        "content": {
+          "body": "At a workshop, two equal-volume samples are placed on a balance. Sample A has mass 30 grams and sample B has mass 20 grams. Because their volumes are equal, A has the greater density; this comparison needs no complicated calculation.",
+          "competencyKeys": [
+            "foundation-8"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Compare materials using density. Because their volumes are equal, A has the greater density; this comparison needs no complicated calculation."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Two samples each occupy 10 cubic centimetres. A has mass 30 grams and B has mass 20 grams. Which is denser?",
+            "options": [
+              "Sample B",
+              "Sample A"
+            ],
+            "correctIndex": 1,
+            "explanation": "Sample A. At a workshop, two equal-volume samples are placed on a balance. Sample A has mass 30 grams and sample B has mass 20 grams. Because their volumes are equal, A has the greater density; this comparison needs no complicated calculation."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "slug": "forces",
+    "concept_type": "causal",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "foundation-1",
+        "description": "Define a force as an interaction that can change motion or shape",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-2",
+        "description": "Identify contact and noncontact forces",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-3",
+        "description": "Represent force direction and magnitude",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-4",
+        "description": "Distinguish balanced and unbalanced forces",
+        "evidence_type": "quick_check",
+        "sequence": 3
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-5",
+        "description": "Relate resultant force to changes in motion",
+        "evidence_type": "quick_check",
+        "sequence": 4
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-6",
+        "description": "Correct force-needed-for-steady-motion misconceptions",
+        "evidence_type": "misconception",
+        "sequence": 5
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-7",
+        "description": "Explain a simple push or pull scenario",
+        "evidence_type": "application",
+        "sequence": 6
+      },
+      {
+        "depth": "applied",
+        "key": "applied-1",
+        "description": "Draw and interpret force diagrams",
+        "evidence_type": "application",
+        "sequence": 0
+      },
+      {
+        "depth": "applied",
+        "key": "applied-2",
+        "description": "Predict motion from a resultant force",
+        "evidence_type": "application",
+        "sequence": 1
+      },
+      {
+        "depth": "applied",
+        "key": "applied-3",
+        "description": "Investigate the effect of a force",
+        "evidence_type": "application",
+        "sequence": 2
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-1",
+        "description": "Analyse unfamiliar interacting-force situations",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-2",
+        "description": "Evaluate evidence about force and motion",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-3",
+        "description": "Justify a model while stating its assumptions",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      }
+    ],
+    "blocks": [
+      {
+        "title": "Interactions",
+        "block_type": "definition",
+        "sequence": 0,
+        "objective": "Define a force as an interaction that can change motion or shape",
+        "required": true,
+        "content": {
+          "body": "A force is a push or pull arising from an interaction. It can change an object's motion or deform it; forces are measured in newtons.",
+          "competencyKeys": [
+            "foundation-1"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Define a force as an interaction that can change motion or shape. It can change an object's motion or deform it; forces are measured in newtons."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which describes a force?",
+            "options": [
+              "A push or pull from an interaction",
+              "The amount of space an object occupies"
+            ],
+            "correctIndex": 0,
+            "explanation": "A push or pull from an interaction. A force is a push or pull arising from an interaction. It can change an object's motion or deform it; forces are measured in newtons."
+          }
+        }
+      },
+      {
+        "title": "Contact and noncontact",
+        "block_type": "relationships",
+        "sequence": 1,
+        "objective": "Identify contact and noncontact forces",
+        "required": true,
+        "content": {
+          "body": "Friction and a person's push require contact between interacting surfaces. Gravity can act between objects without their surfaces touching.",
+          "competencyKeys": [
+            "foundation-2"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Identify contact and noncontact forces. Gravity can act between objects without their surfaces touching."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which force can act without surfaces touching?",
+            "options": [
+              "Surface friction",
+              "Gravity"
+            ],
+            "correctIndex": 1,
+            "explanation": "Gravity. Friction and a person's push require contact between interacting surfaces. Gravity can act between objects without their surfaces touching."
+          }
+        }
+      },
+      {
+        "title": "Force arrows",
+        "block_type": "relationships",
+        "sequence": 2,
+        "objective": "Represent force direction and magnitude",
+        "required": true,
+        "content": {
+          "body": "A force arrow points in the direction of the force. When a consistent scale is used, a longer arrow represents a greater force.",
+          "competencyKeys": [
+            "foundation-3"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Represent force direction and magnitude. When a consistent scale is used, a longer arrow represents a greater force."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "On a scaled force diagram, what does arrow direction show?",
+            "options": [
+              "The direction of the force",
+              "The object's mass"
+            ],
+            "correctIndex": 0,
+            "explanation": "The direction of the force. A force arrow points in the direction of the force. When a consistent scale is used, a longer arrow represents a greater force."
+          }
+        }
+      },
+      {
+        "title": "Balanced forces",
+        "block_type": "relationships",
+        "sequence": 3,
+        "objective": "Distinguish balanced and unbalanced forces",
+        "required": true,
+        "content": {
+          "body": "Forces are balanced when their vector sum is zero. An object can then remain at rest or continue moving at constant velocity; balanced forces do not mean that no forces act.",
+          "competencyKeys": [
+            "foundation-4"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Distinguish balanced and unbalanced forces. An object can then remain at rest or continue moving at constant velocity; balanced forces do not mean that no forces act."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Can an object with balanced forces move at constant velocity?",
+            "options": [
+              "No, balanced forces always stop it",
+              "Yes"
+            ],
+            "correctIndex": 1,
+            "explanation": "Yes. Forces are balanced when their vector sum is zero. An object can then remain at rest or continue moving at constant velocity; balanced forces do not mean that no forces act."
+          }
+        }
+      },
+      {
+        "title": "Resultant force",
+        "block_type": "relationships",
+        "sequence": 4,
+        "objective": "Relate resultant force to changes in motion",
+        "required": true,
+        "content": {
+          "body": "The resultant is the combined effect of all forces. A nonzero resultant changes velocity, which may mean speeding up, slowing down or changing direction.",
+          "competencyKeys": [
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Relate resultant force to changes in motion. A nonzero resultant changes velocity, which may mean speeding up, slowing down or changing direction."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What does a nonzero resultant force cause?",
+            "options": [
+              "A change in velocity",
+              "Motion at an unchanging velocity in every case"
+            ],
+            "correctIndex": 0,
+            "explanation": "A change in velocity. The resultant is the combined effect of all forces. A nonzero resultant changes velocity, which may mean speeding up, slowing down or changing direction."
+          }
+        }
+      },
+      {
+        "title": "Steady motion",
+        "block_type": "misconception",
+        "sequence": 5,
+        "objective": "Correct force-needed-for-steady-motion misconceptions",
+        "required": true,
+        "content": {
+          "body": "A constant forward speed in a straight line does not require a nonzero resultant force. On a road, a driving force can balance resistive forces while a vehicle keeps a steady velocity.",
+          "competencyKeys": [
+            "foundation-6"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Correct force-needed-for-steady-motion misconceptions. On a road, a driving force can balance resistive forces while a vehicle keeps a steady velocity."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "A vehicle moves straight at steady speed. How can its driving and resistive forces compare?",
+            "options": [
+              "Driving force must always exceed resistance",
+              "They can balance"
+            ],
+            "correctIndex": 1,
+            "explanation": "They can balance. A constant forward speed in a straight line does not require a nonzero resultant force. On a road, a driving force can balance resistive forces while a vehicle keeps a steady velocity."
+          }
+        }
+      },
+      {
+        "title": "Simple resultant",
+        "block_type": "application",
+        "sequence": 6,
+        "objective": "Explain a simple push or pull scenario",
+        "required": true,
+        "content": {
+          "body": "Two opposite horizontal forces act on a box: ten newtons right and six newtons left. Subtract the smaller magnitude from the larger to get a resultant of four newtons right.",
+          "competencyKeys": [
+            "foundation-7"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain a simple push or pull scenario. Subtract the smaller magnitude from the larger to get a resultant of four newtons right."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Ten newtons right and six newtons left act on a box. What is the resultant?",
+            "options": [
+              "Four newtons right",
+              "Sixteen newtons right"
+            ],
+            "correctIndex": 0,
+            "explanation": "Four newtons right. Two opposite horizontal forces act on a box: ten newtons right and six newtons left. Subtract the smaller magnitude from the larger to get a resultant of four newtons right."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "slug": "electricity",
+    "concept_type": "systems",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "foundation-1",
+        "description": "Identify the components of a simple circuit",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-2",
+        "description": "Explain why a complete conducting path is needed",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-3",
+        "description": "Distinguish current and potential difference",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-4",
+        "description": "Read simple circuit symbols",
+        "evidence_type": "quick_check",
+        "sequence": 3
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-5",
+        "description": "Compare basic series and parallel arrangements",
+        "evidence_type": "quick_check",
+        "sequence": 4
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-6",
+        "description": "Correct current-used-up misconceptions",
+        "evidence_type": "misconception",
+        "sequence": 5
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-7",
+        "description": "Predict the effect of opening a switch",
+        "evidence_type": "application",
+        "sequence": 6
+      },
+      {
+        "depth": "applied",
+        "key": "applied-1",
+        "description": "Build and interpret a simple circuit",
+        "evidence_type": "application",
+        "sequence": 0
+      },
+      {
+        "depth": "applied",
+        "key": "applied-2",
+        "description": "Use current and voltage measurements",
+        "evidence_type": "application",
+        "sequence": 1
+      },
+      {
+        "depth": "applied",
+        "key": "applied-3",
+        "description": "Investigate a circuit change safely",
+        "evidence_type": "application",
+        "sequence": 2
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-1",
+        "description": "Analyse unfamiliar circuits",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-2",
+        "description": "Evaluate measurement limitations",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-3",
+        "description": "Justify circuit design choices",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      }
+    ],
+    "blocks": [
+      {
+        "title": "Circuit parts",
+        "block_type": "definition",
+        "sequence": 0,
+        "objective": "Identify the components of a simple circuit",
+        "required": true,
+        "content": {
+          "body": "A cell supplies an electrical potential difference, wires provide conducting paths, and components such as lamps transfer electrical energy. A switch opens or closes a path.",
+          "competencyKeys": [
+            "foundation-1"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Identify the components of a simple circuit. A switch opens or closes a path."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which component can open or close a simple circuit?",
+            "options": [
+              "A switch",
+              "A ruler beside the circuit"
+            ],
+            "correctIndex": 0,
+            "explanation": "A switch. A cell supplies an electrical potential difference, wires provide conducting paths, and components such as lamps transfer electrical energy. A switch opens or closes a path."
+          }
+        }
+      },
+      {
+        "title": "Complete path",
+        "block_type": "relationships",
+        "sequence": 1,
+        "objective": "Explain why a complete conducting path is needed",
+        "required": true,
+        "content": {
+          "body": "A steady current through a simple lamp circuit requires a complete conducting path through the source and lamp. A gap in that path stops the steady current in the series circuit.",
+          "competencyKeys": [
+            "foundation-2"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain why a complete conducting path is needed. A gap in that path stops the steady current in the series circuit."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What does a simple lamp circuit need for steady current?",
+            "options": [
+              "A gap in the only conducting path",
+              "A complete conducting path"
+            ],
+            "correctIndex": 1,
+            "explanation": "A complete conducting path. A steady current through a simple lamp circuit requires a complete conducting path through the source and lamp. A gap in that path stops the steady current in the series circuit."
+          }
+        }
+      },
+      {
+        "title": "Current and voltage",
+        "block_type": "relationships",
+        "sequence": 2,
+        "objective": "Distinguish current and potential difference",
+        "required": true,
+        "content": {
+          "body": "Current is the rate of flow of electric charge and is measured in amperes. Potential difference is energy transferred per unit charge and is measured in volts; the quantities describe different properties.",
+          "competencyKeys": [
+            "foundation-3"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Distinguish current and potential difference. Potential difference is energy transferred per unit charge and is measured in volts; the quantities describe different properties."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which quantity is measured in amperes?",
+            "options": [
+              "Current",
+              "Potential difference"
+            ],
+            "correctIndex": 0,
+            "explanation": "Current. Current is the rate of flow of electric charge and is measured in amperes. Potential difference is energy transferred per unit charge and is measured in volts; the quantities describe different properties."
+          }
+        }
+      },
+      {
+        "title": "Circuit symbols",
+        "block_type": "relationships",
+        "sequence": 3,
+        "objective": "Read simple circuit symbols",
+        "required": true,
+        "content": {
+          "body": "Circuit diagrams use standard symbols rather than pictures of components. A cell is represented by a pair of unequal parallel lines; a lamp is commonly a circle with a cross inside.",
+          "competencyKeys": [
+            "foundation-4"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Read simple circuit symbols. A cell is represented by a pair of unequal parallel lines; a lamp is commonly a circle with a cross inside."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which symbol commonly represents a lamp?",
+            "options": [
+              "A pair of unequal parallel lines",
+              "A circle with a cross inside"
+            ],
+            "correctIndex": 1,
+            "explanation": "A circle with a cross inside. Circuit diagrams use standard symbols rather than pictures of components. A cell is represented by a pair of unequal parallel lines; a lamp is commonly a circle with a cross inside."
+          }
+        }
+      },
+      {
+        "title": "Series and parallel",
+        "block_type": "relationships",
+        "sequence": 4,
+        "objective": "Compare basic series and parallel arrangements",
+        "required": true,
+        "content": {
+          "body": "A series circuit has one path through its components. Parallel branches provide multiple paths, so opening one branch need not interrupt another complete branch.",
+          "competencyKeys": [
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Compare basic series and parallel arrangements. Parallel branches provide multiple paths, so opening one branch need not interrupt another complete branch."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which arrangement offers separate branch paths?",
+            "options": [
+              "Parallel",
+              "Series only"
+            ],
+            "correctIndex": 0,
+            "explanation": "Parallel. A series circuit has one path through its components. Parallel branches provide multiple paths, so opening one branch need not interrupt another complete branch."
+          }
+        }
+      },
+      {
+        "title": "Charge is not used up",
+        "block_type": "misconception",
+        "sequence": 5,
+        "objective": "Correct current-used-up misconceptions",
+        "required": true,
+        "content": {
+          "body": "A lamp transfers energy from the electrical system but does not use up charge. In a steady simple series circuit, the current is the same on either side of the lamp.",
+          "competencyKeys": [
+            "foundation-6"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Correct current-used-up misconceptions. In a steady simple series circuit, the current is the same on either side of the lamp."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "How does steady current before and after a lamp compare in a simple series circuit?",
+            "options": [
+              "It is always zero after the lamp",
+              "It is the same"
+            ],
+            "correctIndex": 1,
+            "explanation": "It is the same. A lamp transfers energy from the electrical system but does not use up charge. In a steady simple series circuit, the current is the same on either side of the lamp."
+          }
+        }
+      },
+      {
+        "title": "Open a switch",
+        "block_type": "application",
+        "sequence": 6,
+        "objective": "Predict the effect of opening a switch",
+        "required": true,
+        "content": {
+          "body": "In a cell-switch-lamp series circuit, opening the switch breaks the only conducting path. The lamp then goes out because the steady current stops.",
+          "competencyKeys": [
+            "foundation-7"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Predict the effect of opening a switch. The lamp then goes out because the steady current stops."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "What happens when the switch opens in a simple series lamp circuit?",
+            "options": [
+              "The lamp goes out",
+              "The lamp must become brighter"
+            ],
+            "correctIndex": 0,
+            "explanation": "The lamp goes out. In a cell-switch-lamp series circuit, opening the switch breaks the only conducting path. The lamp then goes out because the steady current stops."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "slug": "space-solar-system",
+    "concept_type": "structural",
+    "competencies": [
+      {
+        "depth": "foundation",
+        "key": "foundation-1",
+        "description": "Define the Solar System",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-2",
+        "description": "Explain the Sun's role",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-3",
+        "description": "Name the eight planets in order",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-4",
+        "description": "Distinguish inner rocky planets from outer giants",
+        "evidence_type": "quick_check",
+        "sequence": 3
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-5",
+        "description": "Identify moons, dwarf planets, asteroids and comets",
+        "evidence_type": "quick_check",
+        "sequence": 4
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-6",
+        "description": "Explain gravity and orbit",
+        "evidence_type": "quick_check",
+        "sequence": 5
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-7",
+        "description": "Distinguish rotation from revolution",
+        "evidence_type": "quick_check",
+        "sequence": 6
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-8",
+        "description": "Explain Solar System scale",
+        "evidence_type": "quick_check",
+        "sequence": 7
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-9",
+        "description": "Correct common Solar System misconceptions",
+        "evidence_type": "misconception",
+        "sequence": 8
+      },
+      {
+        "depth": "foundation",
+        "key": "foundation-10",
+        "description": "Interpret a simple Solar System scenario",
+        "evidence_type": "application",
+        "sequence": 9
+      },
+      {
+        "depth": "applied",
+        "key": "applied-1",
+        "description": "Interpret Solar System diagrams",
+        "evidence_type": "application",
+        "sequence": 0
+      },
+      {
+        "depth": "applied",
+        "key": "applied-2",
+        "description": "Use simple scale information",
+        "evidence_type": "application",
+        "sequence": 1
+      },
+      {
+        "depth": "applied",
+        "key": "applied-3",
+        "description": "Apply orbital ideas to a scenario",
+        "evidence_type": "application",
+        "sequence": 2
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-1",
+        "description": "Analyse unfamiliar orbital scenarios",
+        "evidence_type": "quick_check",
+        "sequence": 0
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-2",
+        "description": "Connect gravity, motion and scale",
+        "evidence_type": "quick_check",
+        "sequence": 1
+      },
+      {
+        "depth": "advanced",
+        "key": "advanced-3",
+        "description": "Evaluate astronomical claims using evidence",
+        "evidence_type": "quick_check",
+        "sequence": 2
+      }
+    ],
+    "blocks": [
+      {
+        "title": "What is the Solar System?",
+        "block_type": "definition",
+        "sequence": 0,
+        "objective": "Define the Solar System",
+        "required": true,
+        "content": {
+          "body": "The Solar System consists of the Sun and the objects gravitationally bound to it. These include planets, dwarf planets, moons and many smaller bodies. It is part of the Milky Way galaxy, rather than the whole galaxy.",
+          "competencyKeys": [
+            "foundation-1"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Define the Solar System. It is part of the Milky Way galaxy, rather than the whole galaxy."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which description identifies the Solar System?",
+            "options": [
+              "The Sun and objects gravitationally bound to it",
+              "Every star in the Milky Way"
+            ],
+            "correctIndex": 0,
+            "explanation": "The Sun and objects gravitationally bound to it. The Solar System consists of the Sun and the objects gravitationally bound to it. These include planets, dwarf planets, moons and many smaller bodies. It is part of the Milky Way galaxy, rather than the whole galaxy."
+          }
+        }
+      },
+      {
+        "title": "The Sun",
+        "block_type": "components",
+        "sequence": 1,
+        "objective": "Explain the Sun's role",
+        "required": true,
+        "content": {
+          "body": "The Sun is the star at the centre of the Solar System. It supplies most of the light and energy received by its planets. Its large mass makes its gravity the dominant influence on planetary orbits.",
+          "competencyKeys": [
+            "foundation-2"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain the Sun's role. Its large mass makes its gravity the dominant influence on planetary orbits."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Why is the Sun central to the Solar System?",
+            "options": [
+              "It is a planet that reflects Earth's light",
+              "It is the system's star and dominant source of gravitational attraction"
+            ],
+            "correctIndex": 1,
+            "explanation": "It is the system's star and dominant source of gravitational attraction. The Sun is the star at the centre of the Solar System. It supplies most of the light and energy received by its planets. Its large mass makes its gravity the dominant influence on planetary orbits."
+          }
+        }
+      },
+      {
+        "title": "The eight planets",
+        "block_type": "components",
+        "sequence": 2,
+        "objective": "Name the eight planets in order",
+        "required": true,
+        "content": {
+          "body": "The eight planets in order from the Sun are Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus and Neptune. Earth is the third planet. A planet's position in this sequence describes its orbit relative to the other planetary orbits, not its size.",
+          "competencyKeys": [
+            "foundation-3"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Name the eight planets in order. A planet's position in this sequence describes its orbit relative to the other planetary orbits, not its size."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which sequence begins correctly from the Sun?",
+            "options": [
+              "Mercury, Venus, Earth, Mars",
+              "Earth, Mars, Venus, Mercury"
+            ],
+            "correctIndex": 0,
+            "explanation": "Mercury, Venus, Earth, Mars. The eight planets in order from the Sun are Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus and Neptune. Earth is the third planet. A planet's position in this sequence describes its orbit relative to the other planetary orbits, not its size."
+          },
+          "visual": "solar_system"
+        }
+      },
+      {
+        "title": "Inner and outer planets",
+        "block_type": "categories",
+        "sequence": 3,
+        "objective": "Distinguish inner rocky planets from outer giants",
+        "required": true,
+        "content": {
+          "body": "Mercury, Venus, Earth and Mars are the inner rocky planets. Jupiter and Saturn are gas giants; Uranus and Neptune are ice giants. The outer planets are much farther from the Sun, and the words gas and ice describe broad planetary categories rather than a simple surface covering.",
+          "competencyKeys": [
+            "foundation-4"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Distinguish inner rocky planets from outer giants. The outer planets are much farther from the Sun, and the words gas and ice describe broad planetary categories rather than a simple surface covering."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which pair contains the ice giants?",
+            "options": [
+              "Mercury and Mars",
+              "Uranus and Neptune"
+            ],
+            "correctIndex": 1,
+            "explanation": "Uranus and Neptune. Mercury, Venus, Earth and Mars are the inner rocky planets. Jupiter and Saturn are gas giants; Uranus and Neptune are ice giants. The outer planets are much farther from the Sun, and the words gas and ice describe broad planetary categories rather than a simple surface covering."
+          }
+        }
+      },
+      {
+        "title": "Moons and dwarf planets",
+        "block_type": "categories",
+        "sequence": 4,
+        "objective": "Identify moons, dwarf planets, asteroids and comets",
+        "required": true,
+        "content": {
+          "body": "A moon is a natural satellite orbiting another body such as a planet. A dwarf planet orbits the Sun and is approximately round, is not a moon, and has not cleared the neighbourhood around its orbit. Pluto is a dwarf planet; changing its category did not remove it from the Solar System.",
+          "competencyKeys": [
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Identify moons, dwarf planets, asteroids and comets. Pluto is a dwarf planet; changing its category did not remove it from the Solar System."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which statement about Pluto is correct?",
+            "options": [
+              "It is a dwarf planet within the Solar System",
+              "It left the Solar System when its category changed"
+            ],
+            "correctIndex": 0,
+            "explanation": "It is a dwarf planet within the Solar System. A moon is a natural satellite orbiting another body such as a planet. A dwarf planet orbits the Sun and is approximately round, but has not cleared the neighbourhood around its orbit. Pluto is a dwarf planet; changing its category did not remove it from the Solar System."
+          }
+        }
+      },
+      {
+        "title": "Asteroids and comets",
+        "block_type": "categories",
+        "sequence": 5,
+        "objective": "Identify moons, dwarf planets, asteroids and comets",
+        "required": true,
+        "content": {
+          "body": "Asteroids are typically rocky or metallic small bodies. Comets contain substantial ice and dust; approaching the Sun can release gas and dust that form a coma and tails. These are smaller Solar System bodies, not stars.",
+          "competencyKeys": [
+            "foundation-5"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Identify moons, dwarf planets, asteroids and comets. These are smaller Solar System bodies, not stars."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which body can release gas and dust as it approaches the Sun?",
+            "options": [
+              "A star called an asteroid",
+              "A comet"
+            ],
+            "correctIndex": 1,
+            "explanation": "A comet. Asteroids are typically rocky or metallic small bodies. Comets contain substantial ice and dust; approaching the Sun can release gas and dust that form a coma and tails. These are smaller Solar System bodies, not stars."
+          }
+        }
+      },
+      {
+        "title": "Orbit and gravity",
+        "block_type": "relationships",
+        "sequence": 6,
+        "objective": "Explain gravity and orbit",
+        "required": true,
+        "content": {
+          "body": "Gravity attracts bodies with mass. A planet's forward motion and the Sun's gravitational attraction together produce its orbit. Planets do not need a solid track, and gravity still acts in space.",
+          "competencyKeys": [
+            "foundation-6"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain gravity and orbit. Planets do not need a solid track, and gravity still acts in space."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Why does a planet follow an orbit around the Sun?",
+            "options": [
+              "Its motion combines with the Sun's gravitational attraction",
+              "A solid invisible rail supports it"
+            ],
+            "correctIndex": 0,
+            "explanation": "Its motion combines with the Sun's gravitational attraction. Gravity attracts bodies with mass. A planet's forward motion and the Sun's gravitational attraction together produce its orbit. Planets do not need a solid track, and gravity still acts in space."
+          }
+        }
+      },
+      {
+        "title": "Rotation and revolution",
+        "block_type": "process",
+        "sequence": 7,
+        "objective": "Distinguish rotation from revolution",
+        "required": true,
+        "content": {
+          "body": "Rotation means turning about an axis. Revolution means travelling around another body. Earth's rotation produces the day-night cycle, while its revolution around the Sun takes about one year.",
+          "competencyKeys": [
+            "foundation-7"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Distinguish rotation from revolution. Earth's rotation produces the day-night cycle, while its revolution around the Sun takes about one year."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which motion produces Earth's day-night cycle?",
+            "options": [
+              "Revolution around the Sun",
+              "Rotation about its axis"
+            ],
+            "correctIndex": 1,
+            "explanation": "Rotation about its axis. Rotation means turning about an axis. Revolution means travelling around another body. Earth's rotation produces the day-night cycle, while its revolution around the Sun takes about one year."
+          }
+        }
+      },
+      {
+        "title": "Scale and distance",
+        "block_type": "big_picture",
+        "sequence": 8,
+        "objective": "Explain Solar System scale",
+        "required": true,
+        "content": {
+          "body": "Distances between planets are enormous compared with their sizes. An astronomical unit is approximately the average Earth-Sun distance. Many diagrams enlarge the planets so they are visible, so you should check whether both sizes and distances are drawn to scale.",
+          "competencyKeys": [
+            "foundation-8"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Explain Solar System scale. Many diagrams enlarge the planets so they are visible, so you should check whether both sizes and distances are drawn to scale."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Why might a Solar System diagram show oversized planets?",
+            "options": [
+              "To make the planets visible despite the huge distances",
+              "Because planets touch one another in space"
+            ],
+            "correctIndex": 0,
+            "explanation": "To make the planets visible despite the huge distances. Distances between planets are enormous compared with their sizes. An astronomical unit is approximately the average Earth-Sun distance. Many diagrams enlarge the planets so they are visible, so you should check whether both sizes and distances are drawn to scale."
+          }
+        }
+      },
+      {
+        "title": "Common misconceptions",
+        "block_type": "misconception",
+        "sequence": 9,
+        "objective": "Correct common Solar System misconceptions",
+        "required": true,
+        "content": {
+          "body": "The Sun is a star, not a planet. The Moon reflects sunlight rather than producing its own visible light. Earth's seasons mainly result from its axial tilt during its orbit, rather than simply being nearer to the Sun.",
+          "competencyKeys": [
+            "foundation-9"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Correct common Solar System misconceptions. Earth's seasons mainly result from its axial tilt during its orbit, rather than simply being nearer to the Sun."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "Which statement is accurate?",
+            "options": [
+              "The Moon is a small star producing its own light",
+              "The Moon is visible because it reflects sunlight"
+            ],
+            "correctIndex": 1,
+            "explanation": "The Moon is visible because it reflects sunlight. The Sun is a star, not a planet. The Moon reflects sunlight rather than producing its own visible light. Earth's seasons mainly result from its axial tilt during its orbit, rather than simply being nearer to the Sun."
+          }
+        }
+      },
+      {
+        "title": "Put it together",
+        "block_type": "application",
+        "sequence": 10,
+        "objective": "Interpret a simple Solar System scenario",
+        "required": true,
+        "content": {
+          "body": "A learner draws Earth spinning while its centre moves along a path around the Sun. The spinning arrow represents rotation; the path arrow represents revolution. Labelling both motions helps explain how day and year refer to different cycles without using unrelated mathematics.",
+          "competencyKeys": [
+            "foundation-10"
+          ],
+          "prerequisites": [],
+          "modes": [
+            {
+              "label": "Focus on the key idea",
+              "text": "Interpret a simple Solar System scenario. Labelling both motions helps explain how day and year refer to different cycles without using unrelated mathematics."
+            }
+          ],
+          "quickCheck": {
+            "prompt": "A diagram shows Earth spinning and moving around the Sun. Which labels are correct?",
+            "options": [
+              "Spinning is rotation; travelling around the Sun is revolution",
+              "Spinning is revolution; travelling around the Sun is rotation"
+            ],
+            "correctIndex": 0,
+            "explanation": "Spinning is rotation; travelling around the Sun is revolution. A learner draws Earth spinning while its centre moves along a path around the Sun. The spinning arrow represents rotation; the path arrow represents revolution. Labelling both motions helps explain how day and year refer to different cycles without using unrelated mathematics."
+          }
+        }
+      }
+    ]
+  }
+]

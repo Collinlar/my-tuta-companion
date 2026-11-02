@@ -230,13 +230,18 @@ export function nextRetentionStep(priorIntervalDays: number, priorEase: number, 
 
 // ---------- Foundation Completeness (Concept Competency Framework, Phase 2) ----------
 
-export type FoundationOutcome = "secure" | "secure_with_reinforcement" | "developing";
+export type FoundationOutcome = "secure" | "secure_with_reinforcement" | "developing" | "blocked_by_prerequisite";
 
 export interface FoundationCompleteness {
   outcome: FoundationOutcome;
   state: DepthState;       // the depth state after the coverage gate
   requiredBlocks: number;
   coveredBlocks: number;
+  missingCompetencies?: string[];
+  unresolvedMisconceptions?: number;
+  prerequisiteGaps?: { label: string }[];
+  needsApplication?: boolean;
+  needsQuickCheck?: boolean;
   uncovered: string[];     // ids of required blocks with no coverage evidence
 }
 

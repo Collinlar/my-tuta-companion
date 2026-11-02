@@ -135,6 +135,9 @@ export interface BlockMode { label: string; text: string }
 export interface BlockQuickCheck { prompt: string; options: string[]; correctIndex: number; explanation: string }
 export interface BlockContent {
   body?: string;
+  visual?: "density_mass_volume" | "solar_system";
+  competencyKeys?: string[];
+  prerequisites?: { kind: "concept" | "skill" | "formula" | "representation"; key: string; label: string; refresher?: string }[];
   modes?: BlockMode[];
   quickCheck?: BlockQuickCheck;
   misconception?: string;
@@ -152,6 +155,7 @@ export interface KnowledgeBlock {
   content: BlockContent | null;
   estimated_time: string | null;
   review_status: string;
+  version?: number;
 }
 
 /** Per-block learner state within a Foundation run (PRD 32). Local to a session

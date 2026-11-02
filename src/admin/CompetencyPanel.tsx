@@ -1,3 +1,5 @@
+import KnowledgeBlockEditor from "./KnowledgeBlockEditor";
+import KnowledgeBlocks from "../mytuta/student/KnowledgeBlocks";
 import { useState } from "react";
 import { a, card, badgeTone, ghostBtn, input } from "./theme";
 import { ActionModal } from "./ui";
@@ -20,7 +22,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 export default function CompetencyPanel({ conceptId, conceptName, subject }: { conceptId: string; conceptName: string; subject: string }) {
   const { data, isLoading, error } = useAdminConceptCompetencies(conceptId);
-  const { data: blocks } = useKnowledgeBlocks(conceptId, "foundation");
+  const { data: blocks } = useKnowledgeBlocks(conceptId, "foundation", true);
   const setType = useSetConceptType();
   const upsert = useUpsertCompetency();
   const remove = useDeleteCompetency();
@@ -32,6 +34,8 @@ export default function CompetencyPanel({ conceptId, conceptName, subject }: { c
   const [form, setForm] = useState<CompForm | null>(null);
   const [del, setDel] = useState<AdminCompetency | null>(null);
   const [genOpen, setGenOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewDone, setPreviewDone] = useState(false);
 
   if (isLoading) return <div style={{ ...card, padding: "16px 18px", fontSize: 13, color: a.faint }}>Loading competencies…</div>;
   if (error || !data) return <div style={{ ...card, padding: "16px 18px", fontSize: 13, color: a.red }}>Could not load competencies.</div>;
@@ -45,12 +49,23 @@ export default function CompetencyPanel({ conceptId, conceptName, subject }: { c
     return rows.length ? Math.max(...rows.map((r) => r.sequence)) + 1 : 0;
   }
 
+  if (previewOpen && blocks?.length) return <section style={{ ...card, padding: 24 }}>
+    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
+      <div><strong>Foundation journey preview</strong><p>Preview only. Answers do not change learner progress or publish content.</p></div>
+      <button type="button" style={ghostBtn()} onClick={() => setPreviewOpen(false)}>Back to authoring</button>
+    </div>
+    {previewDone ? <div role="status">Preview complete. Review the checks and competency coverage before publishing.</div>
+      : <KnowledgeBlocks key={conceptId} conceptName={conceptName} blocks={blocks}
+          onBlockUnderstood={async () => {}} onNext={() => setPreviewDone(true)} />}
+  </section>;
+
   return (
     <div>
       {/* Concept type */}
       <section style={{ ...card, padding: "16px 18px", marginBottom: 18 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
           <div style={{ fontSize: 15, fontWeight: 600, color: a.ink }}>Concept type</div>
+          {!!blocks?.length && <button type="button" style={ghostBtn()} onClick={() => { setPreviewDone(false); setPreviewOpen(true); }}>Preview Foundation journey</button>}
           <button type="button" onClick={openType} style={ghostBtn()}>Set type</button>
         </div>
         {data.conceptType
@@ -118,6 +133,7 @@ export default function CompetencyPanel({ conceptId, conceptName, subject }: { c
                     </div>
                     <span style={badgeTone("neutral")}>{BLOCK_TYPE_LABEL[b.block_type as BlockType] || b.block_type}</span>
                     <span style={badgeTone(b.review_status === "published" ? "green" : b.review_status === "approved" ? "blue" : "neutral")}>{b.review_status}</span>
+                    <KnowledgeBlockEditor block={b} />
                   </div>
                 ))}
               </div>}
@@ -130,13 +146,14 @@ export default function CompetencyPanel({ conceptId, conceptName, subject }: { c
           description={`AI drafts the ${data.conceptType ? CONCEPT_TYPE_LABEL[data.conceptType as ConceptType] : ""} block set for ${conceptName} from the template${data.competencies.some((c) => c.depth === "foundation") ? " and your Foundation competencies" : ""}, then stores them as drafts for review. This replaces any existing Foundation blocks.`}
           confirmLabel="Generate and save"
           busy={genBlocks.isPending}
+          errorNote={genBlocks.error?.message}
           onClose={() => setGenOpen(false)}
           onConfirm={(reason) => {
             void genBlocks.mutateAsync({
               conceptId, conceptName, subject, conceptType: data.conceptType!,
-              competencies: data.competencies.filter((c) => c.depth === "foundation").map((c) => ({ description: c.description, required: c.required })),
+              competencies: data.competencies.filter((c) => c.depth === "foundation").map((c) => ({ key: c.competency_key, description: c.description, required: c.required, evidenceType: c.evidence_type })),
               reason,
-            }).then(() => setGenOpen(false));
+            }).then(() => setGenOpen(false)).catch(() => {});
           }}
         />
       )}

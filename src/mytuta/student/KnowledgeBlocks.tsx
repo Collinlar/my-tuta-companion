@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { c } from "../theme";
 import { MathText } from "../MathText";
+import KnowledgeBlockVisual from "./KnowledgeBlockVisual";
 import { BLOCK_TYPE_LABEL, type KnowledgeBlock, type BlockType, type BlockState } from "../data/blocks";
 
 /** The Foundation block-runner (Concept Competency Framework, Phase 1). Replaces
@@ -9,13 +10,20 @@ import { BLOCK_TYPE_LABEL, type KnowledgeBlock, type BlockType, type BlockState 
  * support modalities now live INSIDE each block as "explain this block another
  * way". Block state is local to the session in Phase 1; Phase 2 persists it and
  * feeds coverage to the completeness engine. */
-export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockUnderstood, onNext }: { conceptName: string; blocks: KnowledgeBlock[]; covered?: Set<string>; onBlockUnderstood?: (blockId: string, passed: boolean) => void; onNext: () => void }) {
+export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockUnderstood, prerequisiteGaps = {}, onNext }: { conceptName: string; blocks: KnowledgeBlock[]; covered?: Set<string>; onBlockUnderstood?: (blockId: string, passed: boolean, answer?: number | null) => Promise<unknown>; prerequisiteGaps?: Record<string, { kind: string; key: string; label: string; refresher?: string }[]>; onNext: () => void }) {
   // Seed from prior coverage so understanding persists across sessions (PRD 32),
   // and open on the first block not yet understood.
   const [state, setState] = useState<Record<string, BlockState>>(() => Object.fromEntries(blocks.map((b) => [b.id, covered?.has(b.id) ? "understood" : "not_started"])));
   const [active, setActive] = useState(() => { const i = blocks.findIndex((b) => !covered?.has(b.id)); return i < 0 ? 0 : i; });
   const [mode, setMode] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
+
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!covered) return;
+    setState((previous) => ({ ...previous, ...Object.fromEntries([...covered].map((id) => [id, "understood" as BlockState])) }));
+  }, [covered]);
 
   const cur = blocks[Math.min(active, blocks.length - 1)];
   const content = cur?.content || {};
@@ -33,13 +41,21 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
   const mark = (st: BlockState) => setState((s) => ({ ...s, [cur.id]: st }));
   // Mark the active block understood and record coverage once (on the first
   // transition), which feeds the Foundation Completeness gate.
-  const markUnderstood = (passed: boolean) => {
-    if (state[cur.id] !== "understood") onBlockUnderstood?.(cur.id, passed);
-    setState((s) => ({ ...s, [cur.id]: "understood" }));
+  const record = async (passed: boolean, answer?: number | null) => {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await onBlockUnderstood?.(cur.id, passed, answer);
+      mark(passed ? "understood" : "needs_review");
+      return true;
+    } catch {
+      setSaveError("Your progress could not be saved. Please try again.");
+      return false;
+    } finally { setSaving(false); }
   };
 
-  const understood = () => {
-    markUnderstood(true);
+  const understood = async () => {
+    if (state[cur.id] !== "understood" && !await record(true)) return;
     const nextNotDone = blocks.findIndex((b, i) => i > active && state[b.id] !== "understood");
     if (nextNotDone >= 0) go(nextNotDone);
     else {
@@ -48,21 +64,34 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
     }
   };
 
+  const answer = async (index: number) => {
+    setPicked(index);
+    if (!await record(index === qc.correctIndex, index)) setPicked(null);
+  };
+
   const dot = (st: BlockState | undefined) =>
     st === "understood" ? c.green : st === "in_progress" ? c.blue : st === "needs_review" ? c.amber : "transparent";
 
   if (!cur) return null;
+  const gaps = prerequisiteGaps[cur.id] || [];
+  if (gaps.length) return <div>
+    <h2>Build the prerequisites for {cur.title}</h2>
+    <p>This example needs some earlier knowledge. Strengthen it before continuing.</p>
+    {gaps.map((gap) => <div key={gap.key}><strong>{gap.label}</strong>{gap.refresher && <p>{gap.refresher}</p>}
+      {gap.kind === "concept" && <a href={`/student/learn?concept=${encodeURIComponent(gap.key)}`}>Review this concept</a>}</div>)}
+    {blocks.map((b, i) => <button key={b.id} type="button" onClick={() => go(i)}>{b.title}</button>)}
+  </div>;
 
   return (
     <div>
       {/* Progress through the concept (PRD 32), not "stage 2 of 8" */}
-      <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Your Foundation · {blocks.length - requiredLeft}/{blocks.filter((b) => b.required).length} understood</div>
+      <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Your Foundation · {blocks.filter((b) => b.required).length - requiredLeft}/{blocks.filter((b) => b.required).length} understood</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 22 }}>
         {blocks.map((b, i) => {
           const st = state[b.id];
           const on = i === active;
           return (
-            <button key={b.id} type="button" onClick={() => go(i)}
+            <button key={b.id} type="button" disabled={saving} onClick={() => go(i)}
               style={{ display: "inline-flex", alignItems: "center", gap: 7, background: on ? c.greenTint : c.surface, border: `1px solid ${on ? c.green : c.border2}`, borderRadius: 18, padding: "6px 12px", cursor: "pointer", fontFamily: "inherit" }}>
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: dot(st), border: st === "not_started" ? `1.5px solid ${c.border2}` : "none", flex: "none" }} />
               <span style={{ fontSize: 12.5, fontWeight: on ? 700 : 500, color: on ? c.greenDark : c.soft }}>{b.title}</span>
@@ -78,6 +107,7 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
 
       <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 24, marginBottom: 14, fontSize: 15.5, lineHeight: 1.7, color: c.body }}>
         <MathText text={(mode === 0 ? content.body : modes[mode - 1]?.text) || content.body || ""} />
+        {mode === 0 && <KnowledgeBlockVisual visual={content.visual} />}
       </div>
 
       {/* Explain this block another way */}
@@ -110,7 +140,7 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
               const bg = reveal && correct ? c.greenTint : reveal && chosen ? c.amberTint : c.surface;
               const bd = reveal && correct ? c.green : reveal && chosen ? c.amber : chosen ? c.green : c.border2;
               return (
-                <button key={j} type="button" disabled={picked !== null} onClick={() => { setPicked(j); if (j === qc.correctIndex) markUnderstood(true); else mark("needs_review"); }}
+                <button key={j} type="button" disabled={picked !== null || saving} onClick={() => { void answer(j); }}
                   style={{ textAlign: "left", background: bg, border: `1px solid ${bd}`, borderRadius: 11, padding: "11px 14px", fontSize: 14.5, color: c.ink, cursor: picked === null ? "pointer" : "default", fontFamily: "inherit" }}>
                   <MathText text={`${["A", "B", "C", "D"][j]}. ${opt}`} />
                 </button>
@@ -125,13 +155,17 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
         </div>
       )}
 
+      {saveError && <div role="alert" style={{ color: c.amber, marginBottom: 12 }}>{saveError}</div>}
+      {saving && <div role="status">Saving your progress…</div>}
       {/* Advance */}
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         {requiredLeft === 0
-          ? <button type="button" onClick={onNext} style={primary()}>Finish understanding {conceptName}</button>
+          ? <button type="button" disabled={saving} onClick={onNext} style={primary()}>Finish understanding {conceptName}</button>
           : state[cur.id] === "understood" || (!qc)
-            ? <button type="button" onClick={understood} style={primary()}>{qc ? "Next block" : "Got it, next block"}</button>
-            : <button type="button" onClick={understood} style={{ ...primary(), background: c.surface, color: c.greenDark, border: `1px solid ${c.greenTintBorder}` }}>Mark understood and continue</button>}
+            ? <button type="button" disabled={saving} onClick={() => { void understood(); }} style={primary()}>{qc ? "Next block" : "Got it, next block"}</button>
+            : picked !== null
+              ? <button type="button" disabled={saving} onClick={() => setPicked(null)} style={primary()}>Try the check again</button>
+              : <span style={{ color: c.soft }}>Answer the quick check to continue.</span>}
         {requiredLeft > 0 && state[cur.id] === "understood" && (
           <span style={{ fontSize: 13, color: c.faint, alignSelf: "center" }}>{requiredLeft} block{requiredLeft === 1 ? "" : "s"} left</span>
         )}

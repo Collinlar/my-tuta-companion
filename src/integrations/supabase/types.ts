@@ -1050,6 +1050,22 @@ export type Database = {
         Args: { p_id: string; p_reason: string }
         Returns: undefined
       }
+      record_knowledge_block_evidence: {
+        Args: { p_block_id: string; p_version: number; p_answer?: number | null }
+        Returns: boolean
+      }
+      knowledge_block_progress: {
+        Args: { p_concept_id: string; p_depth: string }
+        Returns: Json
+      }
+      save_foundation_result: {
+        Args: { p_concept_id: string; p_result: Json }
+        Returns: Json
+      }
+      admin_update_knowledge_block: {
+        Args: { p_id: string; p_title: string; p_objective: string; p_required: boolean; p_content: Json; p_review_status: string; p_reason: string }
+        Returns: undefined
+      }
       admin_set_knowledge_blocks: {
         Args: { p_concept_id: string; p_depth: string; p_blocks: Json; p_reason: string }
         Returns: number
