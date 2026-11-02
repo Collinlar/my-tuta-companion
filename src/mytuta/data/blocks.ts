@@ -24,6 +24,29 @@ export const BLOCK_TYPE_LABEL: Record<BlockType, string> = {
 
 export interface BlockTemplateItem { title: string; block_type: BlockType }
 
+export const DEPTH_BLOCK_TEMPLATES: Record<"applied" | "advanced", BlockTemplateItem[]> = {
+  applied: [
+    { title: "Readiness check", block_type: "quick_check" },
+    { title: "Scenario", block_type: "big_picture" },
+    { title: "Method selection", block_type: "process" },
+    { title: "Guided application", block_type: "worked_example" },
+    { title: "Independent application", block_type: "application" },
+    { title: "Lab or practical task", block_type: "application" },
+    { title: "Reflection", block_type: "synthesis" },
+    { title: "Applied check", block_type: "quick_check" },
+  ],
+  advanced: [
+    { title: "Readiness check", block_type: "quick_check" },
+    { title: "Complex scenario", block_type: "big_picture" },
+    { title: "Cross-concept connection", block_type: "relationships" },
+    { title: "Evidence evaluation", block_type: "example" },
+    { title: "Independent problem", block_type: "application" },
+    { title: "Challenge or investigation", block_type: "application" },
+    { title: "Justification", block_type: "synthesis" },
+    { title: "Advanced check", block_type: "quick_check" },
+  ],
+};
+
 /** Required Foundation blocks per concept type (PRD 8). Ordered. */
 export const FOUNDATION_BLOCK_TEMPLATES: Record<ConceptType, BlockTemplateItem[]> = {
   structural: [
@@ -135,9 +158,11 @@ export interface BlockMode { label: string; text: string }
 export interface BlockQuickCheck { prompt: string; options: string[]; correctIndex: number; explanation: string }
 export interface BlockContent {
   body?: string;
-  visual?: "density_mass_volume" | "solar_system";
+  visual?: import("./visuals").BlockVisual;
   competencyKeys?: string[];
-  prerequisites?: { kind: "concept" | "skill" | "formula" | "representation"; key: string; label: string; refresher?: string }[];
+  prerequisites?: import("./blockRuntime").Prerequisite[];
+  examples?: import("./blockRuntime").BlockExample[];
+  task?: { prompt: string; rubric: string[] };
   modes?: BlockMode[];
   quickCheck?: BlockQuickCheck;
   misconception?: string;

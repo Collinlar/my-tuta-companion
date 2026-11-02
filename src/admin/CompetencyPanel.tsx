@@ -1,3 +1,5 @@
+import FrameworkPublication from "./FrameworkPublication";
+import BlockReviewQueue from "../mytuta/teacher/BlockReviewQueue";
 import KnowledgeBlockEditor from "./KnowledgeBlockEditor";
 import KnowledgeBlocks from "../mytuta/student/KnowledgeBlocks";
 import { useState } from "react";
@@ -21,8 +23,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export default function CompetencyPanel({ conceptId, conceptName, subject }: { conceptId: string; conceptName: string; subject: string }) {
+  const [blockDepth, setBlockDepth] = useState<Depth>("foundation");
   const { data, isLoading, error } = useAdminConceptCompetencies(conceptId);
-  const { data: blocks } = useKnowledgeBlocks(conceptId, "foundation", true);
+  const { data: blocks } = useKnowledgeBlocks(conceptId, blockDepth, true);
   const setType = useSetConceptType();
   const upsert = useUpsertCompetency();
   const remove = useDeleteCompetency();
@@ -51,11 +54,11 @@ export default function CompetencyPanel({ conceptId, conceptName, subject }: { c
 
   if (previewOpen && blocks?.length) return <section style={{ ...card, padding: 24 }}>
     <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
-      <div><strong>Foundation journey preview</strong><p>Preview only. Answers do not change learner progress or publish content.</p></div>
+      <div><strong>{DEPTH_LABEL[blockDepth]} journey preview</strong><p>Preview only. Answers do not change learner progress or publish content.</p></div>
       <button type="button" style={ghostBtn()} onClick={() => setPreviewOpen(false)}>Back to authoring</button>
     </div>
     {previewDone ? <div role="status">Preview complete. Review the checks and competency coverage before publishing.</div>
-      : <KnowledgeBlocks key={conceptId} conceptName={conceptName} blocks={blocks}
+      : <KnowledgeBlocks key={conceptId} conceptName={conceptName} blocks={blocks} depth={blockDepth}
           onBlockUnderstood={async () => {}} onNext={() => setPreviewDone(true)} />}
   </section>;
 
@@ -65,7 +68,7 @@ export default function CompetencyPanel({ conceptId, conceptName, subject }: { c
       <section style={{ ...card, padding: "16px 18px", marginBottom: 18 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
           <div style={{ fontSize: 15, fontWeight: 600, color: a.ink }}>Concept type</div>
-          {!!blocks?.length && <button type="button" style={ghostBtn()} onClick={() => { setPreviewDone(false); setPreviewOpen(true); }}>Preview Foundation journey</button>}
+          {!!blocks?.length && <button type="button" style={ghostBtn()} onClick={() => { setPreviewDone(false); setPreviewOpen(true); }}>Preview {DEPTH_LABEL[blockDepth]} journey</button>}
           <button type="button" onClick={openType} style={ghostBtn()}>Set type</button>
         </div>
         {data.conceptType
@@ -110,10 +113,13 @@ export default function CompetencyPanel({ conceptId, conceptName, subject }: { c
         );
       })}
 
+      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        {DEPTHS.map((value) => <button key={value} type="button" style={ghostBtn()} aria-pressed={blockDepth === value} onClick={() => { setBlockDepth(value); setPreviewOpen(false); }}>{DEPTH_LABEL[value]} blocks</button>)}
+      </div>
       {/* Foundation Knowledge Blocks */}
       <section style={{ ...card, padding: "16px 18px", marginBottom: 14 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
-          <div style={{ fontSize: 14.5, fontWeight: 600, color: a.ink }}>Foundation Knowledge Blocks <span style={{ color: a.faint, fontWeight: 400 }}>({(blocks || []).length})</span></div>
+          <div style={{ fontSize: 14.5, fontWeight: 600, color: a.ink }}>{DEPTH_LABEL[blockDepth]} Knowledge Blocks <span style={{ color: a.faint, fontWeight: 400 }}>({(blocks || []).length})</span></div>
           <button type="button" disabled={!data.conceptType || genBlocks.isPending} onClick={() => setGenOpen(true)}
             style={{ ...ghostBtn(), opacity: !data.conceptType ? 0.5 : 1, color: "#1D9E75", fontWeight: 600 }}>
             {genBlocks.isPending ? "Generating…" : (blocks || []).length ? "Regenerate" : "Generate blocks"}
@@ -139,19 +145,21 @@ export default function CompetencyPanel({ conceptId, conceptName, subject }: { c
               </div>}
       </section>
 
+      <FrameworkPublication conceptId={conceptId} depth={blockDepth} conceptType={data.conceptType} blocks={blocks || []} competencies={data.competencies.filter((c) => c.depth === blockDepth)} />
+      <BlockReviewQueue conceptId={conceptId} />
       {/* Generate blocks modal */}
       {genOpen && (
         <ActionModal
-          title="Generate Foundation blocks"
-          description={`AI drafts the ${data.conceptType ? CONCEPT_TYPE_LABEL[data.conceptType as ConceptType] : ""} block set for ${conceptName} from the template${data.competencies.some((c) => c.depth === "foundation") ? " and your Foundation competencies" : ""}, then stores them as drafts for review. This replaces any existing Foundation blocks.`}
+          title={`Generate ${DEPTH_LABEL[blockDepth]} blocks`}
+          description={`AI drafts the ${data.conceptType ? CONCEPT_TYPE_LABEL[data.conceptType as ConceptType] : ""} block set for ${conceptName} from the template${data.competencies.some((c) => c.depth === blockDepth) ? ` and your ${DEPTH_LABEL[blockDepth]} competencies` : ""}, then stores them as drafts for review. This replaces any existing ${DEPTH_LABEL[blockDepth]} blocks.`}
           confirmLabel="Generate and save"
           busy={genBlocks.isPending}
           errorNote={genBlocks.error?.message}
           onClose={() => setGenOpen(false)}
           onConfirm={(reason) => {
             void genBlocks.mutateAsync({
-              conceptId, conceptName, subject, conceptType: data.conceptType!,
-              competencies: data.competencies.filter((c) => c.depth === "foundation").map((c) => ({ key: c.competency_key, description: c.description, required: c.required, evidenceType: c.evidence_type })),
+              conceptId, conceptName, subject, conceptType: data.conceptType!, depth: blockDepth,
+              competencies: data.competencies.filter((c) => c.depth === blockDepth).map((c) => ({ key: c.competency_key, description: c.description, required: c.required, evidenceType: c.evidence_type })),
               reason,
             }).then(() => setGenOpen(false)).catch(() => {});
           }}

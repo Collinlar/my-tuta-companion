@@ -1,3 +1,4 @@
+import BlockAnalytics from "./BlockAnalytics";
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { a, card, sectionLabel, badgeTone, ghostBtn, primaryBtn, input, td, th } from "./theme";
@@ -342,6 +343,7 @@ export default function ConceptDetail() {
           </div>
         )}
 
+        {activeTab === "Analytics" && conceptId && <BlockAnalytics conceptId={conceptId} />}
         {activeTab === "Analytics" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             <Panel title="Content performance">

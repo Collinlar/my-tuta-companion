@@ -21,7 +21,7 @@ export default function NextActionCard() {
   const isProtect      = primary.key === "protect_mastery";
   const isStrengthen   = primary.key === "strengthen_first";
   const isLab          = primary.key === "relevant_lab";
-  const isWarning      = isPrereqGap || isDecayReview || isExplWeak || isProtect || isStrengthen;
+  const isWarning      = primary.key === "block_reinforcement" || isPrereqGap || isDecayReview || isExplWeak || isProtect || isStrengthen;
 
   return (
     <div style={{ marginBottom: 30 }}>

@@ -1378,82 +1378,18 @@ export function useSaveDepthResult() {
         overall: input.overall,
         level: input.level,
       };
-      const state = depthStateFromResult(input.overall, input.level);
-
-      let finalState = state;
-      let completeness: FoundationCompleteness | null = null;
-      if (input.depth === "foundation") {
-        const { data, error } = await supabase.rpc("save_foundation_result", { p_concept_id: input.conceptId, p_result: result as unknown as Json });
-        if (error) throw error;
-        completeness = data as unknown as FoundationCompleteness;
-        finalState = completeness.state;
-      }
-
-      // Pull any Lab/Challenge evidence the learner has at the NEXT depth so it
-      // can raise readiness (PRD 13.2).
+      const { data, error } = await supabase.rpc("save_competency_depth_result", { p_concept_id: input.conceptId, p_depth: input.depth, p_result: result as unknown as Json });
+      if (error) throw error;
+      const completeness = data as unknown as FoundationCompleteness;
       const target = nextDepth(input.depth, input.maxDepth);
       let targetEvidence: { count: number; hasLab: boolean; hasChallenge: boolean } | undefined;
       if (target) {
-        const { data: ev } = await supabase
-          .from("depth_evidence").select("source_type")
-          .eq("concept_id", input.conceptId).eq("depth", target);
-        const sources = (ev || []).map((e) => e.source_type);
-        targetEvidence = { count: sources.length, hasLab: sources.includes("lab"), hasChallenge: sources.includes("challenge") };
+        const { data: evidence, error: evidenceError } = await supabase.from("depth_evidence").select("source_type")
+          .eq("user_id", user_id).eq("concept_id", input.conceptId).eq("depth", target).in("source_type", ["lab", "challenge"]);
+        if (!evidenceError) targetEvidence = { count: evidence.length, hasLab: evidence.some((e) => e.source_type === "lab"), hasChallenge: evidence.some((e) => e.source_type === "challenge") };
       }
       let readiness = computeDepthReadiness(input.depth, result, input.maxDepth, 20, targetEvidence);
-      if (finalState !== "secure") readiness = { ...readiness, readiness: "not_ready", outcome: "reinforce_first", reason: "Complete the required Foundation evidence before progressing.", blockers: completeness?.missingCompetencies || ["required evidence"] };
-      if (input.depth === "foundation") return { ...readiness, completeness };
-      const now = new Date().toISOString();
-      const nextReviewAt =
-        input.retentionEnabled && finalState === "secure"
-          ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
-          : null;
-
-      await supabase.from("concept_depth_mastery").upsert(
-        {
-          user_id,
-          concept_id: input.conceptId,
-          depth: input.depth,
-          state: finalState,
-          readiness_state: readiness.readiness,
-          support_level: DEPTH_DEFAULT_SUPPORT[input.depth],
-          completed_at: finalState === "secure" ? now : null,
-          last_verified_at: now,
-          next_review_at: nextReviewAt,
-          evidence_summary: result as unknown as Json,
-        },
-        { onConflict: "user_id,concept_id,depth" },
-      );
-
-      await supabase.from("depth_evidence").insert({
-        user_id,
-        concept_id: input.conceptId,
-        depth: input.depth,
-        source_type: "mastery_check",
-        score: input.overall,
-      });
-
-      // Schedule the first retention review (3 days) when a depth secures and the
-      // concept opts into retention. Replace any existing schedule so a re-secure
-      // does not leave duplicate pending reviews.
-      if (nextReviewAt) {
-        await supabase.from("retention_reviews").delete()
-          .eq("concept_id", input.conceptId).eq("depth", input.depth).eq("status", "scheduled");
-        await supabase.from("retention_reviews").insert({
-          user_id,
-          concept_id: input.conceptId,
-          depth: input.depth,
-          review_due_at: nextReviewAt,
-          review_type: "retrieval",
-          status: "scheduled",
-          interval_days: 3,
-          ease_factor: EASE_START,
-        });
-      }
-
-      // The cross-depth rollup (mastery_profiles) stays owned by
-      // useSaveMasteryResult, which also runs the Gate-2 confirmation. This hook
-      // only writes the new depth tables, so the two never fight over state.
+      if (completeness.state !== "secure") readiness = { ...readiness, readiness: "not_ready", outcome: "reinforce_first", reason: `Complete the required ${input.depth} evidence before progressing.`, blockers: completeness.missingCompetencies || ["required evidence"] };
       return { ...readiness, completeness };
     },
     onSuccess: () => {
@@ -1468,14 +1404,14 @@ export function useSaveDepthResult() {
 export function useRecordBlockEvidence() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { conceptId: string; depth: Depth; blockId: string; passed: boolean; version?: number; answer?: number | null }) => {
-      const { data, error } = await supabase.rpc("record_knowledge_block_evidence", {
-        p_block_id: input.blockId, p_version: input.version ?? 1, p_answer: input.answer ?? null,
+    mutationFn: async (input: { conceptId: string; depth: Depth; blockId: string; passed: boolean; version?: number; answer?: number | null; exampleKey?: string | null }) => {
+      const { data, error } = await supabase.rpc("answer_block_check", {
+        p_block_id: input.blockId, p_version: input.version ?? 1, p_answer: input.answer ?? null, p_example_key: input.exampleKey ?? null,
       });
       if (error) throw error;
       return data;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["block_evidence"] }),
+    onSuccess: async () => { await qc.invalidateQueries({ queryKey: ["block_evidence"] }); await qc.invalidateQueries({ queryKey: ["block_progress"] }); await qc.invalidateQueries({ queryKey: ["intel", "nba"] }); },
   });
 }
 

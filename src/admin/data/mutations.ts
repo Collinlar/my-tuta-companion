@@ -394,9 +394,9 @@ import type { ConceptType } from "@/mytuta/data/competency";
 export function useGenerateFoundationBlocks() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (a: { conceptId: string; conceptName: string; subject: string; conceptType: string; competencies: { key: string; description: string; required: boolean; evidenceType?: string | null }[]; reason: string }) => {
-      const blocks = await generateFoundationBlocks(a.conceptName, a.subject, a.conceptType as ConceptType, a.competencies);
-      const { error } = await supabase.rpc("admin_set_knowledge_blocks", { p_concept_id: a.conceptId, p_depth: "foundation", p_blocks: blocks as never, p_reason: a.reason });
+    mutationFn: async (a: { conceptId: string; conceptName: string; subject: string; conceptType: string; depth?: import("@/mytuta/data/depth").Depth; competencies: { key: string; description: string; required: boolean; evidenceType?: string | null }[]; reason: string }) => {
+      const blocks = await generateFoundationBlocks(a.conceptName, a.subject, a.conceptType as ConceptType, a.competencies, a.depth || "foundation");
+      const { error } = await supabase.rpc("admin_set_knowledge_blocks", { p_concept_id: a.conceptId, p_depth: a.depth || "foundation", p_blocks: blocks as never, p_reason: a.reason });
       if (error) throw error;
       return blocks.length;
     },

@@ -1,7 +1,11 @@
-export type BlockVisual = "density_mass_volume" | "solar_system";
+import { useState } from "react";
+import ConceptDiagram from "./ConceptDiagram";
+import type { BlockVisual } from "../data/visuals";
+export type { BlockVisual } from "../data/visuals";
 
-export default function KnowledgeBlockVisual({ visual }: { visual?: BlockVisual }) {
+export default function KnowledgeBlockVisual({ visual, onInteract }: { visual?: BlockVisual; onInteract?: () => void }) {
   if (!visual) return null;
+  if (visual !== "density_mass_volume" && visual !== "solar_system") return <ConceptDiagram visual={visual} onInteract={onInteract} />;
   if (visual === "density_mass_volume") return <figure style={{ margin: "18px 0" }}>
     <svg viewBox="0 0 520 300" role="img" aria-label="Mass against volume: material A reaches 30 grams at 10 cubic centimetres; material B reaches 20 grams at the same volume. A is denser." style={{ width: "100%", maxWidth: 620 }}>
       <rect width="520" height="300" fill="#fffdf8" />
@@ -14,6 +18,7 @@ export default function KnowledgeBlockVisual({ visual }: { visual?: BlockVisual 
       <text transform="translate(18 140) rotate(-90)" textAnchor="middle" fontSize="14">Mass (g)</text>
     </svg>
     <figcaption>A: 3 g/cm³. B: 2 g/cm³. With the same scales, the steeper mass-volume line represents the denser material.</figcaption>
+    <DensityExplorer onInteract={onInteract} />
   </figure>;
   const planets = ["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"];
   return <figure style={{ margin: "18px 0" }}>
@@ -30,5 +35,25 @@ export default function KnowledgeBlockVisual({ visual }: { visual?: BlockVisual 
       <text x="310" y="210" fill="#dfeaf5" textAnchor="middle" fontSize="13">Order only: sizes and distances are not to scale</text>
     </svg>
     <figcaption>Read outward from the Sun. This model shows order and categories; it does not show true sizes or distances.</figcaption>
+    <PlanetExplorer onInteract={onInteract} />
   </figure>;
+}
+
+function DensityExplorer({ onInteract }: { onInteract?: () => void }) {
+  const [mass, setMass] = useState(30);
+  const [volume, setVolume] = useState(10);
+  return <div style={{ padding: 12 }}><strong>Explore density</strong>
+    <label style={{ display: "block" }}>Mass: {mass} g <input aria-label="Explore mass" type="range" min="1" max="60" value={mass} onChange={(event) => { setMass(Number(event.target.value)); onInteract?.(); }} /></label>
+    <label style={{ display: "block" }}>Volume: {volume} cm³ <input aria-label="Explore volume" type="range" min="1" max="20" value={volume} onChange={(event) => { setVolume(Number(event.target.value)); onInteract?.(); }} /></label>
+    <output aria-live="polite">Density = {mass} ÷ {volume} = {(mass/volume).toFixed(2)} g/cm³</output>
+    <p>Keep volume fixed and change mass, then keep mass fixed and change volume.</p>
+  </div>;
+}
+function PlanetExplorer({ onInteract }: { onInteract?: () => void }) {
+  const planets = ["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"];
+  const [selected, setSelected] = useState(2);
+  return <div style={{ padding: 12 }}><strong>Explore the planet categories</strong>
+    <div>{planets.map((planet, index) => <button key={planet} type="button" aria-pressed={selected === index} onClick={() => { setSelected(index); onInteract?.(); }}>{planet}</button>)}</div>
+    <p aria-live="polite">{planets[selected]} is planet {selected+1} from the Sun: {selected<4 ? "an inner rocky planet" : selected<6 ? "a gas giant" : "an ice giant"}.</p>
+  </div>;
 }

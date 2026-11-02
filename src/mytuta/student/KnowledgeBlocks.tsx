@@ -1,6 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { c } from "../theme";
 import { MathText } from "../MathText";
+import PrerequisiteRepair from "./PrerequisiteRepair";
+import BlockAudio from "./BlockAudio";
+import ReviewedBlockTask from "./ReviewedBlockTask";
+import { learningContent, suggestedBlock, type BlockProgress, type Prerequisite } from "../data/blockRuntime";
+import { DEPTH_LABEL, type Depth } from "../data/depth";
 import KnowledgeBlockVisual from "./KnowledgeBlockVisual";
 import { BLOCK_TYPE_LABEL, type KnowledgeBlock, type BlockType, type BlockState } from "../data/blocks";
 
@@ -10,14 +15,26 @@ import { BLOCK_TYPE_LABEL, type KnowledgeBlock, type BlockType, type BlockState 
  * support modalities now live INSIDE each block as "explain this block another
  * way". Block state is local to the session in Phase 1; Phase 2 persists it and
  * feeds coverage to the completeness engine. */
-export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockUnderstood, prerequisiteGaps = {}, onNext }: { conceptName: string; blocks: KnowledgeBlock[]; covered?: Set<string>; onBlockUnderstood?: (blockId: string, passed: boolean, answer?: number | null) => Promise<unknown>; prerequisiteGaps?: Record<string, { kind: string; key: string; label: string; refresher?: string }[]>; onNext: () => void }) {
+const EMPTY_PROGRESS: Record<string, BlockProgress> = {};
+export default function KnowledgeBlocks({ conceptName, blocks, covered, progress = EMPTY_PROGRESS, initialBlockId, depth = "foundation", onBlockUnderstood, prerequisiteGaps = {}, onActivity, onRepair, onSubmitResponse, onNext }: {
+  conceptName: string; blocks: KnowledgeBlock[]; covered?: Set<string>; progress?: Record<string, BlockProgress>; initialBlockId?: string; depth?: Depth;
+  onBlockUnderstood?: (blockId: string, passed: boolean, answer?: number | null, exampleKey?: string | null) => Promise<unknown>;
+  prerequisiteGaps?: Record<string, Prerequisite[]>;
+  onActivity?: (blockId: string, version: number, event: string, modality: string, seconds?: number) => Promise<unknown>;
+  onRepair?: (blockId: string, version: number, prerequisite: Prerequisite, answer: number) => Promise<boolean>;
+  onSubmitResponse?: (blockId: string, version: number, text: string) => Promise<unknown>; onNext: () => void;
+}) {
   // Seed from prior coverage so understanding persists across sessions (PRD 32),
   // and open on the first block not yet understood.
-  const [state, setState] = useState<Record<string, BlockState>>(() => Object.fromEntries(blocks.map((b) => [b.id, covered?.has(b.id) ? "understood" : "not_started"])));
-  const [active, setActive] = useState(() => { const i = blocks.findIndex((b) => !covered?.has(b.id)); return i < 0 ? 0 : i; });
+  const [state, setState] = useState<Record<string, BlockState>>(() => Object.fromEntries(blocks.map((b) => [b.id, progress[b.id]?.state || (covered?.has(b.id) ? "understood" : "not_started")])));
+  const [active, setActive] = useState(() => { const direct = blocks.findIndex((b) => b.id === initialBlockId); if (direct >= 0) return direct; const i = Object.keys(progress).length ? suggestedBlock(blocks, progress) : blocks.findIndex((b) => !covered?.has(b.id)); return i < 0 ? 0 : i; });
   const [mode, setMode] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
 
+  const [attemptContent, setAttemptContent] = useState<ReturnType<typeof learningContent> | null>(null);
+  const [pendingResponses, setPendingResponses] = useState<Set<string>>(new Set());
+  const [trackingError, setTrackingError] = useState(false);
+  const [audioPlaying, setAudioPlaying] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   useEffect(() => {
@@ -25,16 +42,34 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
     setState((previous) => ({ ...previous, ...Object.fromEntries([...covered].map((id) => [id, "understood" as BlockState])) }));
   }, [covered]);
 
+  useEffect(() => {
+    if (Object.keys(progress).length) setState((previous) => ({ ...previous, ...Object.fromEntries(Object.values(progress).map((p) => [p.id, p.state])) }));
+    setPendingResponses((previous) => new Set([...previous].filter((id) => !progress[id]?.response || progress[id].response?.status === "pending")));
+  }, [progress]);
+  const activityRef = useRef(onActivity);
+  activityRef.current = onActivity;
   const cur = blocks[Math.min(active, blocks.length - 1)];
-  const content = cur?.content || {};
+  const content = attemptContent || (cur ? learningContent(cur, progress[cur.id]) : {});
   const modes = content.modes || [];
-  const qc = content.quickCheck;
+  const qc = content.task ? undefined : content.quickCheck;
+  const modality = audioPlaying ? "Audio" : mode === 0 ? "Main" : content.modes?.[mode - 1]?.label || "Main";
+  useEffect(() => {
+    if (!cur || !activityRef.current) return;
+    const send = (event: string, seconds = 0) => { void activityRef.current?.(cur.id, cur.version || 1, event, modality, seconds).then(() => setTrackingError(false)).catch(() => setTrackingError(true)); };
+    send("opened");
+    let last = Date.now();
+    const timer = setInterval(() => { const now = Date.now(); if (document.visibilityState === "visible") send("time", Math.min(30, Math.floor((now-last)/1000))); last = now; }, 30000);
+    return () => { clearInterval(timer); const seconds = Math.min(30, Math.floor((Date.now()-last)/1000)); if (seconds > 0 && document.visibilityState === "visible") send("time", seconds); };
+  }, [cur?.id, cur?.version, modality]);
+  const readyToContinue = blocks.every((b) => !b.required || state[b.id] === "understood" || pendingResponses.has(b.id) || progress[b.id]?.response?.status === "pending");
   const requiredLeft = useMemo(() => blocks.filter((b) => b.required && state[b.id] !== "understood").length, [blocks, state]);
 
   const go = (i: number) => {
     setActive(i);
+    setAudioPlaying(false);
     setMode(0);
     setPicked(null);
+    setAttemptContent(null);
     setState((s) => (s[blocks[i].id] === "not_started" ? { ...s, [blocks[i].id]: "in_progress" } : s));
   };
 
@@ -45,8 +80,9 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
     setSaving(true);
     setSaveError(null);
     try {
-      await onBlockUnderstood?.(cur.id, passed, answer);
-      mark(passed ? "understood" : "needs_review");
+      const serverResult = await onBlockUnderstood?.(cur.id, passed, answer, progress[cur.id]?.selectedExample?.key);
+      const confirmed = typeof serverResult === "boolean" ? serverResult : passed;
+      mark(confirmed ? "understood" : "needs_review");
       return true;
     } catch {
       setSaveError("Your progress could not be saved. Please try again.");
@@ -65,6 +101,7 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
   };
 
   const answer = async (index: number) => {
+    setAttemptContent(content);
     setPicked(index);
     if (!await record(index === qc.correctIndex, index)) setPicked(null);
   };
@@ -77,15 +114,14 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
   if (gaps.length) return <div>
     <h2>Build the prerequisites for {cur.title}</h2>
     <p>This example needs some earlier knowledge. Strengthen it before continuing.</p>
-    {gaps.map((gap) => <div key={gap.key}><strong>{gap.label}</strong>{gap.refresher && <p>{gap.refresher}</p>}
-      {gap.kind === "concept" && <a href={`/student/learn?concept=${encodeURIComponent(gap.key)}`}>Review this concept</a>}</div>)}
+    {gaps.map((gap) => <PrerequisiteRepair key={`${cur.id}:${gap.kind}:${gap.key}`} gap={gap} onRepair={onRepair ? (answer) => onRepair(cur.id, cur.version || 1, gap, answer) : undefined} />)}
     {blocks.map((b, i) => <button key={b.id} type="button" onClick={() => go(i)}>{b.title}</button>)}
   </div>;
 
   return (
     <div>
       {/* Progress through the concept (PRD 32), not "stage 2 of 8" */}
-      <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Your Foundation · {blocks.filter((b) => b.required).length - requiredLeft}/{blocks.filter((b) => b.required).length} understood</div>
+      <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Your {DEPTH_LABEL[depth]} · {blocks.filter((b) => b.required).length - requiredLeft}/{blocks.filter((b) => b.required).length} understood</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 22 }}>
         {blocks.map((b, i) => {
           const st = state[b.id];
@@ -107,16 +143,22 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
 
       <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 24, marginBottom: 14, fontSize: 15.5, lineHeight: 1.7, color: c.body }}>
         <MathText text={(mode === 0 ? content.body : modes[mode - 1]?.text) || content.body || ""} />
-        {mode === 0 && <KnowledgeBlockVisual visual={content.visual} />}
+        {mode === 0 && <KnowledgeBlockVisual visual={content.visual} onInteract={() => { void onActivity?.(cur.id, cur.version || 1, "modality", "Interactive").catch(() => setTrackingError(true)); }} />}
       </div>
 
+      <BlockAudio key={`${cur.id}:${mode}`} text={(mode === 0 ? content.body : modes[mode - 1]?.text) || content.body || ""} onPlaying={(playing) => {
+        setAudioPlaying(playing);
+        if (playing) void onActivity?.(cur.id, cur.version || 1, "modality", "Audio").catch(() => setTrackingError(true));
+      }} />
+      {trackingError && <p role="status">Progress tracking is temporarily unavailable. Check your connection; answer saves will still be confirmed separately.</p>}
+      {progress[cur.id]?.recommendedModality && progress[cur.id].recommendedModality !== "Main" && <p>Suggested support from your recent check outcomes: {progress[cur.id].recommendedModality}.</p>}
       {/* Explain this block another way */}
       {modes.length > 0 && (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 18 }}>
           <span style={{ fontSize: 12.5, color: c.faint, alignSelf: "center", marginRight: 2 }}>Explain another way:</span>
-          <button type="button" onClick={() => setMode(0)} style={chip(mode === 0)}>Main</button>
+          <button type="button" onClick={() => { setMode(0); void onActivity?.(cur.id, cur.version || 1, "modality", "Main").catch(() => setTrackingError(true)); }} style={chip(mode === 0)}>Main</button>
           {modes.map((m, i) => (
-            <button key={i} type="button" onClick={() => setMode(i + 1)} style={chip(mode === i + 1)}>{m.label}</button>
+            <button key={i} type="button" onClick={() => { setMode(i + 1); void onActivity?.(cur.id, cur.version || 1, "modality", m.label).catch(() => setTrackingError(true)); }} style={chip(mode === i + 1)}>{m.label}</button>
           ))}
         </div>
       )}
@@ -128,6 +170,10 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
         </div>
       )}
 
+      {content.task && <ReviewedBlockTask key={cur.id} task={content.task} response={progress[cur.id]?.response} onSubmit={async (text) => {
+        await onSubmitResponse?.(cur.id, cur.version || 1, text);
+        setPendingResponses((previous) => new Set([...previous, cur.id]));
+      }} onContinue={() => { const next = blocks.findIndex((b, i) => i > active && state[b.id] !== "understood" && !pendingResponses.has(b.id)); if (next >= 0) go(next); else { const earlier = blocks.findIndex((b) => b.id !== cur.id && b.required && state[b.id] !== "understood" && !pendingResponses.has(b.id) && progress[b.id]?.response?.status !== "pending"); if (earlier >= 0) go(earlier); else onNext(); } }} />}
       {/* Quick check (PRD 16): confirm the block, don't restart the concept */}
       {qc && (
         <div style={{ background: c.paper, border: `1px solid ${c.border2}`, borderRadius: 14, padding: "18px 20px", marginBottom: 18 }}>
@@ -142,7 +188,7 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
               return (
                 <button key={j} type="button" disabled={picked !== null || saving} onClick={() => { void answer(j); }}
                   style={{ textAlign: "left", background: bg, border: `1px solid ${bd}`, borderRadius: 11, padding: "11px 14px", fontSize: 14.5, color: c.ink, cursor: picked === null ? "pointer" : "default", fontFamily: "inherit" }}>
-                  <MathText text={`${["A", "B", "C", "D"][j]}. ${opt}`} />
+                  <MathText text={`${["A", "B", "C", "D", "E", "F"][j]}. ${opt}`} />
                 </button>
               );
             })}
@@ -159,12 +205,12 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, onBlockU
       {saving && <div role="status">Saving your progress…</div>}
       {/* Advance */}
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {requiredLeft === 0
-          ? <button type="button" disabled={saving} onClick={onNext} style={primary()}>Finish understanding {conceptName}</button>
-          : state[cur.id] === "understood" || (!qc)
+        {readyToContinue
+          ? <button type="button" disabled={saving} onClick={onNext} style={primary()}>{depth === "foundation" ? `Finish understanding ${conceptName}` : `Finish ${DEPTH_LABEL[depth]} learning for ${conceptName}`}</button>
+          : content.task ? null : state[cur.id] === "understood" || (!qc)
             ? <button type="button" disabled={saving} onClick={() => { void understood(); }} style={primary()}>{qc ? "Next block" : "Got it, next block"}</button>
             : picked !== null
-              ? <button type="button" disabled={saving} onClick={() => setPicked(null)} style={primary()}>Try the check again</button>
+              ? <button type="button" disabled={saving} onClick={() => { setPicked(null); setAttemptContent(null); }} style={primary()}>Try the check again</button>
               : <span style={{ color: c.soft }}>Answer the quick check to continue.</span>}
         {requiredLeft > 0 && state[cur.id] === "understood" && (
           <span style={{ fontSize: 13, color: c.faint, alignSelf: "center" }}>{requiredLeft} block{requiredLeft === 1 ? "" : "s"} left</span>

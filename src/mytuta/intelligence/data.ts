@@ -1,3 +1,4 @@
+import { withBlockReinforcement } from "./blockRecommendations";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useDueRecallCount } from "../data/queries";
@@ -24,7 +25,8 @@ export function useNextBestAction() {
       const { data, error } = await supabase.rpc("next_best_action");
       if (error) throw error;
       const d = (data as unknown as NextBestAction) || { primary: null, alternatives: [] };
-      return { primary: d.primary ?? null, alternatives: d.alternatives ?? [] };
+      const { data: reinforcement } = await supabase.rpc("next_block_reinforcement");
+      return withBlockReinforcement({ primary: d.primary ?? null, alternatives: d.alternatives ?? [] }, reinforcement as unknown as NbaCandidate | null);
     },
     staleTime: 30_000,
   });

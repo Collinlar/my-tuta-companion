@@ -1,3 +1,4 @@
+import { useBlockLearning } from "../data/useBlockLearning";
 import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
@@ -26,6 +27,8 @@ import ConceptOverview from "./ConceptOverview";
 import RetentionCheck from "./RetentionCheck";
 import KnowledgeBlocks from "./KnowledgeBlocks";
 import { DEPTH_LABEL, type Depth, type DepthReadiness, type FoundationCompleteness } from "../data/depth";
+
+const EMPTY_STAGE_CONTENT: Record<string, unknown> = {};
 
 export type PathEvidence = {
   recallRated: number;
@@ -116,7 +119,9 @@ export default function Learn() {
     if (!match) return;
     bootstrapped.current = true;
     setSlug(match.slug);
-    const existing = paths.find((p) => p.concept.toLowerCase() === match.name.toLowerCase());
+    const requestedDepthValue = new URLSearchParams(location.search).get("depth");
+    const requestedDepth: Depth = requestedDepthValue === "applied" || requestedDepthValue === "advanced" ? requestedDepthValue : "foundation";
+    const existing = paths.find((p) => p.concept.toLowerCase() === match.name.toLowerCase() && (p.depth || "foundation") === requestedDepth);
     if (existing) {
       // Already have a path for this concept — resume it instead of re-creating.
       setCurrentDepth((existing.depth as Depth) || "foundation");
@@ -124,6 +129,7 @@ export default function Learn() {
       setView("workspace");
       return;
     }
+    setCurrentDepth(requestedDepth);
     setView("confirm");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state, catalog, paths]);
@@ -148,10 +154,14 @@ export default function Learn() {
       setView("overview");
       return;
     }
-    const existing = paths.find((p) => p.concept.toLowerCase() === match.name.toLowerCase());
+    const requestedDepthValue = new URLSearchParams(location.search).get("depth");
+    const requestedDepth: Depth = requestedDepthValue === "applied" || requestedDepthValue === "advanced" ? requestedDepthValue : "foundation";
+    const existing = paths.find((p) => p.concept.toLowerCase() === match.name.toLowerCase() && (p.depth || "foundation") === requestedDepth);
     if (existing) {
       setCurrentDepth((existing.depth as Depth) || "foundation");
-      if (new URLSearchParams(location.search).get("mode") === "alternative") {
+      if (new URLSearchParams(location.search).get("block")) {
+        setStage(requestedDepth === "foundation" ? 1 : 0);
+      } else if (new URLSearchParams(location.search).get("mode") === "alternative") {
         setStage(1);        // Understand is stage index 1 in every path
         setExplainMode(1);  // show a different explanation straight away
       } else {
@@ -160,6 +170,7 @@ export default function Learn() {
       setView("workspace");
       return;
     }
+    setCurrentDepth(requestedDepth);
     setView("confirm");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search, catalog, paths]);
@@ -1027,19 +1038,36 @@ function Workspace({
   onBack: () => void;
 }) {
   const L = useLayout();
+  const [journeyDone, setJourneyDone] = useState(false);
+  useEffect(() => { setJourneyDone(false); }, [conceptId, depth]);
   // Concept Competency Framework (Phase 1): if this concept+depth has authored
   // Knowledge Blocks, the Understand stage runs them instead of the single
   // five-mode explanation. No blocks → unchanged behaviour.
   const { data: knowledgeBlocks, isLoading: blocksLoading, error: blocksError } = useKnowledgeBlocks(conceptId, depth);
+  const initialBlockId = new URLSearchParams(useLocation().search).get("block") || undefined;
   const blockRevision = knowledgeBlocks?.map((b) => `${b.id}:${b.version}`).join(",") || "";
-  const { data: coveredBlocks, isLoading: coverageLoading, error: coverageError } = useBlockEvidence(conceptId, depth, blockRevision);
-  const { data: blockGaps, isLoading: gapsLoading, error: gapsError } = useBlockPrerequisiteGaps(conceptId, depth, blockRevision);
+  const learning = useBlockLearning(conceptId, depth, blockRevision);
+  const blockProgress = learning.progress.data;
   const recordBlock = useRecordBlockEvidence();
   if (loading) return <Loading label="Opening your workspace…" />;
-  if (stages.length === 0) return <EmptyState title="Content is loading" body="This concept's stages will appear here once available." actionLabel="Back to paths" onAction={onBack} />;
-  const cur = stages[Math.min(stage, stages.length - 1)];
+  if (stages.length === 0 && !knowledgeBlocks?.length) return <EmptyState title="Content is loading" body="This concept's stages will appear here once available." actionLabel="Back to paths" onAction={onBack} />;
+  const cur = depth !== "foundation" && journeyDone
+    ? stages.find((item) => item.name === "Mastery check") || { name: "Mastery check", content: EMPTY_STAGE_CONTENT, loopPhase: "Competency journey" }
+    : stages[Math.min(stage, stages.length - 1)] || { name: "Understand", content: EMPTY_STAGE_CONTENT, loopPhase: "Competency journey" };
   const content = cur.content as Record<string, any>;
 
+  const blockJourney = knowledgeBlocks?.length ? (<KnowledgeBlocks conceptName={conceptName} blocks={knowledgeBlocks} progress={blockProgress} initialBlockId={initialBlockId} depth={depth} key={`${conceptId}:${depth}:${blockRevision}`} prerequisiteGaps={Object.fromEntries(Object.values(blockProgress || {}).map((p) => [p.id, p.gaps]))}
+                onActivity={async (blockId, version, event, modality, seconds) => { await learning.activity.mutateAsync({ blockId, version, event, modality, seconds }); }}
+                onRepair={async (blockId, version, prerequisite, answer) => learning.repair.mutateAsync({ blockId, version, prerequisite, answer })}
+                onSubmitResponse={async (blockId, version, text) => learning.response.mutateAsync({ blockId, version, text })}
+                onBlockUnderstood={async (blockId, passed, answer, exampleKey) => { if (!conceptId) throw new Error("Missing concept"); return await recordBlock.mutateAsync({ conceptId, depth, blockId, passed, answer, exampleKey, version: knowledgeBlocks.find((b) => b.id === blockId)?.version }); }} onNext={() => {
+                  if (depth === "foundation") nextStage();
+                  else { setJourneyDone(true); const check = stages.findIndex((item) => item.name === "Mastery check"); if (check >= 0) setStage(check); }
+                }} />) : null;
+  if (depth !== "foundation" && !journeyDone && blockJourney) return <div style={{ maxWidth: 850, padding: 24, margin: "0 auto" }}>
+    <button type="button" onClick={onBack}>Back to paths</button><h1>{DEPTH_LABEL[depth]} · {conceptName}</h1>
+    {learning.progress.isLoading ? <Loading label="Restoring your depth journey…" /> : learning.progress.error ? <div role="alert">Your progress could not load. Please reload to try again.</div> : blockJourney}
+  </div>;
   return (
     <div style={{ display: "flex", flexDirection: L.mobile ? "column" : "row", height: "100%", animation: "fadein .3s ease" }}>
       {!L.mobile && (
@@ -1094,10 +1122,10 @@ function Workspace({
 
           {cur.name === "Foundations" && <Foundations content={content} onNext={nextStage} />}
           {cur.name === "Understand" && (
-            blocksLoading || coverageLoading || gapsLoading ? <Loading label="Loading your Foundation progress…" />
-              : blocksError || coverageError || gapsError ? <div role="alert">Your learning content could not load. Please reload to try again.</div>
+            blocksLoading || learning.progress.isLoading ? <Loading label="Loading your Foundation progress…" />
+              : blocksError || learning.progress.error ? <div role="alert">Your learning content could not load. Please reload to try again.</div>
               : knowledgeBlocks && knowledgeBlocks.length > 0
-              ? <KnowledgeBlocks conceptName={conceptName} blocks={knowledgeBlocks} covered={coveredBlocks} key={`${conceptId}:${depth}:${blockRevision}`} prerequisiteGaps={blockGaps} onBlockUnderstood={async (blockId, passed, answer) => { if (!conceptId) throw new Error("Missing concept"); await recordBlock.mutateAsync({ conceptId, depth, blockId, passed, answer, version: knowledgeBlocks.find((b) => b.id === blockId)?.version }); }} onNext={nextStage} />
+              ? blockJourney
               : <Understand content={content} conceptName={conceptName} subject={subject} explainMode={explainMode} setExplainMode={setExplainMode} onNext={nextStage} />
           )}
           {cur.name === "Worked examples" && <Worked content={content} onNext={nextStage} />}
@@ -1172,6 +1200,7 @@ function Workspace({
               pathId={pathId}
               depth={depth}
               onGoDeeper={onGoDeeper}
+              competencyJourney={depth !== "foundation" && !!knowledgeBlocks?.length}
               onSave={onSaveMastery}
             />
           )}
@@ -1887,13 +1916,14 @@ function scoreLabel(n: number): string {
 }
 
 function Mastery({
-  content, conceptName, subject, evidence, pathId, depth, onGoDeeper, onSave,
+  content, conceptName, subject, evidence, pathId, depth, competencyJourney = false, onGoDeeper, onSave,
 }: {
   content: Record<string, any>;
   conceptName: string;
   subject: string;
   evidence: PathEvidence;
   pathId?: string;
+  competencyJourney?: boolean;
   depth: Depth;
   onGoDeeper: (d: Depth) => void;
   onSave: (r: { knowledge: number; application: number; analysis: number; overall: number; level: string; note: string }) => Promise<(DepthReadiness & { completeness?: FoundationCompleteness | null }) | void>;
@@ -1924,7 +1954,7 @@ function Mastery({
       return;
     }
     setPhase("load");
-    void generateMasteryQuestions(conceptName, subject)
+    void generateMasteryQuestions(conceptName, subject, depth)
       .then((qs) => {
         if (cancelled) return;
         setQuestions(qs);
@@ -1938,7 +1968,7 @@ function Mastery({
         }
       });
     return () => { cancelled = true; };
-  }, [conceptName, subject, content]);
+  }, [conceptName, subject, content, depth]);
 
   const finish = async (finalAnswers: number[]) => {
     const byDim = { Knowledge: { ok: 0, n: 0 }, Application: { ok: 0, n: 0 }, Analysis: { ok: 0, n: 0 } };
@@ -1975,7 +2005,7 @@ function Mastery({
     if (evidence.applySubmitted) {
       const applyBoost = Math.min(5, 2 + Math.floor(evidence.applyWords / 40));
       application = Math.round((application * 0.55) + (applyBoost * 0.45));
-    } else {
+    } else if (!competencyJourney) {
       application = Math.max(1, application - 1);
     }
 
@@ -1989,7 +2019,7 @@ function Mastery({
         (evidence.recallRated ? ` and recall ratings (${evidence.recallGood} solid of ${evidence.recallRated})` : "") +
         (evidence.independentTotal ? `, independent practice (${evidence.independentCorrect}/${evidence.independentTotal})` : ""),
       `Application ${application}/5 from ${byDim.Application.ok}/${byDim.Application.n || 0} application items` +
-        (evidence.applySubmitted ? ` and your ${evidence.applyWords}-word Apply write-up` : " (Apply not submitted, score reduced)"),
+        (evidence.applySubmitted ? ` and your ${evidence.applyWords}-word Apply write-up` : competencyJourney ? " (independent responses are verified by review)" : " (Apply not submitted, score reduced)"),
       `Analysis ${analysis}/5 from ${byDim.Analysis.ok}/${byDim.Analysis.n || 0} analysis items` +
         (evidence.guidedTotal ? ` and guided practice (${evidence.guidedCorrect}/${evidence.guidedTotal} steps)` : ""),
       `Overall ${overall}/5 is the average of the three dimensions.`,
@@ -2073,7 +2103,7 @@ function Mastery({
               {completeness.outcome === "secure_with_reinforcement" ? `${DEPTH_LABEL[depth]} almost secure` : `Keep building ${DEPTH_LABEL[depth]}`}
             </div>
             <div style={{ fontSize: 15, color: c.ink, lineHeight: 1.6, marginBottom: 12 }}>
-              Foundation Mastery needs evidence across the whole concept, as well as a secure check score. You have understood {completeness.coveredBlocks} of {completeness.requiredBlocks} Foundation blocks.
+              {DEPTH_LABEL[depth]} Mastery needs evidence across the whole concept, as well as a secure check score. You have understood {completeness.coveredBlocks} of {completeness.requiredBlocks} {DEPTH_LABEL[depth]} blocks.
             </div>
             {completeness.missingCompetencies?.length > 0 && <div>Competencies to demonstrate: {completeness.missingCompetencies.join(", ")}</div>}
             {!!completeness.unresolvedMisconceptions && <div>Resolve the remaining misconceptions.</div>}

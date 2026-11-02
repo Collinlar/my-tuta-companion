@@ -20,7 +20,7 @@ describe("Foundation block evidence", () => {
     render(<KnowledgeBlocks conceptName="Density" blocks={[block]} onBlockUnderstood={save} onNext={vi.fn()} />);
     expect(screen.queryByText("Mark understood and continue")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /B. Volume alone/ }));
-    await waitFor(() => expect(save).toHaveBeenCalledWith("block", false, 1));
+    await waitFor(() => expect(save).toHaveBeenCalledWith("block", false, 1, undefined));
     expect(await screen.findByRole("button", { name: "Try the check again" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Finish understanding/ })).not.toBeInTheDocument();
   });
@@ -78,7 +78,7 @@ describe("pilot diagrams", () => {
   it("identifies the planets and explicitly warns that the model is not to scale", () => {
     render(<KnowledgeBlockVisual visual="solar_system" />);
     expect(screen.getByRole("img", { name: /Mercury, Venus, Earth, Mars/ })).toBeInTheDocument();
-    expect(screen.getByText("Neptune")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Neptune" })).toBeInTheDocument();
     expect(screen.getByText(/Order only: sizes and distances are not to scale/)).toBeInTheDocument();
   });
 });

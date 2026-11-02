@@ -49,7 +49,7 @@ export default function KnowledgeBlockEditor({ block }: { block: KnowledgeBlock 
         <label>Objective<input aria-label="Block objective" style={input} value={objective} onChange={(e) => setObjective(e.target.value)} /></label>
         <label><input type="checkbox" checked={required} onChange={(e) => setRequired(e.target.checked)} /> Required</label>
         <label>Review status<select aria-label="Block review status" style={input} value={status} onChange={(e) => setStatus(e.target.value)}>
-          {["draft", "approved", "published"].map((value) => <option key={value}>{value}</option>)}
+          {(block.review_status === "published" ? ["draft", "approved", "published"] : ["draft", "approved"]).map((value) => <option key={value}>{value}</option>)}
         </select></label>
         <p>Use competencyKeys to link checks to the competency slugs above. Prerequisites accept kind (concept, skill, formula or representation), key, label and optional refresher. Concept keys are concept IDs.</p>
         <label>Teaching content, support modes and check (JSON)<textarea aria-label="Block content" rows={12} style={{ ...input, fontFamily: "monospace" }} value={json} onChange={(e) => setJson(e.target.value)} /></label>

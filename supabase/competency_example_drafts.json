@@ -1,0 +1,197 @@
+[
+  {
+    "slug": "density",
+    "sequence": 7,
+    "prerequisites": [
+      {
+        "kind": "skill",
+        "key": "whole-number-division",
+        "label": "Divide whole numbers",
+        "refresher": "Division finds the number of equal groups. Six objects in groups of two make three groups.",
+        "check": {
+          "prompt": "Six divided by two equals what?",
+          "options": [
+            "Three",
+            "Four"
+          ],
+          "correctIndex": 0,
+          "explanation": "Three groups of two contain six objects."
+        }
+      }
+    ],
+    "examples": [
+      {
+        "key": "unit-volume",
+        "category": "recognition",
+        "difficulty": 1,
+        "support": "guided",
+        "prerequisites": [],
+        "body": "A sample fills exactly one cubic centimetre and has a mass of two grams. Use density = mass divided by volume: two divided by one is two grams per cubic centimetre.",
+        "quickCheck": {
+          "prompt": "What is the density of two grams in one cubic centimetre?",
+          "options": [
+            "Two grams per cubic centimetre",
+            "One gram per cubic centimetre"
+          ],
+          "correctIndex": 0,
+          "explanation": "Divide the mass of two grams by the volume of one cubic centimetre."
+        }
+      },
+      {
+        "key": "equal-groups",
+        "category": "application",
+        "difficulty": 2,
+        "support": "guided",
+        "prerequisites": [
+          {
+            "kind": "skill",
+            "key": "whole-number-division",
+            "label": "Divide whole numbers",
+            "refresher": "Division finds the number of equal groups. Six objects in groups of two make three groups.",
+            "check": {
+              "prompt": "Six divided by two equals what?",
+              "options": [
+                "Three",
+                "Four"
+              ],
+              "correctIndex": 0,
+              "explanation": "Three groups of two contain six objects."
+            }
+          }
+        ],
+        "body": "A sample has a mass of twenty grams and a volume of ten cubic centimetres. Divide twenty by ten to find a density of two grams per cubic centimetre. Include both units in the result.",
+        "quickCheck": {
+          "prompt": "Twenty grams in ten cubic centimetres has what density?",
+          "options": [
+            "Two grams per cubic centimetre",
+            "Ten grams per cubic centimetre"
+          ],
+          "correctIndex": 0,
+          "explanation": "Density is twenty divided by ten, which is two."
+        }
+      },
+      {
+        "key": "independent-density",
+        "category": "quantitative",
+        "difficulty": 3,
+        "support": "independent",
+        "prerequisites": [
+          {
+            "kind": "skill",
+            "key": "whole-number-division",
+            "label": "Divide whole numbers",
+            "refresher": "Division finds the number of equal groups. Six objects in groups of two make three groups.",
+            "check": {
+              "prompt": "Six divided by two equals what?",
+              "options": [
+                "Three",
+                "Four"
+              ],
+              "correctIndex": 0,
+              "explanation": "Three groups of two contain six objects."
+            }
+          }
+        ],
+        "body": "Choose the density formula for a sample with mass sixty grams and volume twenty cubic centimetres. Use the measured quantities and justify the units before checking your result.",
+        "quickCheck": {
+          "prompt": "What is sixty grams divided by twenty cubic centimetres?",
+          "options": [
+            "Three grams per cubic centimetre",
+            "Thirty grams per cubic centimetre"
+          ],
+          "correctIndex": 0,
+          "explanation": "Sixty divided by twenty is three; the units are grams per cubic centimetre."
+        }
+      }
+    ]
+  },
+  {
+    "slug": "space-solar-system",
+    "sequence": 8,
+    "prerequisites": [],
+    "examples": [
+      {
+        "key": "diagram-scale",
+        "category": "recognition",
+        "difficulty": 1,
+        "support": "guided",
+        "prerequisites": [],
+        "body": "A page-sized Solar System diagram often makes planets much larger relative to the gaps than they really are. Check its scale statement before using it to compare actual sizes or distances.",
+        "quickCheck": {
+          "prompt": "A diagram says planet sizes are enlarged. Can it show the true size-to-distance proportions?",
+          "options": [
+            "No, the enlarged sizes change those proportions",
+            "Yes, every labelled diagram is fully to scale"
+          ],
+          "correctIndex": 0,
+          "explanation": "Labels identify objects; a scale statement tells you whether their proportions are accurate."
+        }
+      },
+      {
+        "key": "relative-distance",
+        "category": "relationship",
+        "difficulty": 2,
+        "support": "guided",
+        "prerequisites": [],
+        "body": "Earth's average distance from the Sun is about one astronomical unit. An object at three astronomical units is about three times that distance. This compares distances from the Sun rather than the object's diameter.",
+        "quickCheck": {
+          "prompt": "Compared with Earth's average Sun distance of one astronomical unit, three astronomical units is what?",
+          "options": [
+            "About three times that distance",
+            "About three times Earth's diameter"
+          ],
+          "correctIndex": 0,
+          "explanation": "Both quantities are distances from the Sun, with the same astronomical-unit reference."
+        }
+      },
+      {
+        "key": "light-travel-extension",
+        "category": "quantitative",
+        "difficulty": 4,
+        "support": "independent",
+        "prerequisites": [
+          {
+            "kind": "representation",
+            "key": "scientific-notation",
+            "label": "Read scientific notation",
+            "refresher": "A positive power of ten shifts the decimal place to the right. Three times ten squared represents three hundred.",
+            "check": {
+              "prompt": "What does three times ten squared represent?",
+              "options": [
+                "Three hundred",
+                "Thirty"
+              ],
+              "correctIndex": 0,
+              "explanation": "Ten squared is one hundred, so three times one hundred is three hundred."
+            }
+          },
+          {
+            "kind": "formula",
+            "key": "time-from-distance-and-speed",
+            "label": "Time from distance and speed",
+            "refresher": "For constant speed, travel time equals distance divided by speed. A trip of six metres at two metres per second takes three seconds.",
+            "check": {
+              "prompt": "Six metres at two metres per second takes how long?",
+              "options": [
+                "Three seconds",
+                "Twelve seconds"
+              ],
+              "correctIndex": 0,
+              "explanation": "Divide distance by speed: six divided by two is three seconds."
+            }
+          }
+        ],
+        "body": "An extension model uses a light-travel distance of 1.5 times ten to the eight kilometres and a speed of 3 times ten to the five kilometres per second. The model is an approximation. It requires interpreting the notation and using time = distance divided by speed before drawing a conclusion.",
+        "quickCheck": {
+          "prompt": "Using those approximate values, the travel time is closest to what?",
+          "options": [
+            "Five hundred seconds",
+            "Five seconds"
+          ],
+          "correctIndex": 0,
+          "explanation": "Divide 1.5 by 3 and ten to the eight by ten to the five: 0.5 times one thousand gives five hundred seconds."
+        }
+      }
+    ]
+  }
+]

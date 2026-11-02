@@ -5,7 +5,7 @@ import { groqApiService } from "@/services/groqApiService";
 import { studioAiText } from "./constants";
 import { sanitizeLlmJson } from "./jsonRepair";
 import type { Depth } from "./depth";
-import { FOUNDATION_BLOCK_TEMPLATES, type BlockContent } from "./blocks";
+import { FOUNDATION_BLOCK_TEMPLATES, DEPTH_BLOCK_TEMPLATES, type BlockContent } from "./blocks";
 import { blockContentSchema } from "./blockValidation";
 import type { ConceptType } from "./competency";
 
@@ -373,13 +373,13 @@ Return JSON: {"answer":"..."}.`,
 
 export type MasteryQuestion = DiagnosticQuestion & { dimension: "Knowledge" | "Application" | "Analysis" };
 
-export async function generateMasteryQuestions(conceptName: string, subject: string): Promise<MasteryQuestion[]> {
+export async function generateMasteryQuestions(conceptName: string, subject: string, depth: Depth = "foundation"): Promise<MasteryQuestion[]> {
   const raw = await groqApiService.makeRequest(
     [
       { role: "system", content: SYSTEM },
       {
         role: "user",
-        content: `Create 6 mastery-check MCQs for "${conceptName}" (${subject}).
+        content: `${DEPTH_BRIEF[depth]}\nCreate 6 mastery-check MCQs for "${conceptName}" (${subject}).
 Return JSON: {"questions":[{"prompt":"...","options":["A","B","C","D"],"correctIndex":0,"dimension":"Knowledge"}]}.
 Exactly 2 Knowledge, 2 Application, 2 Analysis. Ghana-grounded.`,
       },
@@ -724,11 +724,12 @@ export async function generateFoundationBlocks(
   subject: string,
   conceptType: ConceptType,
   competencies: { key: string; description: string; required: boolean; evidenceType?: string | null }[] = [],
+  depth: Depth = "foundation",
 ): Promise<GeneratedBlock[]> {
-  if (!competencies.some((c) => c.required && c.description.trim())) throw new Error("Author required Foundation competencies before generating blocks.");
-  const template = FOUNDATION_BLOCK_TEMPLATES[conceptType] || FOUNDATION_BLOCK_TEMPLATES.structural;
+  if (!competencies.some((c) => c.required && c.description.trim())) throw new Error("Author required depth competencies before generating blocks.");
+  const template = depth === "foundation" ? FOUNDATION_BLOCK_TEMPLATES[conceptType] || FOUNDATION_BLOCK_TEMPLATES.structural : DEPTH_BLOCK_TEMPLATES[depth];
   const compList = competencies.length
-    ? `Foundation competencies the learner must reach (cover these across the blocks):\n${competencies.map((c, i) => `${i + 1}. [${c.key}] ${c.description} (evidence: ${c.evidenceType || "quick_check"})${c.required ? "" : " (optional)"}`).join("\n")}`
+    ? `${depth} competencies the learner must reach (cover these across the blocks):\n${competencies.map((c, i) => `${i + 1}. [${c.key}] ${c.description} (evidence: ${c.evidenceType || "quick_check"})${c.required ? "" : " (optional)"}`).join("\n")}`
     : "No competencies authored yet; infer the standard foundational competencies for this concept and cover them.";
   const blockSpec = template.map((b, i) => `${i}. "${b.title}" (block_type: ${b.block_type})`).join("\n");
 
@@ -737,7 +738,7 @@ export async function generateFoundationBlocks(
       { role: "system", content: SYSTEM },
       {
         role: "user",
-        content: `Build the Foundation Knowledge Blocks for "${conceptName}" (${subject}). This is a ${conceptType} concept.
+        content: `Build the ${depth} Knowledge Blocks for "${conceptName}" (${subject}). This is a ${conceptType} concept.
 ${compList}
 
 Produce EXACTLY these blocks, in this order, keeping each exact title and block_type:
@@ -745,6 +746,11 @@ ${blockSpec}
 
 Return JSON: {"blocks":[{"title":"...","block_type":"...","objective":"one sentence: what the learner can do after this block","estimated_time":"2 min","content":{"competencyKeys":["matching-authored-key"],"body":"2 to 4 sentences teaching THIS block's part only, specific and Ghana-grounded","modes":[{"label":"Simpler","text":"..."},{"label":"Analogy","text":"..."},{"label":"Real-world example","text":"..."}],"quickCheck":{"prompt":"one self-contained MCQ testing this block","options":["A","B","C","D"],"correctIndex":0,"explanation":"why the correct option is right"}}}]}.
 Rules:
+- For Applied, teach use in scenarios and methods rather than repeating Foundation explanations.
+- For Advanced, require transfer, cross-concept reasoning, evaluation and justified independent decisions.
+- In Applied and Advanced, independent application/problem, lab/practical, investigation and justification blocks MUST include content.task with a prompt and rubric array. These require teacher review. Do not replace them with a recognition MCQ.
+- A task block may omit quickCheck. Never include examples on a task block.
+- Support modes may include short vocabulary refreshers; do not reteach the entire Foundation journey.
 - content.body teaches ONLY this block's part of the concept. Do NOT re-explain the whole concept in every block; each block adds something new.
 - modes are 2 to 3 genuinely different angles on THIS block, not the whole concept.
 - a misconception block's body states the misconception plainly, then corrects it.
@@ -761,7 +767,7 @@ Rules:
   const parsed = parseJson<{ blocks: Partial<GeneratedBlock>[] }>(raw);
   const blocks = parsed.blocks || [];
   // Structure is authoritative from the template; AI only supplies content.
-  return template.map((t, i) => {
+  const generated = template.map((t, i) => {
     const found = blocks.find((b) => b.title === t.title) || blocks[i] || {};
     return {
       block_type: t.block_type,
@@ -773,4 +779,10 @@ Rules:
       content: blockContentSchema.parse(found.content) as BlockContent,
     };
   });
+  const keys = new Set(competencies.map((c) => c.key));
+  const covered = new Set(generated.flatMap((b) => b.content.competencyKeys || []));
+  if ([...covered].some((key) => !keys.has(key))) throw new Error("Generated content contains an unknown competency key.");
+  if (competencies.some((c) => c.required && !covered.has(c.key))) throw new Error("The draft does not cover all required competencies. Please regenerate or author the missing blocks.");
+  if (depth !== "foundation" && !generated.some((b) => b.content.task)) throw new Error("This depth requires an independent response with review criteria.");
+  return generated;
 }

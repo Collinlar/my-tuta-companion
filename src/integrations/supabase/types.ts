@@ -1050,6 +1050,17 @@ export type Database = {
         Args: { p_id: string; p_reason: string }
         Returns: undefined
       }
+      admin_publish_competency_depth: { Args: { p_concept_id: string; p_depth: string; p_reason: string }; Returns: undefined }
+      next_block_reinforcement: { Args: Record<PropertyKey, never>; Returns: Json }
+      record_block_activity: { Args: { p_block_id: string; p_version: number; p_event: string; p_modality?: string; p_seconds?: number }; Returns: undefined }
+      answer_block_check: { Args: { p_block_id: string; p_version: number; p_answer?: number | null; p_example_key?: string | null }; Returns: boolean }
+      repair_block_prerequisite: { Args: { p_block_id: string; p_version: number; p_kind: string; p_key: string; p_answer: number }; Returns: boolean }
+      submit_block_response: { Args: { p_block_id: string; p_version: number; p_response: string }; Returns: string }
+      review_block_response: { Args: { p_response_id: string; p_passed: boolean; p_feedback: string }; Returns: undefined }
+      block_review_queue: { Args: { p_concept_id?: string | null }; Returns: Json }
+      teacher_block_learning_summary: { Args: { p_class_id?: string | null }; Returns: Json }
+      block_learning_analytics: { Args: { p_concept_id: string }; Returns: Json }
+      save_competency_depth_result: { Args: { p_concept_id: string; p_depth: string; p_result: Json }; Returns: Json }
       record_knowledge_block_evidence: {
         Args: { p_block_id: string; p_version: number; p_answer?: number | null }
         Returns: boolean

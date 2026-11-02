@@ -36,7 +36,7 @@ Source checks: [OpenStax density](https://openstax.org/books/college-physics-2e/
 1. Review the code and finish authenticated browser acceptance for both pilots.
 2. Deploy the frontend while the content remains unpublished.
 3. Have the academic reviewer inspect the draft journeys, competency/check mappings, distractors, vocabulary, diagrams and prerequisite choices.
-4. Publish reviewed Foundation competencies and blocks as a coherent set. Do not imply that the Applied/Advanced drafts have been approved.
+4. Approve the required competencies and blocks, then use the whole-journey publication action for each reviewed depth. Applied/Advanced drafts require their own academic approval.
 5. Verify the deployed student flow and monitor save failures before expanding the rollout.
 
 The local GitHub CLI token is invalid, but the connected GitHub app has repository access. The remote main branch matched the local baseline `96360de` at the time of review. Both Vercel and Netlify configuration files exist; README describes a main-branch deployment, while the existing Netlify project tab requires login. Production hosting was not changed without completing acceptance.
@@ -48,3 +48,17 @@ The local GitHub CLI token is invalid, but the connected GitHub app has reposito
 - No frontend deployment or content publication occurred.
 - A draft PR was prepared for `Collinlar/my-tuta-companion`, but automatic approval review rejected the source upload because the repository is public and the user had not specifically authorized publishing this source and draft/database content there. No branch or pull request was created by this attempt.
 - Approval is required to upload the 25 reviewed implementation files to that public repository. A local review bundle and SHA-256 manifest identify the exact files; no environment files, credentials or database learner records are included.
+
+## November 2 continuation handoff
+
+The implementation now includes persistent block learning, prerequisite repair, ranked examples, teacher-reviewed independent tasks, complete higher-depth draft journeys, ten diagrams, spoken explanations, class insights, block analytics and weak-block reinforcement. Atomic publication validates review status, required block types and competency mappings before releasing a depth.
+
+The new draft inventory is 264 blocks across ten concepts (104 Foundation, 80 Applied, 80 Advanced), with 161 competencies. No new content was published. The previous review bundle represents the earlier commit and does not include this continuation.
+
+Targeted migrations 0024–0032 were applied to the linked pilot database; historical ledger reconciliation remains separate. Runtime regression fixtures cover alternative eligibility, assessed repair attribution, failed evidence, task submission, reviewer authorization and depth gating. Publication fixtures cover unreviewed content, incomplete structure, individual-block bypass and atomic publication. Both suites roll back their fixture changes.
+
+An earlier full component suite passed 68 tests. Subsequent final runs stalled while starting test workers, so the newest additions must not be represented as a fully green final suite without a completed rerun. Full authenticated browser acceptance is still pending; prior browser checks only covered the local admin panel and initial draft preview.
+
+Final focused reruns succeeded: 10 runtime component tests, eight existing block/diagram tests, and eight pure-helper/authoring tests (26 checks across separate runs). The production build passed after the final depth-routing fixes. `git diff --check` passed. A fresh complete-suite result remains unavailable because separate-worker startup timed out; this is distinct from the passing focused results. Live inventory confirms 104/80/80 blocks by depth, 161 competencies and zero published blocks.
+
+Release remains pending human academic approval, completed browser acceptance and frontend deployment. User authorization is for local commits; no public upload, push or deployment is authorized by this handoff.

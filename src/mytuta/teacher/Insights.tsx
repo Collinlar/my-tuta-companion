@@ -1,3 +1,5 @@
+import BlockLearningSummary from "./BlockLearningSummary";
+import BlockReviewQueue from "./BlockReviewQueue";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { c, font } from "../theme";
@@ -50,6 +52,8 @@ export default function Insights() {
 
   return (
     <div style={pageBox(L.pad, 1020)}>
+      <BlockReviewQueue />
+      <BlockLearningSummary classId={selectedClassId} />
       {classes.length > 0 && (
         <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 12.5, fontWeight: 600, color: c.faint }}>Filter by class:</span>

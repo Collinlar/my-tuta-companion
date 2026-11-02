@@ -45,6 +45,15 @@ FILES=(
   "20270000000021_foundation_evidence.sql"
   "20270000000022_competency_pilot_drafts.sql"
   "20270000000023_block_authoring_contract.sql"
+  "20270000000024_block_learning_runtime.sql"
+  "20270000000025_competency_depth_completion.sql"
+  "20270000000026_block_runtime_contract.sql"
+  "20270000000027_depth_journey_drafts.sql"
+  "20270000000028_teacher_block_insights.sql"
+  "20270000000029_example_selection_drafts.sql"
+  "20270000000030_publish_competency_depth.sql"
+  "20270000000031_foundation_structure_completion.sql"
+  "20270000000032_block_reinforcement.sql"
 )
 
 for f in "${FILES[@]}"; do
