@@ -10,6 +10,9 @@ export const prerequisiteSchema = z.object({
 });
 export const blockContentSchema = z.object({
   body: z.string().trim().min(1, "Teaching content is required"),
+  narration: z.string().trim().min(1).max(6000).optional(),
+  visualCaption: z.string().trim().min(1).max(1000).optional(),
+  interactionPrompt: z.string().trim().min(1).max(1000).optional(),
   visual: z.enum(BLOCK_VISUALS).optional(),
   competencyKeys: z.array(z.string().trim().min(1)).optional(), prerequisites: z.array(prerequisiteSchema).optional(),
   examples: z.array(z.object({
@@ -21,4 +24,5 @@ export const blockContentSchema = z.object({
   task: z.object({ prompt: z.string().trim().min(1), rubric: z.array(z.string().trim().min(1)).min(1).max(10) }).optional(),
   modes: z.array(z.object({ label: z.string().trim().min(1), text: z.string().trim().min(1) })).optional(),
   misconception: z.string().optional(), quickCheck: quickCheckSchema.optional(),
-}).refine((c) => !c.examples || new Set(c.examples.map((e) => e.key)).size === c.examples.length, "Example keys must be unique");
+}).refine((c) => !c.examples || new Set(c.examples.map((e) => e.key)).size === c.examples.length, "Example keys must be unique")
+  .refine((c) => !c.visualCaption && !c.interactionPrompt || !!c.visual, "Diagram guidance requires a supported visual");

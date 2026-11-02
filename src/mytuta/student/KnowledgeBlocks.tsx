@@ -4,7 +4,7 @@ import { MathText } from "../MathText";
 import PrerequisiteRepair from "./PrerequisiteRepair";
 import BlockAudio from "./BlockAudio";
 import ReviewedBlockTask from "./ReviewedBlockTask";
-import { learningContent, suggestedBlock, type BlockProgress, type Prerequisite } from "../data/blockRuntime";
+import { adaptiveBlockSequence, learningContent, suggestedBlock, type BlockProgress, type Prerequisite } from "../data/blockRuntime";
 import { DEPTH_LABEL, type Depth } from "../data/depth";
 import KnowledgeBlockVisual from "./KnowledgeBlockVisual";
 import { BLOCK_TYPE_LABEL, type KnowledgeBlock, type BlockType, type BlockState } from "../data/blocks";
@@ -12,9 +12,8 @@ import { BLOCK_TYPE_LABEL, type KnowledgeBlock, type BlockType, type BlockState 
 /** The Foundation block-runner (Concept Competency Framework, Phase 1). Replaces
  * the single "Understand" stage (one explanation shown five ways) with a
  * deliberate walk through the concept's required Knowledge Blocks. The five
- * support modalities now live INSIDE each block as "explain this block another
- * way". Block state is local to the session in Phase 1; Phase 2 persists it and
- * feeds coverage to the completeness engine. */
+ * support modalities live inside each block. Versioned server progress restores
+ * coverage and feedback; adaptive navigation prioritizes eligible reinforcement. */
 const EMPTY_PROGRESS: Record<string, BlockProgress> = {};
 export default function KnowledgeBlocks({ conceptName, blocks, covered, progress = EMPTY_PROGRESS, initialBlockId, depth = "foundation", onBlockUnderstood, prerequisiteGaps = {}, onActivity, onRepair, onSubmitResponse, onNext }: {
   conceptName: string; blocks: KnowledgeBlock[]; covered?: Set<string>; progress?: Record<string, BlockProgress>; initialBlockId?: string; depth?: Depth;
@@ -90,14 +89,18 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, progress
     } finally { setSaving(false); }
   };
 
+  const nextEligible = () => {
+    const current = Object.fromEntries(blocks.map((b) => [b.id, {
+      ...progress[b.id], id: b.id, version: b.version || 1, state: state[b.id],
+      covered: b.id === cur.id || state[b.id] === "understood", gaps: prerequisiteGaps[b.id] || [],
+      ...(pendingResponses.has(b.id) ? { response: { id: "pending", status: "pending" as const, text: "", feedback: null } } : {}),
+    }]));
+    return adaptiveBlockSequence(blocks, current)[0]?.index ?? -1;
+  };
   const understood = async () => {
     if (state[cur.id] !== "understood" && !await record(true)) return;
-    const nextNotDone = blocks.findIndex((b, i) => i > active && state[b.id] !== "understood");
-    if (nextNotDone >= 0) go(nextNotDone);
-    else {
-      const anyLeft = blocks.findIndex((b) => b.required && b.id !== cur.id && state[b.id] !== "understood");
-      if (anyLeft >= 0) go(anyLeft);
-    }
+    const next = nextEligible();
+    if (next >= 0) go(next);
   };
 
   const answer = async (index: number) => {
@@ -122,6 +125,7 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, progress
     <div>
       {/* Progress through the concept (PRD 32), not "stage 2 of 8" */}
       <div style={{ fontSize: 11, fontWeight: 600, color: c.faint, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 10 }}>Your {DEPTH_LABEL[depth]} · {blocks.filter((b) => b.required).length - requiredLeft}/{blocks.filter((b) => b.required).length} understood</div>
+      {(state[cur.id] === "needs_review" || progress[cur.id]?.response?.status === "needs_revision") && <p role="status">Review focus: revisit this block using your recent feedback and support options.</p>}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 22 }}>
         {blocks.map((b, i) => {
           const st = state[b.id];
@@ -143,10 +147,12 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, progress
 
       <div style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 16, padding: 24, marginBottom: 14, fontSize: 15.5, lineHeight: 1.7, color: c.body }}>
         <MathText text={(mode === 0 ? content.body : modes[mode - 1]?.text) || content.body || ""} />
-        {mode === 0 && <KnowledgeBlockVisual visual={content.visual} onInteract={() => { void onActivity?.(cur.id, cur.version || 1, "modality", "Interactive").catch(() => setTrackingError(true)); }} />}
+        {mode === 0 && <><KnowledgeBlockVisual visual={content.visual} onInteract={() => { void onActivity?.(cur.id, cur.version || 1, "modality", "Interactive").catch(() => setTrackingError(true)); }} />
+          {content.visual && content.visualCaption && <MathText text={content.visualCaption} />}
+          {content.visual && content.interactionPrompt && <MathText text={content.interactionPrompt} />}</>}
       </div>
 
-      <BlockAudio key={`${cur.id}:${mode}`} text={(mode === 0 ? content.body : modes[mode - 1]?.text) || content.body || ""} onPlaying={(playing) => {
+      <BlockAudio key={`${cur.id}:${mode}`} text={(mode === 0 ? content.narration || content.body : modes[mode - 1]?.text) || content.body || ""} onPlaying={(playing) => {
         setAudioPlaying(playing);
         if (playing) void onActivity?.(cur.id, cur.version || 1, "modality", "Audio").catch(() => setTrackingError(true));
       }} />
@@ -173,7 +179,7 @@ export default function KnowledgeBlocks({ conceptName, blocks, covered, progress
       {content.task && <ReviewedBlockTask key={cur.id} task={content.task} response={progress[cur.id]?.response} onSubmit={async (text) => {
         await onSubmitResponse?.(cur.id, cur.version || 1, text);
         setPendingResponses((previous) => new Set([...previous, cur.id]));
-      }} onContinue={() => { const next = blocks.findIndex((b, i) => i > active && state[b.id] !== "understood" && !pendingResponses.has(b.id)); if (next >= 0) go(next); else { const earlier = blocks.findIndex((b) => b.id !== cur.id && b.required && state[b.id] !== "understood" && !pendingResponses.has(b.id) && progress[b.id]?.response?.status !== "pending"); if (earlier >= 0) go(earlier); else onNext(); } }} />}
+      }} onContinue={() => { const next = nextEligible(); if (next >= 0) go(next); else if (readyToContinue) onNext(); }} />}
       {/* Quick check (PRD 16): confirm the block, don't restart the concept */}
       {qc && (
         <div style={{ background: c.paper, border: `1px solid ${c.border2}`, borderRadius: 14, padding: "18px 20px", marginBottom: 18 }}>

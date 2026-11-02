@@ -36,14 +36,22 @@ export interface BlockProgress {
 export function learningContent(block: KnowledgeBlock, progress?: BlockProgress): BlockContent {
   const base = block.content || {};
   if (!progress?.selectedExample) return base;
-  return { ...base, body: progress.selectedExample.body, quickCheck: progress.selectedExample.quickCheck };
+  return { ...base, body: progress.selectedExample.body, quickCheck: progress.selectedExample.quickCheck, narration: undefined, visualCaption: undefined, interactionPrompt: undefined };
 }
 
 export function suggestedBlock(blocks: KnowledgeBlock[], progress: Record<string, BlockProgress>): number {
-  // Repair an observed weakness before opening new material. Keep authored
-  // order as the tie-breaker, and never route into an unmet prerequisite.
-  const review = blocks.findIndex((b) => b.required && progress[b.id]?.state === "needs_review" && !progress[b.id]?.gaps?.length);
-  if (review >= 0) return review;
-  const next = blocks.findIndex((b) => b.required && !progress[b.id]?.covered && !progress[b.id]?.gaps?.length && progress[b.id]?.response?.status !== "pending");
-  return next < 0 ? 0 : next;
+  return adaptiveBlockSequence(blocks, progress)[0]?.index ?? 0;
+}
+
+/** Adapt only among eligible unfinished required blocks. Authored sequence is
+ * retained for new material; observed difficulty prioritizes reinforcement. */
+export function adaptiveBlockSequence(blocks: KnowledgeBlock[], progress: Record<string, BlockProgress>) {
+  return blocks.flatMap((block, index) => {
+    const p = progress[block.id];
+    if (!block.required || p?.covered || p?.state === "understood" || p?.gaps?.length || p?.response?.status === "pending") return [];
+    const review = p?.state === "needs_review" || p?.response?.status === "needs_revision";
+    const difficulty = Math.min(10, p?.attempts || 0) + Math.min(5, p?.supportRequests || 0);
+    return [{ index, blockId: block.id, priority: review ? 2 : p?.state === "in_progress" ? 1 : 0, difficulty,
+      reason: review ? "Revisit this block using your recent feedback and support." : p?.state === "in_progress" ? "Continue the block you started." : "Build the next part of the concept." }];
+  }).sort((a, b) => b.priority - a.priority || (a.priority === 2 ? b.difficulty - a.difficulty : 0) || a.index - b.index);
 }

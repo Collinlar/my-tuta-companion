@@ -62,3 +62,15 @@ An earlier full component suite passed 68 tests. Subsequent final runs stalled w
 Final focused reruns succeeded: 10 runtime component tests, eight existing block/diagram tests, and eight pure-helper/authoring tests (26 checks across separate runs). The production build passed after the final depth-routing fixes. `git diff --check` passed. A fresh complete-suite result remains unavailable because separate-worker startup timed out; this is distinct from the passing focused results. Live inventory confirms 104/80/80 blocks by depth, 161 competencies and zero published blocks.
 
 Release remains pending human academic approval, completed browser acceptance and frontend deployment. User authorization is for local commits; no public upload, push or deployment is authorized by this handoff.
+
+## Further continuation acceptance
+
+Curriculum authoring, teacher/class competency coverage, adaptive next-block routing and generated narration/diagram-guidance drafts are now implemented. School-level reporting was explicitly deferred by the user. No school directory or school-level access model is part of the final code.
+
+The complete JavaScript suite passed 83 tests in 14 files with `--no-isolate --maxWorkers=1 --testTimeout=15000`. Explicit per-file DOM cleanup resolves the earlier shared-worker test contamination. New coverage includes curriculum provenance, adaptive eligibility/ranking, supported media validation and narration isolation between examples.
+
+Rollback-only database fixtures cover teacher ownership, class filtering, distinct learner denominators, draft alignment visibility, reviewer attribution, failed evidence, pending reviewed responses and media validation. Migrations 0033–0035 add these capabilities without publishing content or assigning real curriculum standards. No actual school records or curriculum alignments were created.
+
+Generated support is a reviewable text/narration and catalogue-diagram draft. New image files and downloadable audio generation are not implemented. Live model output and full authenticated browser acceptance remain unverified. The previously recorded academic approval and release gates still apply.
+
+Final production build and whitespace checks passed. Migrations 0033–0035 are applied, and the final class-scoped rollback assertions passed. Repository-wide TypeScript diagnostics still include the existing legacy errors; the media generator's new argument-type error found during verification was corrected. A completely green repository-wide typecheck is not claimed.

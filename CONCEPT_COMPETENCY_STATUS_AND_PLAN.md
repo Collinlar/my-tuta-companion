@@ -190,3 +190,16 @@ Later PRD expansion remains separate: more concepts, generated audio/visual medi
 Validation: rollback-only runtime and atomic-publication tests passed. An earlier full JavaScript run passed 68 tests; later final runs encountered worker startup stalls and are recorded separately in the release review. Repository-wide TypeScript errors in legacy areas remain a release consideration.
 
 Final focused reruns passed 26 checks across runtime components, existing block/diagram tests and pure authoring/recommendation/audio helpers. The final production build and whitespace checks passed. Live inventory verified the draft counts above and zero published blocks. See the release review for the complete-suite worker timeout and outstanding browser acceptance.
+
+## Further continuation: curriculum, class coverage and media drafts
+
+- Added an Admin → Concept → Curriculum tab with competency alignments, curriculum versions, grade/year, standard codes, descriptions, HTTPS source references and draft/approved status. Approval records reviewer attribution. No unverified curriculum alignments were seeded.
+- Added teacher competency coverage for the selected class or all of the teacher's classes. Counts use current published blocks, latest evidence and review status; duplicate class enrollment is deduplicated. Unrelated classes are rejected server-side.
+- Expanded adaptive next-block navigation to prioritize observed difficulty and revision feedback, resume started work and preserve authored order for new material. Covered blocks, unmet prerequisites, optional blocks and pending responses are excluded from automatic selection.
+- Added generated narration scripts and supported-diagram guidance in the block editor. Generated support resets the editor to draft and requires saving/review. Learner audio uses the narration script, with the original written text as fallback. Alternative examples do not inherit an unrelated narration script.
+- Added server validation for narration, diagram captions and observation prompts. The implementation selects from the supported visual catalogue; generating new raster images or downloadable audio files remains a separate media-provider integration.
+- Per the user's decision, school-level analytics and a school directory are deferred. The temporary empty school schema introduced during exploration was removed; the final implementation stays at teacher/class level.
+
+Migrations 0033 (curriculum mappings), 0034 (class competency analytics) and 0035 (media contract/review attribution) are targeted additions. The full JavaScript suite passed 83 tests across 14 files using one reusable worker after fixing explicit DOM cleanup between files.
+
+Remaining release work: academic approval, authored curriculum mappings against chosen source documents, authenticated student/teacher/admin acceptance and deployment/controlled publication. Additional concept packs and externally generated media assets remain future content/integration work; school analytics remains deferred by request.

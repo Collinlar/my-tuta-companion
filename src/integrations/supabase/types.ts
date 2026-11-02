@@ -846,6 +846,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      teacher_competency_coverage: { Args: { p_class_id?: string | null }; Returns: Json };
+      concept_curriculum_mappings: { Args: { p_concept_id: string }; Returns: Json };
+      admin_save_curriculum_mapping: { Args: { p_mapping: Json }; Returns: string };
+      admin_delete_curriculum_mapping: { Args: { p_id: string }; Returns: undefined };
       provision_starter_data: {
         Args: Record<PropertyKey, never>
         Returns: undefined

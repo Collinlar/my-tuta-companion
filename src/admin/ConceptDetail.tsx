@@ -1,3 +1,4 @@
+import CurriculumMappings from "./CurriculumMappings";
 import BlockAnalytics from "./BlockAnalytics";
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -43,7 +44,7 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
   </div>;
 }
 
-const TABS = ["Overview", "Competencies", "Misconceptions", "Stages", "Graph", "Content", "Examples", "Practice", "Assessment", "Analytics"] as const;
+const TABS = ["Overview", "Competencies", "Curriculum", "Misconceptions", "Stages", "Graph", "Content", "Examples", "Practice", "Assessment", "Analytics"] as const;
 type Tab = typeof TABS[number];
 
 export default function ConceptDetail() {
@@ -343,6 +344,7 @@ export default function ConceptDetail() {
           </div>
         )}
 
+        {activeTab === "Curriculum" && conceptId && <CurriculumMappings conceptId={conceptId} />}
         {activeTab === "Analytics" && conceptId && <BlockAnalytics conceptId={conceptId} />}
         {activeTab === "Analytics" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>

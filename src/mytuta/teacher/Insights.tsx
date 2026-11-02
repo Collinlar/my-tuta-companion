@@ -1,4 +1,5 @@
 import BlockLearningSummary from "./BlockLearningSummary";
+import CompetencyCoverage from "./CompetencyCoverage";
 import BlockReviewQueue from "./BlockReviewQueue";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -53,7 +54,6 @@ export default function Insights() {
   return (
     <div style={pageBox(L.pad, 1020)}>
       <BlockReviewQueue />
-      <BlockLearningSummary classId={selectedClassId} />
       {classes.length > 0 && (
         <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 12.5, fontWeight: 600, color: c.faint }}>Filter by class:</span>
@@ -65,6 +65,8 @@ export default function Insights() {
           {cmLoading && <span style={{ fontSize: 12, color: c.faint }}>Loading...</span>}
         </div>
       )}
+      <BlockLearningSummary classId={selectedClassId} />
+      <CompetencyCoverage classId={selectedClassId} />
       <div style={{ display: "grid", gridTemplateColumns: L.gStats, gap: 12, marginBottom: 26 }}>
         {insightStats.map((s) => (
           <div key={s.label} style={{ background: c.surface, border: `1px solid ${c.border2}`, borderRadius: 14, padding: 17 }}>

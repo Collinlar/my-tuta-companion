@@ -157,6 +157,9 @@ export const FOUNDATION_BLOCK_TEMPLATES: Record<ConceptType, BlockTemplateItem[]
 export interface BlockMode { label: string; text: string }
 export interface BlockQuickCheck { prompt: string; options: string[]; correctIndex: number; explanation: string }
 export interface BlockContent {
+  narration?: string;
+  visualCaption?: string;
+  interactionPrompt?: string;
   body?: string;
   visual?: import("./visuals").BlockVisual;
   competencyKeys?: string[];
