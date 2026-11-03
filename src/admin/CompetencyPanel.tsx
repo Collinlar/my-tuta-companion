@@ -203,8 +203,12 @@ export default function CompetencyPanel({ conceptId, conceptName, subject }: { c
           title={form.id ? "Edit competency" : "New competency"}
           confirmLabel={form.id ? "Save competency" : "Add competency"}
           busy={upsert.isPending}
+          errorNote={upsert.error?.message}
           onClose={() => setForm(null)}
-          onConfirm={(reason) => { void upsert.mutateAsync({ id: form.id, conceptId, depth: form.depth, key: form.key.trim(), description: form.description.trim(), required: form.required, sequence: form.sequence, evidenceType: form.evidenceType || null, reviewStatus: form.reviewStatus, reason }).then(() => setForm(null)); }}
+          onConfirm={(reason) => upsert.mutate(
+            { id: form.id, conceptId, depth: form.depth, key: form.key.trim(), description: form.description.trim(), required: form.required, sequence: form.sequence, evidenceType: form.evidenceType || null, reviewStatus: form.reviewStatus, reason },
+            { onSuccess: () => setForm(null) },
+          )}
           extra={
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               <Field label="Depth">
